@@ -1,0 +1,91 @@
+package com.sarxos.gpwnotifier.examples;
+
+import java.io.File;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import com.sarxos.gpwnotifier.data.QuotesReader;
+import com.sarxos.gpwnotifier.data.QuotesReaderException;
+import com.sarxos.gpwnotifier.data.stoq.StoqReader;
+import com.sarxos.gpwnotifier.entities.Quote;
+import com.sarxos.gpwnotifier.entities.Signal;
+import com.sarxos.gpwnotifier.entities.SignalGenerator;
+import com.sarxos.gpwnotifier.entities.SignalType;
+import com.sarxos.gpwnotifier.generator.Rejczak;
+
+
+public class RejczakExample2 {
+
+	public static void main(String[] args) throws QuotesReaderException {
+		
+		QuotesReader<Quote> reader = new StoqReader<Quote>(Quote.class);
+		List<Quote> data = reader.read(new File("kgh_d.csv").toURI());
+
+		int N = 40;
+		
+		double max_income = 0;
+		double max_a = 0;
+		
+		double chaos = 0.52;
+		
+		//for (double a = -2; a < -1; a += 0.01) {
+
+			SignalGenerator<Quote> rejczak = new Rejczak(chaos);
+	
+			List<Signal> signals = rejczak.generate(data.toArray(new Quote[data.size()]), N);
+	
+			Signal signal = null;
+			Date date = null;
+			SignalType type = null;
+	
+			Iterator<Signal> iterator = signals.iterator();
+	
+			int wallet = 0;
+			double initial = 10000; 
+			double cash = initial;
+			
+			Quote q = null; 
+			
+			while (iterator.hasNext()) {
+				signal = iterator.next();
+				date = signal.getDate();
+				type = signal.getType();
+				q = signal.getQuote();
+	
+				if (signal.getType() == SignalType.SELL) {
+					if (wallet > 0) {
+						double sell = q.getClose() * wallet;
+						cash += sell - sell * 0.0028 - wallet * 0.01;
+						wallet = 0;
+					}
+				} else if (signal.getType() == SignalType.BUY) {
+					if (wallet == 0) {
+						double buy = q.getClose() * 60;
+						cash -= buy - buy * 0.0028 - 60 * 0.01;
+						wallet = 60;
+					}
+				}
+				
+				System.out.println(
+						Quote.DATE_FORMAT.format(date) + " " + 
+						(type == SignalType.BUY ? "B" : "S") + " " + 
+						(int)cash + " " + signal.getLevel());
+			}
+			
+			double sum = data.get(data.size() - 1).getClose() * wallet + cash;
+			double income = sum - initial;
+			
+			if (income > max_income) {
+				max_income = income;
+				max_a = chaos;
+			}
+			
+			System.out.println("=== income: " + (int)income + " coef " + (double)((int)(chaos * 100))/100);
+		//}
+		
+		System.out.println("\n------\nmax income: " + max_income + "\nmax a: " + max_a);
+		
+		
+	}
+}
