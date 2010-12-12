@@ -22,7 +22,7 @@ public class WilliamsOscillatorExample {
 		SignalGenerator<Quote> williams = new WilliamsOscillator(10, 20, 80);
 		QuotesReader<Quote> reader = new StoqReader<Quote>(Quote.class);
 		
-		List<Quote> data = reader.read(new File("kgh_d.csv").toURI());
+		List<Quote> data = reader.read(new File("data/kgh_d.csv").toURI());
 		List<Signal> signals = williams.generate(data.toArray(new Quote[data.size()]), 100);
 		
 		Signal signal = null;

@@ -1,0 +1,54 @@
+package com.sarxos.gpwnotifier.generator;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import com.sarxos.gpwnotifier.entities.Quote;
+import com.sarxos.gpwnotifier.entities.Signal;
+import com.sarxos.gpwnotifier.entities.SignalGenerator;
+import com.sarxos.gpwnotifier.entities.SignalType;
+import com.sarxos.gpwnotifier.math.MA;
+
+
+/**
+ * EMA 3 vs SMA 10 is good for WIG20.  
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
+public class EMA3SMA10 implements SignalGenerator<Quote> {
+
+	@Override
+	public List<Signal> generate(Quote[] data, int range) {
+		
+		List<Signal> signals = new LinkedList<Signal>();
+		
+		Quote[] quotes = new Quote[range];
+		
+		System.arraycopy(data, data.length - range - 1, quotes, 0, range);
+
+		SignalType signal = null;
+		Quote q = null;
+		
+		double[] ema3 = MA.ema(quotes, 3);
+		double[] sma10 = MA.sma(quotes, 10);
+		double delta = 0;
+		
+		for (int i = 0; i < range; i++) {
+			q = quotes[i];
+			delta = ema3[i] - sma10[i]; 
+			if (delta > 0) {
+				if (signal != SignalType.BUY) {
+					signal = SignalType.BUY;
+					signals.add(new Signal(q.getDate(), signal, q, delta));
+				}
+			} else {
+				if (signal != SignalType.SELL) {
+					signal = SignalType.SELL;
+					signals.add(new Signal(q.getDate(), signal, q, delta));
+				}
+			}
+		}
+		
+		return signals;
+	}
+}
