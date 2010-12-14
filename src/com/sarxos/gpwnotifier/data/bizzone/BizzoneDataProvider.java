@@ -32,16 +32,16 @@ public class BizzoneDataProvider implements RealTimeDataProvider {
 			throw new DataProviderException(name + " cannot serve data for symbol " + symbol);
 		}
 		
-		String proxy_host = "destgsblue1.de.alcatel-lucent.com";
-		String proxy_port = "8000";
-		
-		HttpHost proxy = new HttpHost(proxy_host, Integer.parseInt(proxy_port), "http");
-		
-		System.setProperty("http.proxyHost", proxy_host);
-		System.setProperty("http.proxyPort", proxy_port);
-		
+		String proxy_host = (String)System.getProperties().get("http.proxyHost");
+		String proxy_port = (String)System.getProperties().get("http.proxyPort");
+
 		DefaultHttpClient client = new DefaultHttpClient();
-		client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+		
+		if (proxy_host != null && proxy_port != null) {
+			int port = Integer.parseInt(proxy_port);
+			HttpHost proxy = new HttpHost(proxy_host, port, "http");
+			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+		}
 
 		HttpResponse response = null;
 		HttpEntity entity = null;

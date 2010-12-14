@@ -1,0 +1,18 @@
+package com.sarxos.gpwnotifier.observer;
+
+
+/**
+ * Price listener interface.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
+public interface PriceListener {
+
+	/**
+	 * Notified after price change.
+	 * 
+	 * @param event - price event
+	 */
+	public void priceChange(PriceEvent event);
+	
+}
