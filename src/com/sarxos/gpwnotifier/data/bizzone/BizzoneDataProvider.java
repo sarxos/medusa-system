@@ -1,6 +1,13 @@
 package com.sarxos.gpwnotifier.data.bizzone;
 
 import java.io.ByteArrayOutputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +45,8 @@ public class BizzoneDataProvider implements RealTimeDataProvider {
 		DefaultHttpClient client = new DefaultHttpClient();
 		
 		if (proxy_host != null && proxy_port != null) {
+			System.out.println(proxy_host);
+			System.out.println(proxy_port);
 			int port = Integer.parseInt(proxy_port);
 			HttpHost proxy = new HttpHost(proxy_host, port, "http");
 			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
