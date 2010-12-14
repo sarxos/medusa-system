@@ -27,6 +27,13 @@ public class Signal {
 		super();
 	}
 	
+	public Signal(Quote quote, SignalType type) {
+		super();
+		this.quote = quote;
+		this.date = quote.getDate();
+		this.type = type;
+	}	
+	
 	public Signal(Date date, SignalType type) {
 		super();
 		this.date = date;

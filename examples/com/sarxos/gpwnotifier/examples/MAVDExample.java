@@ -13,10 +13,10 @@ import com.sarxos.gpwnotifier.entities.Quote;
 import com.sarxos.gpwnotifier.entities.Signal;
 import com.sarxos.gpwnotifier.entities.SignalGenerator;
 import com.sarxos.gpwnotifier.entities.SignalType;
-import com.sarxos.gpwnotifier.generator.MASD;
+import com.sarxos.gpwnotifier.generator.MAVD;
 
 
-public class MASDExample {
+public class MAVDExample {
 
 	public static void main(String[] args) throws QuotesReaderException {
 		
@@ -25,7 +25,7 @@ public class MASDExample {
 		QuotesReader<Index> reader = new StoqReader<Index>(Index.class);
 		List<Index> data = reader.read(new File("data/bre_d.csv").toURI());
 		
-		SignalGenerator<Quote> gen = new MASD(3, 14, 30);
+		SignalGenerator<Quote> gen = new MAVD(3, 14, 30);
 
 		List<Signal> signals = gen.generate(data.toArray(new Quote[data.size()]), days);
 		

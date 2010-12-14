@@ -30,6 +30,8 @@ public class Quote {
 	@StoqColumn("Low")
 	private double low = 0;
 	
+	private double price = 0;
+	
 	@StoqColumn("Close")
 	private double close = 0;
 	
@@ -204,6 +206,14 @@ public class Quote {
 	@Override
 	public String toString() {
 		return datestring + " " + open + " " + close;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
 	}
 	
 	public static void main(String[] args) throws ParseException {

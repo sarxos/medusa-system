@@ -1,11 +1,21 @@
 package com.sarxos.gpwnotifier.math;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sarxos.gpwnotifier.entities.Quote;
 
 
-// TODO change to iterative equations
 public class MA {
 
+	private static Map<Integer, Double> ema_pows = new HashMap<Integer, Double>();
+
+	
+	public static double sma(Quote data, int N) {
+		Quote[] quotes = new Quote[] {data};
+		return MA.sma(quotes, N)[0];
+	}
+	
 	public static double[] sma(Quote[] data, int N) {
 		
 		if (N <= 0) {
@@ -64,11 +74,16 @@ public class MA {
 		
 		return wma;
 	}
-	
+
+	public static double ema(Quote data, int N) {
+		Quote[] quotes = new Quote[] {data};
+		return MA.ema(quotes, N)[0];
+	}
+
 	public static double[] ema(Quote[] data, int N) {
 		
 		if (N <= 0) {
-			throw new IllegalArgumentException("WMA interval must be positive");
+			throw new IllegalArgumentException("EMA interval must be positive");
 		}
 		
 		double[] ema = new double[data.length];
@@ -76,12 +91,25 @@ public class MA {
 		
 		int i = 0;
 		int j = 0;
-		int k = 0;
+		int u = 0;
 		
+		double k = 0;
 		double a = 2 / (N + 1);
+		double h = 1 - a;
 		double pow = 0;
 		
 		Quote q = null;
+		Integer key = null;
+		Double value = null;
+		
+		do {
+			u = N - j;
+			key = Integer.valueOf(u);
+			if (ema_pows.get(key) == null) {
+				value = Double.valueOf(Math.pow(h, u));
+				ema_pows.put(key, value);
+			}
+		} while (j++ < N - 1);
 		
 		for (i = data.length - 1; i >= 0; i--) {
 			em = 0;
@@ -89,7 +117,8 @@ public class MA {
 			k = 0;
 			q = data[i];
 			do {
-				pow = Math.pow(1 - a, N - j);
+				u = N - j;
+				pow = ema_pows.get(u);
 				em += q.getClose() * pow;
 				k += pow;
 				q = q.prev();
@@ -98,6 +127,11 @@ public class MA {
 		}
 		
 		return ema;
+	}
+	
+	public static double emad(Quote data, int N) {
+		Quote[] quotes = new Quote[] {data};
+		return MA.emad(quotes, N)[0];
 	}
 	
 	/**
