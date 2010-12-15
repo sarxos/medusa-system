@@ -1,13 +1,6 @@
 package com.sarxos.gpwnotifier.data.bizzone;
 
 import java.io.ByteArrayOutputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
