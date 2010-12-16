@@ -14,7 +14,7 @@ import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXResponse;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXSMSGetStatus;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXSMSType;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXSMSSend;
-import com.thoughtworks.xstream.XStream;
+
 
 public class Test {
 
