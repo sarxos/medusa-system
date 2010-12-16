@@ -5,4 +5,5 @@ SmesXSMSSend
 SmesXSMSStatus
 SmesXSMSType
 SmesXExecutionStatus
-SmesXSMSID
+SmesXSMSGetStatus
+SmesXSMS

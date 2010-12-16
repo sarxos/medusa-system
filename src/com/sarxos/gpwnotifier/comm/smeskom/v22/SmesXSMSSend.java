@@ -1,12 +1,13 @@
 package com.sarxos.gpwnotifier.comm.smeskom.v22;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+
+import static com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXEntity.DATE_FORMAT; 
 
 
 /**
@@ -16,8 +17,6 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlRootElement(name = "send_sms")
 public class SmesXSMSSend extends SmesXOperation {
-
-	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
 
 	@XmlElement(name = "msisdn")
 	private String msisdn = null;
@@ -64,7 +63,7 @@ public class SmesXSMSSend extends SmesXOperation {
 	}
 
 	@XmlTransient
-	public Date getExpire() {
+	public Date getExpireDate() {
 		if (expireDate == null && expireString != null) {
 			try {
 				expireDate = DATE_FORMAT.parse(expireString);

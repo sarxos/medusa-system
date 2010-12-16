@@ -11,7 +11,7 @@ public class SmesXResponse extends SmesXEntity {
 	private SmesXExecutionStatus executionStatus = null; 
 	
 	@XmlElement(name = "fail_code")
-	private int failCode = -1;
+	private Integer failCode = null;
 	
 	@XmlElement(name = "fail_description")
 	private String failDescription = null;
@@ -29,11 +29,14 @@ public class SmesXResponse extends SmesXEntity {
 	}
 	
 	public int getFailCode() {
-		return failCode;
+		if (failCode != null) {
+			return failCode.intValue();
+		}
+		return -1;
 	}
 	
 	public void setFailCode(int code) {
-		this.failCode = code;
+		this.failCode = Integer.valueOf(code);
 	}
 	
 	public String getFailDescription() {
