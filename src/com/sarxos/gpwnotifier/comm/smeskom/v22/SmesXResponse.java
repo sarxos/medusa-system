@@ -1,53 +1,39 @@
 package com.sarxos.gpwnotifier.comm.smeskom.v22;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@XStreamAlias("response")
-public class SmesXResponse {
 
-	/**
-	 * Protocol version.
-	 */
-	@XStreamAlias("version")
-	@XStreamAsAttribute
-	public static final String VERSION = "2.2";
+@XmlRootElement(name = "response")
+public class SmesXResponse extends SmesXEntity {
+
+	@XmlElement(name = "execution_status")
+	private SmesXExecutionStatus executionStatus = null; 
 	
-	/**
-	 * Protocol name.
-	 */
-	@XStreamAlias("protocol")
-	@XStreamAsAttribute
-	public static final String PROTOCOL = "SmesX";
+	@XmlElement(name = "fail_code")
+	private int failCode = -1;
 	
-	private ExecutionStatus executionStatus = null; 
-	
-	private Integer failCode = null;
-	
+	@XmlElement(name = "fail_description")
 	private String failDescription = null;
 
 	
 	public SmesXResponse() {
 	}
 	
-	public ExecutionStatus getExecutionStatus() {
+	public SmesXExecutionStatus getExecutionStatus() {
 		return executionStatus;
 	}
 	
-	public void setExecutionStatus(ExecutionStatus executionStatus) {
+	public void setExecutionStatus(SmesXExecutionStatus executionStatus) {
 		this.executionStatus = executionStatus;
 	}
 	
 	public int getFailCode() {
-		if (failCode == null) {
-			return -1;
-		} else {
-			return failCode.intValue();
-		}
+		return failCode;
 	}
 	
 	public void setFailCode(int code) {
-		this.failCode = Integer.valueOf(code);
+		this.failCode = code;
 	}
 	
 	public String getFailDescription() {

@@ -1,7 +1,10 @@
 package com.sarxos.gpwnotifier.comm.smeskom.v22;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 
 
 /**
@@ -10,38 +13,25 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
  * @author Bartosz Firyn (SarXos)
  * @see http://www.smeskom.pl/documents/SmesX_v2.2.pdf
  */
-@XStreamAlias("request")
-public class SmesXRequest {
+@XmlRootElement(name = "request")
+public class SmesXRequest extends SmesXEntity {
 
-	/**
-	 * Protocol version.
-	 */
-	@XStreamAlias("version")
-	@XStreamAsAttribute
-	public static final String VERSION = "2.2";
-	
-	/**
-	 * Protocol name.
-	 */
-	@XStreamAlias("protocol")
-	@XStreamAsAttribute
-	public static final String PROTOCOL = "SmesX";
-	
 	/**
 	 * SmesX user's name.
 	 */
-	@XStreamAlias("user")
-	@XStreamAsAttribute
+	@XmlAttribute(name = "user")
 	private String user = null;
 
 	/**
 	 * SmesX user's password.
 	 */
-	@XStreamAlias("password")
-	@XStreamAsAttribute
+	@XmlAttribute(name = "password")
 	private String password = null;
 
+	@XmlElementRef
+	private SmesXOperation operation = null;
 	
+
 	/**
 	 * Create SmesX request.
 	 */
@@ -51,6 +41,7 @@ public class SmesXRequest {
 	/**
 	 * @return Return SmesX user's name.
 	 */
+	@XmlTransient
 	public String getUser() {
 		return user;
 	}
@@ -59,11 +50,21 @@ public class SmesXRequest {
 		this.user = user;
 	}
 
+	@XmlTransient
 	public String getPassword() {
 		return password;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	@XmlTransient
+	public SmesXOperation getOperation() {
+		return operation;
+	}
+
+	public void setOperation(SmesXOperation operation) {
+		this.operation = operation;
 	}
 }
