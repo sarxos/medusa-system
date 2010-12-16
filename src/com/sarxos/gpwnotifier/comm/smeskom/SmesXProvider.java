@@ -3,9 +3,17 @@ package com.sarxos.gpwnotifier.comm.smeskom;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -15,11 +23,21 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpParams;
 
 import com.sarxos.gpwnotifier.comm.Message;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXRequest;
@@ -27,6 +45,11 @@ import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXResponse;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXSMSSend;
 
 
+/**
+ * 
+ * @see http://www.howardism.org/Technical/Java/SelfSignedCerts.html
+ * @author Bartosz Firyn (SarXos)
+ */
 public class SmesXProvider {
 
 	public static final String DEFAULT_ENDPOINT = "smesx1.smeskom.pl"; 
@@ -76,14 +99,50 @@ public class SmesXProvider {
 
 		client = new DefaultHttpClient();
 
+		ClientConnectionManager ccm = null;
+		
+		try { 
+			X509TrustManager trustManager = new X509TrustManager() { 
+				public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {} 
+				public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {} 
+				public X509Certificate[] getAcceptedIssuers() { 
+					return null; 
+				} 
+			}; 
+
+			SSLContext sslcontext = SSLContext.getInstance("SSL"); 
+			sslcontext.init(null, new TrustManager[] {trustManager}, null); 
+
+			// Use the above SSLContext to create your socket factory 
+			// (I found trying to extend the factory a bit difficult due to a 
+			// call to createSocket with no arguments, a method which doesn't 
+			// exist anywhere I can find, but hey-ho). 
+			SSLSocketFactory sf = new SSLSocketFactory(sslcontext); 
+			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER); 
+
+			// If you want a thread safe client, use the ThreadSafeConManager, but 
+			// otherwise just grab the one from the current client, and get hold of its 
+			// schema registry. THIS IS THE KEY THING. 
+			ccm = client.getConnectionManager();
+			SchemeRegistry schemeRegistry = ccm.getSchemeRegistry(); 
+
+			// Register our new socket factory with the typical SSL port and the 
+			// correct protocol name. 
+			schemeRegistry.register(new Scheme("https", sf, port));
+			
+		} catch (Exception e) {
+        	e.printStackTrace();
+        }
+
+		client = new DefaultHttpClient(ccm, client.getParams());
+
 		if (phost != null && pport != null) {
 			
 			System.out.println(phost);
 			System.out.println(pport);
 			
 			HttpHost proxy = new HttpHost(phost, Integer.parseInt(pport), "http");
-			client.getParams().setParameter(
-					ConnRoutePNames.DEFAULT_PROXY, proxy);
+			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}
 		
 		
@@ -92,38 +151,44 @@ public class SmesXProvider {
 	
 	protected SmesXResponse execute(SmesXRequest request) {
 
-		byte[] bytes = marshall(request);
-		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		InputStreamEntity ise = new InputStreamEntity(bais, bytes.length);
-		
 		String url = "https://" + endpoint + ":" + port + "/smesx"; 
 		
+		byte[] bytes = marshall(request);
+		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+		String xml = new String(bytes);
+		
 		System.out.println("endpoint: " + url);
-		
-		HttpPost post = new HttpPost(url);
-		post.setHeader("User-Agent", userAgent);
-		post.setHeader("Content-Type", "application/xml");
-		post.setEntity(ise);
-		post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
-		System.out.println(new String(bytes));
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-		String xml = null; 
+		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		nvps.add(new BasicNameValuePair("xml", xml));
 		
 		try {
-			HttpResponse response = client.execute(post);;
+			UrlEncodedFormEntity entity = new UrlEncodedFormEntity(nvps);
+			
+			HttpPost post = new HttpPost(url);
+			post.setHeader("User-Agent", userAgent);
+			post.setHeader("Content-Type", "application/xml");
+			post.setEntity(entity);
+			post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			
+			entity.writeTo(baos);
+			
+	
+			xml = null; 
+		
+			HttpResponse response = client.execute(post);
 			
 			Header[] headers = response.getAllHeaders();
 			for (int i = 0; i < headers.length; i++) {
 				System.out.println(headers[i]);
 			}
 			
-			HttpEntity entity = response.getEntity();
+			HttpEntity rentity = response.getEntity();
 			
-			entity.writeTo(baos);
-			entity.consumeContent();
+			rentity.writeTo(baos);
+			rentity.consumeContent();
 			
 			xml = new String(baos.toByteArray());
 			
