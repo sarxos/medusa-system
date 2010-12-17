@@ -84,6 +84,11 @@ public class ATR {
 		return atr;
 	}
 	
+	public static double atr(Quote q, int P) {
+		Quote[] quotes = new Quote[] {q};
+		return atr(quotes, P)[0];
+	}
+	
 	/**
 	 * Generate ATR vector for 14-days period. 14-days period was originally
 	 * used by ATR developer J. Welles Wilder. 
