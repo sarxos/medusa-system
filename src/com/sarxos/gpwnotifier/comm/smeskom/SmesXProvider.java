@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -167,7 +168,7 @@ public class SmesXProvider {
 			
 			HttpPost post = new HttpPost(url);
 			post.setHeader("User-Agent", userAgent);
-			post.setHeader("Content-Type", "application/xml");
+			post.setHeader("Content-Type", "application/x-www-form-urlencoded");
 			post.setEntity(entity);
 			post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
@@ -175,7 +176,10 @@ public class SmesXProvider {
 			
 			entity.writeTo(baos);
 			
+			System.out.println("Request:\n" + URLDecoder.decode(new String(baos.toByteArray()), "UTF-8"));
 	
+			baos.reset();
+			
 			xml = null; 
 		
 			HttpResponse response = client.execute(post);
@@ -190,7 +194,10 @@ public class SmesXProvider {
 			rentity.writeTo(baos);
 			rentity.consumeContent();
 			
+			System.out.println("Response:");
 			xml = new String(baos.toByteArray());
+			
+			System.out.println(URLDecoder.decode(xml, "UTF-8"));
 			
 			baos.reset();
 			
@@ -198,7 +205,7 @@ public class SmesXProvider {
 			e.printStackTrace();
 		}
 
-		System.out.println(xml);
+		//System.out.println(xml);
 		
 		return null;
 	}
