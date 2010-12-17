@@ -7,12 +7,14 @@ public class Message {
 	
 	public String message = null;
 	
+	public String code = null;
+	
 	public Message() {
 	}
 	
-	public Message(String recipient, String message) {
+	public Message(String recipient, String body, String code) {
 		this.recipient = recipient;
-		this.message = message;
+		this.message = code + ": " + body;
 	}
 
 	public String getRecipient() {

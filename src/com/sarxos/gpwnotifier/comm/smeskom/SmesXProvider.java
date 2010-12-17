@@ -2,19 +2,12 @@ package com.sarxos.gpwnotifier.comm.smeskom;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -26,24 +19,21 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpParams;
 
 import com.sarxos.gpwnotifier.comm.Message;
+import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXExecutionStatus;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXRequest;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXResponse;
 import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXSMSSend;
+import com.sarxos.gpwnotifier.http.HTTPClient;
+import com.sarxos.gpwnotifier.http.NaiveSSLFactory;
 
 
 /**
@@ -53,26 +43,57 @@ import com.sarxos.gpwnotifier.comm.smeskom.v22.SmesXSMSSend;
  */
 public class SmesXProvider {
 
+	/**
+	 * Default SmesX endpoint.
+	 */
 	public static final String DEFAULT_ENDPOINT = "smesx1.smeskom.pl"; 
 
+	/**
+	 * Default SmesX port.
+	 */
 	public static final int DEFAULT_PORT = 2200; 
 	
+	/**
+	 * Current SmesX user.
+	 */
 	private String user = null;
 	
+	/**
+	 * Current SmesX password.
+	 */
 	private String password = null;
 	
+	/**
+	 * Current SmesX endpoint.
+	 */
 	private String endpoint = DEFAULT_ENDPOINT;
 	
+	/**
+	 * Current SmesX port.
+	 */
 	private int port = DEFAULT_PORT;
 	
+	/**
+	 * JAXB marshaller used to marshall SmesX entities. 
+	 */
 	private Marshaller marshaller = null;
 	
+	/**
+	 * JAXB unmarshaller used to unmarshall SmesX entities. 
+	 */
 	private Unmarshaller unmarshaller = null;
 	
-	private DefaultHttpClient client = null; 
+	/**
+	 * Apache HTPP client used to send HTTP requests.
+	 */
+	private HTTPClient client = null; 
 	
+	/**
+	 * Default user agent header value.
+	 */
 	private String userAgent = "SarXos GPW Notifier";
 
+	
 	public SmesXProvider(String user, String password) {
 		this(user, password, DEFAULT_ENDPOINT, DEFAULT_PORT);
 	}
@@ -95,117 +116,73 @@ public class SmesXProvider {
 			throw new RuntimeException("Cannot create JAXB context", e);
 		}
 
-		String phost = (String)System.getProperties().get("http.proxyHost");
-		String pport = (String)System.getProperties().get("http.proxyPort");
-
-		client = new DefaultHttpClient();
-
-		ClientConnectionManager ccm = null;
+		client = HTTPClient.getInstance();
 		
-		try { 
-			X509TrustManager trustManager = new X509TrustManager() { 
-				public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {} 
-				public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {} 
-				public X509Certificate[] getAcceptedIssuers() { 
-					return null; 
-				} 
-			}; 
+		// add naive HTTPS schema for port 2200
+		SSLSocketFactory factory = NaiveSSLFactory.createNaiveSSLSocketFactory();
+		ClientConnectionManager manager = client.getConnectionManager();
+		SchemeRegistry registry = manager.getSchemeRegistry();
 
-			SSLContext sslcontext = SSLContext.getInstance("SSL"); 
-			sslcontext.init(null, new TrustManager[] {trustManager}, null); 
-
-			// Use the above SSLContext to create your socket factory 
-			// (I found trying to extend the factory a bit difficult due to a 
-			// call to createSocket with no arguments, a method which doesn't 
-			// exist anywhere I can find, but hey-ho). 
-			SSLSocketFactory sf = new SSLSocketFactory(sslcontext); 
-			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER); 
-
-			// If you want a thread safe client, use the ThreadSafeConManager, but 
-			// otherwise just grab the one from the current client, and get hold of its 
-			// schema registry. THIS IS THE KEY THING. 
-			ccm = client.getConnectionManager();
-			SchemeRegistry schemeRegistry = ccm.getSchemeRegistry(); 
-
-			// Register our new socket factory with the typical SSL port and the 
-			// correct protocol name. 
-			schemeRegistry.register(new Scheme("https", sf, port));
-			
-		} catch (Exception e) {
-        	e.printStackTrace();
-        }
-
-		client = new DefaultHttpClient(ccm, client.getParams());
-
-		if (phost != null && pport != null) {
-			
-			System.out.println(phost);
-			System.out.println(pport);
-			
-			HttpHost proxy = new HttpHost(phost, Integer.parseInt(pport), "http");
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+		// check if schema is already registered
+		Scheme scheme = registry.getScheme(new HttpHost(endpoint, port, "https"));
+		// schema for https port 443 also work fine with port 2200 
+		if (scheme == null) {
+			registry.register(new Scheme("https", factory, 2200));
 		}
-		
-		
-		
 	}
 	
-	protected SmesXResponse execute(SmesXRequest request) {
+	protected SmesXResponse execute(SmesXRequest request) throws SmesXException {
 
-		String url = "https://" + endpoint + ":" + port + "/smesx"; 
 		
 		byte[] bytes = marshall(request);
-		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		String xml = new String(bytes);
-		
-		System.out.println("endpoint: " + url);
 
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-		nvps.add(new BasicNameValuePair("xml", xml));
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
+		Header[] headers = null;
 		
 		try {
+			String xml = new String(bytes);
+			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+			nvps.add(new BasicNameValuePair("xml", xml));
 			UrlEncodedFormEntity entity = new UrlEncodedFormEntity(nvps);
 			
-			HttpPost post = new HttpPost(url);
+			String url = "https://" + endpoint + ":" + port + "/smesx"; 
+			HttpPost post = client.createPost(url);
 			post.setHeader("User-Agent", userAgent);
 			post.setHeader("Content-Type", "application/x-www-form-urlencoded");
 			post.setEntity(entity);
-			post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
-
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			
-			entity.writeTo(baos);
+			// TODO write request xml file
+			//entity.writeTo(baos);
+			//baos.reset();
 			
-			System.out.println("Request:\n" + URLDecoder.decode(new String(baos.toByteArray()), "UTF-8"));
-	
-			baos.reset();
-			
-			xml = null; 
-		
 			HttpResponse response = client.execute(post);
-			
-			Header[] headers = response.getAllHeaders();
-			for (int i = 0; i < headers.length; i++) {
-				System.out.println(headers[i]);
-			}
-			
 			HttpEntity rentity = response.getEntity();
+			
+			headers = response.getAllHeaders();
 			
 			rentity.writeTo(baos);
 			rentity.consumeContent();
-			
-			System.out.println("Response:");
-			xml = new String(baos.toByteArray());
-			
-			System.out.println(URLDecoder.decode(xml, "UTF-8"));
-			
+
+			// TODO write response xml to file 
+			bytes = baos.toByteArray();
 			baos.reset();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		//System.out.println(xml);
+		if (bytes.length == 0) {
+			throw new SmesXException("SmesX response is empty!", headers);
+		}
+		
+		ByteArrayInputStream bais = new ByteArrayInputStream(bytes); 
+		
+		try {
+			return (SmesXResponse) unmarshaller.unmarshal(bais);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
 		
 		return null;
 	}
@@ -226,7 +203,7 @@ public class SmesXProvider {
 		return baos.toByteArray();
 	}
 	
-	public boolean sendSMS(Message msg) {
+	public boolean sendSMS(Message msg) throws SmesXException {
 		
 		String msisdn = msg.getRecipient();
 		String body = msg.getMessage();
@@ -246,13 +223,17 @@ public class SmesXProvider {
 		request.setUser(user);
 		request.setPassword(password);
 		
-		execute(request);
+		SmesXResponse response = execute(request);
 		
-		return true;
+		return response.getExecutionStatus() == SmesXExecutionStatus.SUCCESS;
 	}
 	
 	public static void main(String[] args) {
 		SmesXProvider p = new SmesXProvider("htguser2647", "PQZ5VnBq");
-		p.sendSMS(new Message("+48509934614", "Test A"));
+		try {
+			p.sendSMS(new Message("+48509934614", "Test A", "127856"));
+		} catch (SmesXException e) {
+			e.printStackTrace();
+		}
 	}
 }

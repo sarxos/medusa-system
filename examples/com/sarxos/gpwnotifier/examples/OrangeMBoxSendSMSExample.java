@@ -11,7 +11,7 @@ public class OrangeMBoxSendSMSExample {
 	public static void main(String[] args) {
 		
 		MessageBroker broker = new OrangeSMSBroker("mbox.tn", "mbox.password");
-		Message message = new Message("user.tn", "This is message");
+		Message message = new Message("user.tn", "This is message", "1");
 		try {
 			broker.send(message);
 		} catch (MessagingException e) {
