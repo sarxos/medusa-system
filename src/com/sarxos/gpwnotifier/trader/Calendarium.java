@@ -117,7 +117,7 @@ public class Calendarium {
 		
 		try {
 			while (br.ready()) {
-				line = br. readLine();
+				line = br.readLine();
 				line = line.trim();
 				if (line.length() > 0) {
 					try {
@@ -196,9 +196,7 @@ public class Calendarium {
 		return false;
 	}
 	
-	public static void main(String[] args) {
-		
-		System.out.println(Calendarium.getInstance().isFreeDay("2011-08-13"));
-		
-	}
+//	public static void main(String[] args) {
+//		System.out.println(Calendarium.getInstance().isFreeDay("2011-08-13"));
+//	}
 }
