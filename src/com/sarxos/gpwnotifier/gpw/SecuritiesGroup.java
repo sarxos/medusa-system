@@ -11,90 +11,112 @@ public enum SecuritiesGroup {
 	/**
 	 * Stocks from WIG20 - 1'st group
 	 */
-	C1,
+	WIG20_GROUP_1("C1"),
 	
 	/**
 	 * Stocks from WIG20 - 2'nd group
 	 */
-	C2,
+	WIG20_GROUP_2("C2"),
 	
 	/**
 	 * Remaining stocks from the continuous trading - 1'st group
 	 */
-	C3,
+	REMAINING_GROUP_1("C3"),
 	
 	/**
 	 * Remaining stocks from the continuous trading - 2'nd group
 	 */
-	C4,
+	REMAINING_GROUP_2("C4"),
 	
 	/**
 	 * Stocks from mWIG40 - 1'st group
 	 */
-	C5,
+	MWIG40_GROUP_1("C5"),
 	
 	/**
 	 * Stocks from mWIG40 - 2'nd group
 	 */
-	C6,
+	MWIG40_GROUP_2("C6"),
 	
 	/**
 	 * Stocks from sWIG80 - 1'st group
 	 */
-	C7,
+	SWIG80_GROUP_1("C7"),
 	
 	/**
 	 * Stocks from sWIG80 - 2'nd group
 	 */
-	C8,
+	SWIG80_GROUP_2("C8"),
 	
 	/**
 	 * Rights to shares for companies listed in the continuous system
 	 */
-	C9,
+	SHARE_RIGHTS("C9"),
 	
 	/**
 	 * Treasury bonds
 	 */
-	CO, 
+	TREASURY_BONDS("CO"), 
 	
 	/**
 	 * Investment certificates
 	 */
-	CI,
+	INVESTMENT_CERTS("CI"),
 	
 	/**
-	 * EFK certificates
+	 * ETF certificates
 	 */
-	CE, 
+	ETF_CERTS("CE"), 
 	
 	/**
 	 * Structured certificates - quoted in the currency
 	 */
-	CV,
+	STRUCTURED_CERTS("CV"),
 	
 	/**
 	 * Futures contracts on indexes
 	 */
-	CF, 
+	FUTURES_INDEXES("CF"), 
 	
 	/**
 	 * Futures contracts on exchange rates (currency)
 	 */
-	CC, 
+	FUTURES_CURRENCY("CC"), 
 	
 	/**
 	 * Futures contracts on stock prices
 	 */
-	CA,
+	FUTURES_QUOTES("CA"),
 	
 	/**
 	 * Option contracts of MiniWig type
 	 */
-	CM, 
+	OPTIONS_MINIWIG("CM"), 
 	
 	/**
 	 * Option contracts on the indexes
 	 */
-	CY; 
+	OPTIONS_INDEXES("CY");
+	
+	
+	/**
+	 * Group name.
+	 */
+	private String name = null;
+	
+	/**
+	 * Securities group.
+	 * 
+	 * @param name
+	 */
+	private SecuritiesGroup(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return Name of the securities group.
+	 */
+	public String getName() {
+		return name;
+	}
 }

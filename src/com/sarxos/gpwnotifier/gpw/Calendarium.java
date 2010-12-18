@@ -218,4 +218,121 @@ public class Calendarium {
 	public boolean isWorkingDay(Date date) {
 		return !isFreeDay(date);
 	}
+	
+	public SessionPhase getSessionPhase(Date date, Paper paper) {
+		
+		if (date == null) {
+			throw new IllegalArgumentException("date cannot be null");
+		}
+		if (paper == null) {
+			throw new IllegalArgumentException("Paper cannot be null");
+		}
+		
+		SecuritiesGroup group = paper.getGroup();
+
+		synchronized (this) {
+
+			calendar.setTime(date);
+			
+			Date before_open = null;
+			Date open = null;
+			Date fixing = null;
+			Date play_off = null;
+			Date close = null;
+
+			calendar.set(Calendar.HOUR_OF_DAY, 8);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
+			calendar.set(Calendar.MINUTE, 0);
+
+			before_open = calendar.getTime();
+			
+			switch (group) {
+				case FUTURES_INDEXES:
+				case FUTURES_QUOTES:
+				case FUTURES_CURRENCY:
+				case OPTIONS_INDEXES:
+				case OPTIONS_MINIWIG:
+					calendar.set(Calendar.MINUTE, 30);
+					open = calendar.getTime();
+					break;
+					
+				default:
+					calendar.set(Calendar.HOUR_OF_DAY, 9);
+					open = calendar.getTime();
+					break;
+			}
+
+			calendar.set(Calendar.HOUR_OF_DAY, 16);
+			
+			switch (group) {
+				case TREASURY_BONDS:
+					calendar.set(Calendar.MINUTE, 20);
+					fixing = calendar.getTime();
+					break;
+					
+				default:
+					calendar.set(Calendar.MINUTE, 10);
+					fixing = calendar.getTime();
+					break;
+			}
+			
+			switch (group) {
+				case TREASURY_BONDS:
+					calendar.set(Calendar.MINUTE, 30);
+					play_off = calendar.getTime();
+					close = calendar.getTime();
+					break;
+					
+				default:
+					calendar.set(Calendar.MINUTE, 20);
+					play_off = calendar.getTime();
+					break;
+			}
+
+			switch (group) {
+				case TREASURY_BONDS:
+					// treasury bonds session is already closed
+					break;
+					
+				default:
+					calendar.set(Calendar.MINUTE, 30);
+					close = calendar.getTime();
+					break;
+			}
+			
+			calendar.setTime(date);
+			
+			if (calendar.before(before_open)) {
+				return SessionPhase.CLOSED;
+			} else if (calendar.after(before_open) && calendar.before(open)) {
+				return SessionPhase.BEFORE_OPEN;
+			} else if (calendar.after(open) && calendar.before(fixing)) {
+				return SessionPhase.SESSION;
+			} else if (calendar.after(fixing) && calendar.before(play_off)) {
+				return SessionPhase.FIXING;
+			} else if (calendar.after(play_off) && calendar.before(close)) {
+				return SessionPhase.PLAY_OFF;
+			} else if (calendar.after(close)) {
+				return SessionPhase.CLOSED; 
+			}
+		}
+		
+		return SessionPhase.CLOSED;
+	}
+	
+	public boolean isSessionInProgress(Date date, Paper paper) {
+		SessionPhase phase = getSessionPhase(date, paper);
+		switch (phase) {
+			case BEFORE_OPEN:
+			case SESSION:
+			case PLAY_OFF:
+				return true;
+				
+			case FIXING:
+			case CLOSED:
+			default:
+				return false;
+		}
+	}
 }

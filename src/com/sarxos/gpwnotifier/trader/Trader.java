@@ -2,6 +2,7 @@ package com.sarxos.gpwnotifier.trader;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,9 @@ public class Trader extends Thread implements PriceListener {
 		boolean working = false;
 		boolean session = false;
 		
+		Paper paper = null;
+		
+		
 		do {
 			
 			try {
@@ -57,13 +61,32 @@ public class Trader extends Thread implements PriceListener {
 			
 			now = new Date();
 			working = calendarium.isWorkingDay(now);
-			session = true; // check if session in progress
 			
-			// if stock exchange is open and session in progress
-			if (working && session) {
-				// resume observers if paused
-			} else {
-				// pause observers if running
+			if (working) {
+
+				List<Paper> papers = wallet.getPapers();
+				Iterator<Paper> pi = papers.iterator();
+				paper = null;
+				
+				while (pi.hasNext()) {
+					
+					paper = pi.next();
+					observer = observers.get(paper.getSymbol());
+					
+					if (observer == null) {
+						throw new RuntimeException("Find null observer for paper " + paper.getSymbol());
+					}
+					
+					session = calendarium.isSessionInProgress(now, paper);
+				}
+
+				// if stock exchange is open and session in progress
+				if (session) {
+					// resume observers if paused
+				} else {
+					// pause observers if running
+				}
+				
 			}
 			
 		} while(true);

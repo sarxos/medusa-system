@@ -27,6 +27,19 @@ public class Paper implements Cloneable {
 	 */
 	private int desiredQuantity = 0;
 
+	/**
+	 * Securities group.
+	 */
+	private SecuritiesGroup group = null;
+
+	// TODO read from file
+	private String[] indexes = new String[] {"FW20", "FW40"};
+	private String[] quotes = new String[] {"FACP", "FKGH", "FPEO", "FPGE", "FPGN", "FPKN", "FPKO", "FPZU", "FTPS"};
+	private String[] currency = new String[] {"FACP", "FEUR", "FUSD"};
+	private String[] options = new String[] {"OW20"};
+	private String[] miniwig = new String[] {"MW20"};
+	private String[] etf = new String[] {"ETFW"};
+	private String[] treasury = new String[] {"DS20", "DZ08"}; // and more
 	
 	/**
 	 * Paper to be stored inside wallet. Constructor.
@@ -68,6 +81,7 @@ public class Paper implements Cloneable {
 			throw new IllegalArgumentException("Symbol cannot be null");
 		}
 		this.symbol = symbol;
+		this.fixGroup(symbol);
 	}
 
 	/**
@@ -115,5 +129,52 @@ public class Paper implements Cloneable {
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	protected void fixGroup(Symbol symbol) {
+		
+		String sm = symbol.toString(); 
+		
+		if (inGroup(sm, indexes)) {
+			group = SecuritiesGroup.FUTURES_INDEXES;
+		} else if (inGroup(sm, quotes)) {
+			group = SecuritiesGroup.FUTURES_QUOTES;
+		} else if (inGroup(sm, currency)) {
+			group = SecuritiesGroup.FUTURES_CURRENCY;
+		} else if (inGroup(sm, options)) {
+			group = SecuritiesGroup.OPTIONS_INDEXES;
+		} else if (inGroup(sm, miniwig)) {
+			group = SecuritiesGroup.OPTIONS_MINIWIG;
+		} else if (inGroup(sm, etf)) {
+			group = SecuritiesGroup.ETF_CERTS;
+		} else if (inGroup(sm, treasury)) {
+			group = SecuritiesGroup.TREASURY_BONDS;
+		} else {
+			// TODO change this to correct group
+			group = SecuritiesGroup.WIG20_GROUP_1;
+		}
+	}
+
+	/**
+	 * @param sm - symbol string to check
+	 * @param arr - array of prefixes 
+	 * @return true / false
+	 */
+	protected boolean inGroup(String sm, String[] arr) {
+		boolean ok = false;
+		for (int i = 0; i < arr.length; i++) {
+			ok = sm.startsWith(arr[i]);
+			if (ok) {
+				break;
+			}
+		}
+		return ok;
+	}
+
+	/**
+	 * @return Securities group.
+	 */
+	public SecuritiesGroup getGroup() {
+		return group;
 	}
 }
