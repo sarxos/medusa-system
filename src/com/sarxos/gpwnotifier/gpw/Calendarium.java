@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.trader;
+package com.sarxos.gpwnotifier.gpw;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -157,13 +157,25 @@ public class Calendarium {
 			throw new RuntimeException("Wrong date format '" + date + "'", e);
 		}
 	}
+
+	
+	/**
+	 * Check whether or not given day is a working day (simply
+	 * check if given day is not a free day).
+	 * 
+	 * @param date - date to check (format yyyy-MM-dd)
+	 * @return true if day is working, false otherwise
+	 * @throws RuntimeException if data format is incorrect 
+	 */
+	public boolean isWorkingDay(String date) {
+		return !isFreeDay(date);
+	}
 	
 	/**
 	 * Check whether or not given date string is free day.
 	 *   
-	 * @param date - date to check (yyyy-MM-dd)
+	 * @param date - date to check
 	 * @return true if days is free, false otherwise
-	 * @throws RuntimeException if data format is incorrect 
 	 */
 	public synchronized boolean isFreeDay(Date date) {
 		
@@ -195,8 +207,15 @@ public class Calendarium {
 		
 		return false;
 	}
-	
-//	public static void main(String[] args) {
-//		System.out.println(Calendarium.getInstance().isFreeDay("2011-08-13"));
-//	}
+
+	/**
+	 * Check whether or not given day is a working day (simply
+	 * check if given day is not a free day).
+	 * 
+	 * @param date - date to check
+	 * @return true if day is working, false otherwise
+	 */
+	public boolean isWorkingDay(Date date) {
+		return !isFreeDay(date);
+	}
 }

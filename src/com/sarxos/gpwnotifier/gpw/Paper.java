@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.trader;
+package com.sarxos.gpwnotifier.gpw;
 
 import com.sarxos.gpwnotifier.entities.Symbol;
 
@@ -46,9 +46,9 @@ public class Paper implements Cloneable {
 	 */
 	public Paper(Symbol symbol, int desired, int quantity) {
 		super();
-		this.symbol = symbol;
-		this.desiredQuantity = desired;
-		this.quantity = quantity;
+		this.setSymbol(symbol);
+		this.setDesiredQuantity(desired);
+		this.setQuantity(quantity);
 	}
 	
 	/**
@@ -64,6 +64,9 @@ public class Paper implements Cloneable {
 	 * @param symbol - symbol to set
 	 */
 	public void setSymbol(Symbol symbol) {
+		if (symbol == null) {
+			throw new IllegalArgumentException("Symbol cannot be null");
+		}
 		this.symbol = symbol;
 	}
 
@@ -80,6 +83,9 @@ public class Paper implements Cloneable {
 	 * @param quantity - new quantity.
 	 */
 	public void setQuantity(int quantity) {
+		if (quantity < 0) {
+			throw new IllegalArgumentException("Paper quantity cannot be negative!");
+		}
 		this.quantity = quantity;
 	}
 
@@ -96,6 +102,9 @@ public class Paper implements Cloneable {
 	 * @param desired
 	 */
 	public void setDesiredQuantity(int desired) {
+		if (desired < 0) {
+			throw new IllegalArgumentException("Desired paper quantity must be positive");
+		}
 		this.desiredQuantity = desired;
 	}
 	

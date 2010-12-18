@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.sarxos.gpwnotifier.entities.Symbol;
+import com.sarxos.gpwnotifier.gpw.Paper;
 
 
 /**
@@ -125,6 +126,10 @@ public class Wallet {
 	 * @return Return paper with given symbol or null if paper doses not exist
 	 */
 	public Paper getPaper(Symbol symbol) {
+
+		if (symbol == null) {
+			throw new IllegalArgumentException("Paper symbol cannot be null");
+		}
 		
 		ListIterator<Paper> pi = papers.listIterator();
 		Paper p = null;
@@ -139,13 +144,17 @@ public class Wallet {
 		return null;
 	}
 	
-//	public static void main(String[] args) {
-//		Wallet w = Wallet.getInstance();
-//		Paper p = new Paper(Symbol.WIG20, 60, 60);
-////		System.out.println(w.add(p));
-////		System.out.println(w.add(p));
-////		System.out.println(w.remove(p));
-////		System.out.println(w.remove(p));
-//		System.out.println(w.remove(p));
-//	}
+	/**
+	 * @param paper - paper to find (on the symbol base)
+	 * @return Return paper with given symbol or null if paper doses not exist
+	 * @see Wallet#getPaper(Symbol)
+	 */
+	public Paper getPaper(Paper paper) {
+		
+		if (paper == null) {
+			throw new IllegalArgumentException("Paper cannot be null");
+		}
+		
+		return getPaper(paper.getSymbol());
+	}
 }

@@ -176,11 +176,6 @@ public class Observer implements Runnable {
 		}
 		state = State.RUNNIG;
 		runner.start();
-		try {
-			runner.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	/**
