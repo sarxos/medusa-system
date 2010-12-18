@@ -1,6 +1,7 @@
 package com.sarxos.gpwnotifier.trader;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,45 +15,90 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class FreeDaysResolver {
+/**
+ * This class is used to check if given day is a free day.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
+public class Calendarium {
 
-	public static class FreeDaysUpdater extends Thread {
+	/**
+	 * This class is used only inside {@link Calendarium} class
+	 * code. 
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
+	protected static class FreeDaysUpdater extends Thread {
 
+		private long modified = 0; 
+		
 		public FreeDaysUpdater() {
 			setDaemon(true);
 		}
 		
 		@Override
 		public void run() {
+			long modified = 0;
 			while (true) {
 				try {
-					// 1h delay
-					Thread.sleep(1000 * 60 * 60);
+					// 1 minute delay
+					Thread.sleep(1000 * 60);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				FreeDaysResolver.getInstance().updateFileDefinition();
+				modified = new File(FILE_LOCATION).lastModified();
+				if (this.modified != modified) {
+					Calendarium.getInstance().updateFileDefinition();
+					this.modified = modified;
+				}
 			}
 		}
 	}
 	
+	/**
+	 * Date format used to store free day dates.
+	 */
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	
+	/**
+	 * Free days file location.
+	 */
 	public static final String FILE_LOCATION = "data/free.days";
 	
+	/**
+	 * List of free dates.
+	 */
 	private List<Date> free = new ArrayList<Date>();
 
+	/**
+	 * Calendar object used to compare dates.
+	 */
 	private Calendar calendar = Calendar.getInstance(); 
 	
-	private static FreeDaysResolver instance = new FreeDaysResolver();
+	/**
+	 * Singleton instance.
+	 */
+	private static Calendarium instance = new Calendarium();
 	
+	/**
+	 * Free days file updater.
+	 */
 	private FreeDaysUpdater updater = new FreeDaysUpdater();
 	
-	public FreeDaysResolver() {
+	
+	/**
+	 * Private constructor.
+	 */
+	private Calendarium() {
 		updateFileDefinition();
 		updater.start();
 	}
 
+	/**
+	 * Update file with free dates.
+	 * 
+	 * @throws RuntimeException when data format in file is incorrect or cannot read file
+	 */
 	protected void updateFileDefinition() {
 		FileInputStream fis = null;
 		
@@ -71,7 +117,7 @@ public class FreeDaysResolver {
 		
 		try {
 			while (br.ready()) {
-				line = br.readLine();
+				line = br. readLine();
 				line = line.trim();
 				if (line.length() > 0) {
 					try {
@@ -90,10 +136,20 @@ public class FreeDaysResolver {
 		}
 	}
 	
-	public static FreeDaysResolver getInstance() {
+	/**
+	 * @return Singleton instance.
+	 */
+	public static Calendarium getInstance() {
 		return instance;
 	}
 	
+	/**
+	 * Check whether or not given date string is free day.
+	 *   
+	 * @param date - date string to check (yyyy-MM-dd)
+	 * @return true if days is free, false otherwise
+	 * @throws RuntimeException if data format is incorrect 
+	 */
 	public boolean isFreeDay(String date) {
 		try {
 			return isFreeDay(DATE_FORMAT.parse(date));
@@ -102,6 +158,13 @@ public class FreeDaysResolver {
 		}
 	}
 	
+	/**
+	 * Check whether or not given date string is free day.
+	 *   
+	 * @param date - date to check (yyyy-MM-dd)
+	 * @return true if days is free, false otherwise
+	 * @throws RuntimeException if data format is incorrect 
+	 */
 	public synchronized boolean isFreeDay(Date date) {
 		
 		calendar.setTime(date);
@@ -133,11 +196,9 @@ public class FreeDaysResolver {
 		return false;
 	}
 	
-	
-	
 	public static void main(String[] args) {
 		
-		System.out.println(FreeDaysResolver.getInstance().isFreeDay("2011-08-12"));
+		System.out.println(Calendarium.getInstance().isFreeDay("2011-08-13"));
 		
 	}
 }

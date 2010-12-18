@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.observer;
+package com.sarxos.gpwnotifier.trader;
 
 import java.util.EventObject;
 

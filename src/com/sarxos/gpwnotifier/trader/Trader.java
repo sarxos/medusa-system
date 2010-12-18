@@ -1,11 +1,22 @@
 package com.sarxos.gpwnotifier.trader;
 
-import com.sarxos.gpwnotifier.observer.Observer;
 
-public class Trader {
+
+public class Trader extends Thread {
 
 	private Observer observer = null;
 	
+	private Calendarium calendarium = Calendarium.getInstance(); 
 	
-	
+	@Override
+	public void run() {
+		
+		super.run();
+		
+		do {
+			
+			// trade
+			
+		} while(true);
+	}
 }
