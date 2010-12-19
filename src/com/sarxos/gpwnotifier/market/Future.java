@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.entities;
+package com.sarxos.gpwnotifier.market;
 
 import com.sarxos.gpwnotifier.data.stoq.StoqColumn;
 

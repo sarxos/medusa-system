@@ -6,7 +6,7 @@ import java.util.ListIterator;
 
 import com.sarxos.gpwnotifier.data.DataProviderException;
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
-import com.sarxos.gpwnotifier.entities.Symbol;
+import com.sarxos.gpwnotifier.market.Symbol;
 
 /**
  * Stock symbol observer. Default price check interval is 30s.

@@ -3,7 +3,7 @@ package com.sarxos.gpwnotifier.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sarxos.gpwnotifier.entities.Quote;
+import com.sarxos.gpwnotifier.market.Quote;
 
 
 public class MA {

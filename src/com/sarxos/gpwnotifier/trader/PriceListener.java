@@ -13,6 +13,6 @@ public interface PriceListener {
 	 * 
 	 * @param event - price event
 	 */
-	public void priceChange(PriceEvent event);
+	public void priceChange(PriceEvent pe);
 	
 }

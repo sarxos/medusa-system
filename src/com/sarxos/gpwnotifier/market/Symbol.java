@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.entities;
+package com.sarxos.gpwnotifier.market;
 
 
 public enum Symbol {
@@ -38,5 +38,12 @@ public enum Symbol {
 	/**
 	 * JP
 	 */
-	NIKKEI;
+	NIKKEI,
+	
+	// quotes
+	
+	/**
+	 * KGHM
+	 */
+	KGH;
 }

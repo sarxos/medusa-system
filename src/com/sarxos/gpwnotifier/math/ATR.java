@@ -1,6 +1,6 @@
 package com.sarxos.gpwnotifier.math;
 
-import com.sarxos.gpwnotifier.entities.Quote;
+import com.sarxos.gpwnotifier.market.Quote;
 
 
 public class ATR {

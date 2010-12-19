@@ -1,6 +1,6 @@
 package com.sarxos.gpwnotifier.data;
 
-import com.sarxos.gpwnotifier.entities.Symbol;
+import com.sarxos.gpwnotifier.market.Symbol;
 
 
 public interface RealTimeDataProvider {

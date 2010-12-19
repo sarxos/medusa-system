@@ -1,6 +1,5 @@
-package com.sarxos.gpwnotifier.gpw;
+package com.sarxos.gpwnotifier.market;
 
-import com.sarxos.gpwnotifier.entities.Symbol;
 
 
 /**

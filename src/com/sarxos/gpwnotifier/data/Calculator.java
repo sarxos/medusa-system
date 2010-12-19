@@ -2,9 +2,9 @@ package com.sarxos.gpwnotifier.data;
 
 import java.util.List;
 
-import com.sarxos.gpwnotifier.entities.Quote;
-import com.sarxos.gpwnotifier.entities.Signal;
-import com.sarxos.gpwnotifier.entities.SignalGenerator;
+import com.sarxos.gpwnotifier.market.Quote;
+import com.sarxos.gpwnotifier.market.Signal;
+import com.sarxos.gpwnotifier.market.SignalGenerator;
 
 
 

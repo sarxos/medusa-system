@@ -8,12 +8,12 @@ import java.util.List;
 import com.sarxos.gpwnotifier.data.QuotesReader;
 import com.sarxos.gpwnotifier.data.QuotesReaderException;
 import com.sarxos.gpwnotifier.data.stoq.StoqReader;
-import com.sarxos.gpwnotifier.entities.Index;
-import com.sarxos.gpwnotifier.entities.Quote;
-import com.sarxos.gpwnotifier.entities.Signal;
-import com.sarxos.gpwnotifier.entities.SignalGenerator;
-import com.sarxos.gpwnotifier.entities.SignalType;
 import com.sarxos.gpwnotifier.generator.MAVD;
+import com.sarxos.gpwnotifier.market.Index;
+import com.sarxos.gpwnotifier.market.Quote;
+import com.sarxos.gpwnotifier.market.Signal;
+import com.sarxos.gpwnotifier.market.SignalGenerator;
+import com.sarxos.gpwnotifier.market.SignalType;
 
 
 public class MAVDExample {

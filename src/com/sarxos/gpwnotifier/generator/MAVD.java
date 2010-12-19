@@ -3,16 +3,16 @@ package com.sarxos.gpwnotifier.generator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.sarxos.gpwnotifier.entities.Quote;
-import com.sarxos.gpwnotifier.entities.Signal;
-import com.sarxos.gpwnotifier.entities.SignalGenerator;
-import com.sarxos.gpwnotifier.entities.SignalType;
+import com.sarxos.gpwnotifier.market.Quote;
+import com.sarxos.gpwnotifier.market.Signal;
+import com.sarxos.gpwnotifier.market.SignalGenerator;
+import com.sarxos.gpwnotifier.market.SignalType;
 import com.sarxos.gpwnotifier.math.MA;
 
-import static com.sarxos.gpwnotifier.entities.SignalType.BUY;
-import static com.sarxos.gpwnotifier.entities.SignalType.SELL;
-import static com.sarxos.gpwnotifier.entities.SignalType.DELAY;
-import static com.sarxos.gpwnotifier.entities.SignalType.WAIT;
+import static com.sarxos.gpwnotifier.market.SignalType.BUY;
+import static com.sarxos.gpwnotifier.market.SignalType.DELAY;
+import static com.sarxos.gpwnotifier.market.SignalType.SELL;
+import static com.sarxos.gpwnotifier.market.SignalType.WAIT;
 
 
 /**

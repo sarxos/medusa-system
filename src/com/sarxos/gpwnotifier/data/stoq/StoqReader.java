@@ -19,8 +19,8 @@ import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
 import com.sarxos.gpwnotifier.data.QuotesReader;
 import com.sarxos.gpwnotifier.data.QuotesReaderException;
-import com.sarxos.gpwnotifier.entities.Future;
-import com.sarxos.gpwnotifier.entities.Quote;
+import com.sarxos.gpwnotifier.market.Future;
+import com.sarxos.gpwnotifier.market.Quote;
 
 
 public class StoqReader<T extends Quote> implements QuotesReader<T> {

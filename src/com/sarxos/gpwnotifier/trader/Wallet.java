@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.sarxos.gpwnotifier.entities.Symbol;
-import com.sarxos.gpwnotifier.gpw.Paper;
+import com.sarxos.gpwnotifier.market.Paper;
+import com.sarxos.gpwnotifier.market.Symbol;
 
 
 /**

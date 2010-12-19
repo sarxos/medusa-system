@@ -13,7 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
 import com.sarxos.gpwnotifier.data.DataProviderException;
-import com.sarxos.gpwnotifier.entities.Symbol;
+import com.sarxos.gpwnotifier.market.Symbol;
 
 
 /**
@@ -28,7 +28,7 @@ public class BizzoneDataProvider implements RealTimeDataProvider {
 	public double getValue(Symbol symbol) throws DataProviderException {
 
 		if (!canServe(symbol)) {
-			String name = BizzoneDataProvider.class.getSimpleName(); 
+			String name = getClass().getSimpleName(); 
 			throw new DataProviderException(name + " cannot serve data for symbol " + symbol);
 		}
 		

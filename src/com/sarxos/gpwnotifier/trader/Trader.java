@@ -8,9 +8,9 @@ import java.util.Map;
 
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
 import com.sarxos.gpwnotifier.data.bizzone.BizzoneDataProvider;
-import com.sarxos.gpwnotifier.entities.Symbol;
-import com.sarxos.gpwnotifier.gpw.Calendarium;
-import com.sarxos.gpwnotifier.gpw.Paper;
+import com.sarxos.gpwnotifier.market.Calendarium;
+import com.sarxos.gpwnotifier.market.Paper;
+import com.sarxos.gpwnotifier.market.Symbol;
 
 
 

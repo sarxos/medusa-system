@@ -6,8 +6,8 @@ import java.util.List;
 import com.sarxos.gpwnotifier.data.QuotesReader;
 import com.sarxos.gpwnotifier.data.QuotesReaderException;
 import com.sarxos.gpwnotifier.data.stoq.StoqReader;
-import com.sarxos.gpwnotifier.entities.Index;
-import com.sarxos.gpwnotifier.entities.Quote;
+import com.sarxos.gpwnotifier.market.Index;
+import com.sarxos.gpwnotifier.market.Quote;
 import com.sarxos.gpwnotifier.math.ATR;
 
 
