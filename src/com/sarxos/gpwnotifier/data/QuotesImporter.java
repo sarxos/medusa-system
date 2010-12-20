@@ -1,15 +1,14 @@
+package com.sarxos.gpwnotifier.data;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import com.sarxos.gpwnotifier.data.QuotesReader;
-import com.sarxos.gpwnotifier.data.QuotesReaderException;
 import com.sarxos.gpwnotifier.data.stoq.StoqReader;
 import com.sarxos.gpwnotifier.market.Quote;
 
@@ -19,8 +18,10 @@ public class QuotesImporter {
 	public static void main(String[] args) throws QuotesReaderException {
 
 
+		// TODO parametrize
 		File f = new File("data/kgh_d.csv");
 
+		// TODO parametrize
 		QuotesImporter.importData(f, DateFileFormat.STOOQ, "KGH");
 
 
@@ -31,12 +32,14 @@ public class QuotesImporter {
 		List<Quote> data = null;
 
 		switch (format) {
-		case STOOQ:
-			QuotesReader<Quote> reader = new StoqReader<Quote>(Quote.class);
-			data = reader.read(f.toURI());
-			break;
+			case STOOQ:
+				QuotesReader<Quote> reader = new StoqReader<Quote>(Quote.class);
+				data = reader.read(f.toURI());
+				break;
 		}
 
+		// TODO XXX move to QuotesDAO
+		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -46,14 +49,14 @@ public class QuotesImporter {
 		String url = "jdbc:mysql://localhost:3306/gpw";
 
 		Connection con = null;
-		Statement statement = null;
+		Statement create = null;
 		PreparedStatement insert = null;
 
 		try {
 			con = DriverManager.getConnection(url, "root", "Ttxdtd7");
 
-			statement = con.createStatement();
-			statement.execute(
+			create = con.createStatement();
+			create.execute(
 					"CREATE TABLE IF NOT EXISTS " + symbol + " ( " +
 					"    time DATE, " +
 					"    open FLOAT, " +
@@ -66,8 +69,7 @@ public class QuotesImporter {
 
 			insert = con.prepareStatement(
 					"INSERT INTO " + symbol + " " +
-					"VALUES " +
-					"    (?, ?, ?, ?, ?, ?)"
+					"VALUES (?, ?, ?, ?, ?, ?)"
 			);
 
 			for (Quote quote : data) {
@@ -79,13 +81,6 @@ public class QuotesImporter {
 				insert.setDouble(6, quote.getVolume());
 				insert.execute();
 			}
-
-			//			
-			//			ResultSet rs = statement.executeQuery("SELECT id from example");
-			//			while (rs.next()) {
-			//				int x = rs.getInt("id");
-			//				System.out.println(x);
-			//			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();

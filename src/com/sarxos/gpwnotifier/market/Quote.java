@@ -75,14 +75,28 @@ public class Quote {
 	 */
 	public Quote(String datestring, double open, double high, double low, double close, long volume) {
 		super();
-		this.datestring = datestring;
-		this.open = open;
-		this.high = high;
-		this.low = low;
-		this.close = close;
-		this.volume = volume;
+		this.setDateString(datestring);
+		this.setOpen(open);
+		this.setHigh(high);
+		this.setLow(low);
+		this.setClose(close);
+		this.setVolume(volume);
 	}
 
+	/**
+	 * Create quote instance with all necessary parameters. 
+	 * 
+	 * @param datestring - quote date as {@link String} object (format is yyyy-mm-dd)
+	 * @param open - opening price
+	 * @param high - highest price
+	 * @param low - lowest price
+	 * @param close - closing price
+	 * @param volume - whole day volume
+	 */
+	public Quote(Date date, double open, double high, double low, double close, long volume) {
+		this(DATE_FORMAT.format(date), open, high, low, close, volume);
+	}
+	
 	/**
 	 * @return Quote date as {@link String} instance.
 	 */
@@ -121,6 +135,9 @@ public class Quote {
 	 */
 	public void setDate(Date date) {
 		this.date = date;
+		if (datestring == null) {
+			datestring = DATE_FORMAT.format(date);
+		}
 	}
 	
 	/**
