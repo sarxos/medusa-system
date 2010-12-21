@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -220,6 +221,12 @@ public class Calendarium {
 		return !isFreeDay(date);
 	}
 	
+	/**
+	 * Return session phase in the given time.
+	 * @param date - time to check
+	 * @param paper - paper to check phase
+	 * @return Phase of the session.
+	 */
 	public SessionPhase getSessionPhase(Date date, Paper paper) {
 		
 		if (date == null) {
@@ -303,18 +310,20 @@ public class Calendarium {
 			}
 			
 			calendar.setTime(date);
+
+			long now = calendar.getTimeInMillis();
 			
-			if (calendar.before(before_open)) {
+			if (now < before_open.getTime()) {
 				return SessionPhase.CLOSED;
-			} else if (calendar.after(before_open) && calendar.before(open)) {
+			} else if (before_open.getTime() < now && now < open.getTime()) {
 				return SessionPhase.BEFORE_OPEN;
-			} else if (calendar.after(open) && calendar.before(fixing)) {
+			} else if (open.getTime() < now && now < fixing.getTime()) {
 				return SessionPhase.SESSION;
-			} else if (calendar.after(fixing) && calendar.before(play_off)) {
+			} else if (fixing.getTime() < now && now < play_off.getTime()) {
 				return SessionPhase.FIXING;
-			} else if (calendar.after(play_off) && calendar.before(close)) {
+			} else if (play_off.getTime() < 0 && now < close.getTime()) {
 				return SessionPhase.PLAY_OFF;
-			} else if (calendar.after(close)) {
+			} else if (now > close.getTime()) {
 				return SessionPhase.CLOSED; 
 			}
 		}
@@ -322,6 +331,13 @@ public class Calendarium {
 		return SessionPhase.CLOSED;
 	}
 	
+	/**
+	 * Tells whether or not session is in progress.
+	 * 
+	 * @param date - time to check
+	 * @param paper - paper to check
+	 * @return true / false
+	 */
 	public boolean isSessionInProgress(Date date, Paper paper) {
 		SessionPhase phase = getSessionPhase(date, paper);
 		switch (phase) {
@@ -335,5 +351,21 @@ public class Calendarium {
 			default:
 				return false;
 		}
+	}
+	
+	/**
+	 * Return next working day date.
+	 * 
+	 * @param date - date to from find next working day
+	 * @return Next working day date
+	 */
+	public synchronized Date getNextWorkingDay(Date date) {
+		do {
+			calendar.setTime(date);
+			calendar.add(Calendar.DATE, +1);
+			date = calendar.getTime();
+		} while (!isWorkingDay(date));
+		
+		return date;
 	}
 }
