@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.sarxos.gpwnotifier.market.Calendarium;
 import com.sarxos.gpwnotifier.market.Quote;
+import com.sarxos.gpwnotifier.market.Symbol;
 
 
 public class QuotesAudit {
@@ -15,7 +16,7 @@ public class QuotesAudit {
 	public static void main(String[] args) {
 		// TODO parametrize
 		QuotesAudit qa = new QuotesAudit();
-		qa.audit("KGH");
+		qa.audit(Symbol.KGH);
 	}
 
 	/**
@@ -24,7 +25,7 @@ public class QuotesAudit {
 	 * @param symbol - symbol to check
 	 * @return Array of {@link Date} objects.
 	 */
-	public Date[] audit(String symbol) {
+	public Date[] audit(Symbol symbol) {
 	
 		QuotesDAO qdao = new QuotesDAO();
 		List<Quote> quotes = qdao.getQuotes(symbol);

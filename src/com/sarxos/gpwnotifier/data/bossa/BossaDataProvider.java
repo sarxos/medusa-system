@@ -3,12 +3,11 @@ package com.sarxos.gpwnotifier.data.bossa;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,7 +47,7 @@ public class BossaDataProvider implements RealTimeDataProvider {
 	 * @return Return last 6 quotes.
 	 * @throws DataProviderException 
 	 */
-	public Quote[] getLastQuotes(String symbol) throws DataProviderException {
+	public List<Quote> getLastQuotes(Symbol symbol) throws DataProviderException {
 
 		File f = new File("data/few_last.zip");
 		
@@ -101,6 +100,8 @@ public class BossaDataProvider implements RealTimeDataProvider {
 					fos.write(bytes, 0, i);
 				}
 				fos.close();
+				
+				files.add(f);
 			}
 		} catch (Exception e) {
 			throw new DataProviderException(e);
@@ -112,6 +113,15 @@ public class BossaDataProvider implements RealTimeDataProvider {
 		String line = null;
 		String[] parts = null;
 		
+		Date date = null;
+		double open = 0;
+		double high = 0;
+		double low = 0;
+		double close = 0;
+		long volume = 0;
+		
+		List<Quote> quotes = new LinkedList<Quote>();
+		
 		for (File file : files) {
 			try {
 				
@@ -121,20 +131,36 @@ public class BossaDataProvider implements RealTimeDataProvider {
 				
 				while (br.ready()) {
 					line = br.readLine();
-					if (!line.startsWith(symbol)) {
+					if (line.startsWith(symbol.getName())) {
 						parts = line.split(",");
 						break;
 					}
 				}
+
+				// <TICKER>,<DTYYYYMMDD>,<OPEN>,<HIGH>,<LOW>,<CLOSE>,<VOL>
+				// KGHM,20101220,156.70,158.20,155.00,157.90,394584
 				
-				if (!parts[0].equals(symbol)) {
+				if (parts.length < 7) {
 					throw new DataProviderException(
-							"Something with read method - tried to read " + symbol + " " + 
+							"Something is wrong with data - should be 7 elements, " +
+							"found " + parts.length + " instead!" 
+					);
+				}
+				if (!parts[0].equals(symbol.getName())) {
+					throw new DataProviderException(
+							"Something is wrong with read method - tried to read " + symbol + " " + 
 							"but read " + parts[0] + " instead!"
 					);
 				}
+
+				date = DATE_FORMAT.parse(parts[1]);
+				open = Double.valueOf(parts[2]);
+				high = Double.valueOf(parts[3]);
+				low = Double.valueOf(parts[4]);
+				close = Double.valueOf(parts[5]);
+				volume = Long.valueOf(parts[6]);
 				
-				// TODO implement long symbol and short symbol
+				quotes.add(new Quote(date, open, high, low, close, volume));
 				
 			} catch (Throwable e) {
 				throw new DataProviderException(e);
@@ -142,12 +168,14 @@ public class BossaDataProvider implements RealTimeDataProvider {
 			
 		}
 		
-		
-		return null;
+		return quotes;
 	}
 	
 	public static void main(String[] args) throws DataProviderException {
 		BossaDataProvider b = new BossaDataProvider();
-		b.getLastQuotes("KGH");
+		List<Quote> quotes = b.getLastQuotes(Symbol.KGH);
+		for (int i = 0; i < quotes.size(); i++) {
+			System.out.println(quotes.get(i));
+		}
 	}
 }

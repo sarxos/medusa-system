@@ -135,12 +135,12 @@ public class BizzoneDataProvider implements RealTimeDataProvider {
 	public boolean canServe(Symbol symbol) {
 		switch (symbol) {
 			case WIG20:
-			case DAX:
-			case BUX:
-			case NASDAQ:
-			case DJI:
-			case SP:
-			case NIKKEI:
+//			case DAX:
+//			case BUX:
+//			case NASDAQ:
+//			case DJI:
+//			case SP:
+//			case NIKKEI:
 				return true;
 			default:
 				return false;
@@ -158,12 +158,12 @@ public class BizzoneDataProvider implements RealTimeDataProvider {
 	private String getMappingForSymbol(Symbol symbol) throws DataProviderException {
 		switch (symbol) {
 			case WIG20:return "WIG20";
-			case DAX: return "Niemcy-DAX";
-			case BUX: return "Wegry-BUX";
-			case NASDAQ: return "NASDAQ_Co";
-			case DJI: return "USA-DJI";
-			case SP: return "USA-S&P500";
-			case NIKKEI: return "Tokio-Nikkei";
+//			case DAX: return "Niemcy-DAX";
+//			case BUX: return "Wegry-BUX";
+//			case NASDAQ: return "NASDAQ_Co";
+//			case DJI: return "USA-DJI";
+//			case SP: return "USA-S&P500";
+//			case NIKKEI: return "Tokio-Nikkei";
 		}
 		throw new DataProviderException("No mapping found for symbol " + symbol);
 	}
