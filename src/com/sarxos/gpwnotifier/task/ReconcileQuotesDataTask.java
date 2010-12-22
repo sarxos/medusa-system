@@ -56,7 +56,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 		execution = calendar.getTime();
 		
 		setExecutionTime(execution);
-		setExecutionPeriod(PlannedTask.PEERIOD_DAY);
+		setExecutionPeriod(PlannedTask.PERIOD_DAY);
 	}
 	
 	@Override

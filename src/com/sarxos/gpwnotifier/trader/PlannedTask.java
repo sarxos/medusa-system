@@ -6,11 +6,11 @@ import java.util.TimerTask;
 
 public abstract class PlannedTask extends TimerTask {
 
-	public static final long PEERIOD_MINUTE = 1000 * 60; 
+	public static final long PERIOD_MINUTE = 1000 * 60; 
 	
-	public static final long PEERIOD_HOUR = PEERIOD_MINUTE * 60;
+	public static final long PERIOD_HOUR = PERIOD_MINUTE * 60;
 
-	public static final long PEERIOD_DAY = PEERIOD_HOUR * 24;
+	public static final long PERIOD_DAY = PERIOD_HOUR * 24;
 	
 	private Date executionTime = null;
 	
