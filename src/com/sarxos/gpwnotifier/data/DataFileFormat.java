@@ -1,6 +1,6 @@
 package com.sarxos.gpwnotifier.data;
 
-public enum DateFileFormat {
+public enum DataFileFormat {
 
 	STOOQ,
 	METASTOCK;

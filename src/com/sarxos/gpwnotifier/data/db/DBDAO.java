@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.data;
+package com.sarxos.gpwnotifier.data.db;
 
 import java.io.File;
 import java.sql.Connection;
@@ -11,12 +11,16 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sarxos.gpwnotifier.data.DataFileFormat;
+import com.sarxos.gpwnotifier.data.QuotesReader;
+import com.sarxos.gpwnotifier.data.QuotesReaderException;
 import com.sarxos.gpwnotifier.data.stoq.StoqReader;
+import com.sarxos.gpwnotifier.market.Paper;
 import com.sarxos.gpwnotifier.market.Quote;
 import com.sarxos.gpwnotifier.market.Symbol;
 
 
-public class QuotesDAO {
+public class DBDAO {
 
 	static {
 		try {
@@ -31,15 +35,15 @@ public class QuotesDAO {
 	private Connection con = null;
 	
 	
-	public QuotesDAO() {
+	public DBDAO() {
 		try {
-			con = DriverManager.getConnection(url, "root", "Ttxdtd7");
+			con = DriverManager.getConnection(url, "root", "secret");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	protected void ensureTableExists(Symbol symbol) throws SQLException {
+	protected void ensureSymbolTableExists(Symbol symbol) throws SQLException {
 		Statement create = con.createStatement();
 		create.execute(
 				"CREATE TABLE IF NOT EXISTS " + symbol + " ( " +
@@ -52,11 +56,22 @@ public class QuotesDAO {
 				")"
 		);
 	}
+
+	protected void ensureWalletTableExists() throws SQLException {
+		Statement create = con.createStatement();
+		create.execute(
+				"CREATE TABLE IF NOT EXISTS wallet ( " +
+				"    symbol VARCHAR(20) NOT NULL PRIMARY KEY, " +
+				"    desired INT NOT NULL, " +
+				"    quantity INT NOT NULL" +
+				")"
+		);
+	}
 	
 	public boolean addQuotes(Symbol symbol, List<Quote> quotes) {
 		try {
 			
-			ensureTableExists(symbol);
+			ensureSymbolTableExists(symbol);
 			
 			PreparedStatement insert = con.prepareStatement(
 					"INSERT INTO " + symbol + " " +
@@ -116,7 +131,62 @@ public class QuotesDAO {
 		return quotes;
 	}
 	
-	public boolean importData(File f, DateFileFormat format, Symbol symbol) throws QuotesReaderException {
+	public boolean addPaper(Paper p) {
+		
+		try {
+			
+			ensureWalletTableExists();
+			
+			PreparedStatement insert = con.prepareStatement(
+					"INSERT INTO " +
+					"    wallet " +
+					"VALUES " +
+					"    (?, ?, ?) " +
+					"ON DUPLICATE KEY UPDATE " +
+					"    desired = ?, quantity = ?"
+			);
+			
+			insert.setString(1, p.getSymbol().toString());
+			insert.setDouble(2, p.getDesiredQuantity());
+			insert.setDouble(3, p.getQuantity());
+			insert.setDouble(4, p.getDesiredQuantity());
+			insert.setDouble(5, p.getQuantity());
+			insert.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+		
+		return true;
+	}
+	
+	public List<Paper> getPapers() {
+
+		Statement select = null;
+		List<Paper> papers = new LinkedList<Paper>();
+		
+		try {
+
+			ensureWalletTableExists();
+			
+			select = con.createStatement();
+			ResultSet result = select.executeQuery("SELECT * FROM wallet");
+
+			while (result.next()) {
+				Symbol symbol = Symbol.valueOf(result.getString("symbol"));
+				int desired = result.getInt("desired");
+				int quantity = result.getInt("quantity");
+				papers.add(new Paper(symbol, desired, quantity));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return papers;
+	}
+	
+	public boolean importData(File f, DataFileFormat format, Symbol symbol) throws QuotesReaderException {
 
 		List<Quote> data = null;
 
@@ -128,7 +198,7 @@ public class QuotesDAO {
 		}
 
 		try {
-			ensureTableExists(symbol);
+			ensureSymbolTableExists(symbol);
 			addQuotes(symbol, data);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -138,8 +208,8 @@ public class QuotesDAO {
 	}
 	
 	public static void main(String[] args) throws QuotesReaderException {
-		File f = new File("data/kgh_d.csv");
-		QuotesDAO qdao = new QuotesDAO();
-		qdao.importData(f, DateFileFormat.STOOQ, Symbol.KGH);		
+		DBDAO dbdao = new DBDAO();
+		
+		dbdao.addPaper(new Paper(Symbol.KGH, 60, 10));
 	}
 }

@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.data;
+package com.sarxos.gpwnotifier.data.db;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -27,7 +27,7 @@ public class QuotesAudit {
 	 */
 	public Date[] audit(Symbol symbol) {
 	
-		QuotesDAO qdao = new QuotesDAO();
+		DBDAO qdao = new DBDAO();
 		List<Quote> quotes = qdao.getQuotes(symbol);
 
 		Quote last = quotes.get(quotes.size() - 1);

@@ -5,31 +5,64 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.TimerTask;
 
 import com.sarxos.gpwnotifier.data.DataProviderException;
-import com.sarxos.gpwnotifier.data.QuotesAudit;
-import com.sarxos.gpwnotifier.data.QuotesDAO;
 import com.sarxos.gpwnotifier.data.bossa.BossaDataProvider;
+import com.sarxos.gpwnotifier.data.db.DBDAO;
+import com.sarxos.gpwnotifier.data.db.QuotesAudit;
 import com.sarxos.gpwnotifier.market.Paper;
 import com.sarxos.gpwnotifier.market.Quote;
 import com.sarxos.gpwnotifier.market.Symbol;
+import com.sarxos.gpwnotifier.trader.PlannedTask;
 import com.sarxos.gpwnotifier.trader.Wallet;
 
 
-public class ReconcileQuotesDataTask extends TimerTask {
+/**
+ * Reconcile missing quotes data.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
+public class ReconcileQuotesDataTask extends PlannedTask {
 
-	GregorianCalendar calendar = new GregorianCalendar();
+	private GregorianCalendar calendar = new GregorianCalendar();
+	
+	private Wallet wallet = Wallet.getInstance();
+	
+	private QuotesAudit qa = new QuotesAudit();
+	
+	private DBDAO qdao = new DBDAO();
+
+	private BossaDataProvider bdp = new BossaDataProvider();
+
+	
+	public ReconcileQuotesDataTask() {
+		
+		Date now = new Date();
+		Date execution = null;
+		
+		GregorianCalendar calendar = new GregorianCalendar();
+		
+		calendar.setTime(now);
+		calendar.set(Calendar.HOUR_OF_DAY, 5);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		
+		execution = calendar.getTime();
+		if (execution.getTime() < now.getTime()) {
+			calendar.add(Calendar.DATE, +1);
+		}
+
+		execution = calendar.getTime();
+		
+		setExecutionTime(execution);
+		setExecutionPeriod(PlannedTask.PEERIOD_DAY);
+	}
 	
 	@Override
 	public void run() {
 		
-		Wallet wallet = Wallet.getInstance();
 		List<Paper> papers = wallet.getPapers();
-		QuotesAudit qa = new QuotesAudit();
-		QuotesDAO qdao = new QuotesDAO();
-		
-		BossaDataProvider bdp = new BossaDataProvider();
 
 		int i, ad, am, ay, bd, bm, by;
 		

@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import com.sarxos.gpwnotifier.data.db.DBDAO;
 import com.sarxos.gpwnotifier.market.Paper;
 import com.sarxos.gpwnotifier.market.Symbol;
 
@@ -26,11 +27,16 @@ public class Wallet {
 	 */
 	private static Wallet instance = new Wallet();
 	
+	/**
+	 * Database DAO.
+	 */
+	private DBDAO dbdao = new DBDAO();
 	
 	/**
 	 * Private constructor.
 	 */
 	private Wallet() {
+		this.reload();
 	}
 	
 	/**
@@ -156,5 +162,12 @@ public class Wallet {
 		}
 		
 		return getPaper(paper.getSymbol());
+	}
+	
+	/**
+	 * Force reload wallet from the database.
+	 */
+	public void reload() {
+		papers = dbdao.getPapers();
 	}
 }
