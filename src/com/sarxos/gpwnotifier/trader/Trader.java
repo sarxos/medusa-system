@@ -1,8 +1,10 @@
 package com.sarxos.gpwnotifier.trader;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +17,15 @@ import com.sarxos.gpwnotifier.market.Symbol;
 
 
 public class Trader extends Thread implements PriceListener {
+
+	
+	private List<DecisionMaker> decisionMakers = new LinkedList<DecisionMaker>();
+	
+	private static Trader instance = new Trader();
+	
+	
+	// old pieces
+	
 
 	private Map<Symbol, Observer> observers = new HashMap<Symbol, Observer>();
 	
@@ -115,6 +126,17 @@ public class Trader extends Thread implements PriceListener {
 	 */
 	public int removeFromWallet(Paper paper) {
 		return wallet.remove(paper);
+	}
+
+	public List<DecisionMaker> getDecisionMakers() {
+		int size = (int) (decisionMakers.size() * 1.5);
+		ArrayList<DecisionMaker> makers = new ArrayList<DecisionMaker>(size); 
+		makers.addAll(decisionMakers);
+		return makers;
+	}
+
+	public static Trader getInstance() {
+		return instance;
 	}
 	
 	public static void main(String[] args) {

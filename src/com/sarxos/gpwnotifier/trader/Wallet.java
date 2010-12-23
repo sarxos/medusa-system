@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.sarxos.gpwnotifier.data.db.DBDAO;
+import com.sarxos.gpwnotifier.db.DBDAO;
 import com.sarxos.gpwnotifier.market.Paper;
 import com.sarxos.gpwnotifier.market.Symbol;
 

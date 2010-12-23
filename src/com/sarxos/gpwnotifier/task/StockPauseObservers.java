@@ -3,8 +3,13 @@ package com.sarxos.gpwnotifier.task;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
+import com.sarxos.gpwnotifier.trader.DecisionMaker;
+import com.sarxos.gpwnotifier.trader.Observer;
 import com.sarxos.gpwnotifier.trader.PlannedTask;
+import com.sarxos.gpwnotifier.trader.Trader;
+import com.sarxos.gpwnotifier.trader.Wallet;
 
 
 /**
@@ -40,6 +45,22 @@ public class StockPauseObservers extends PlannedTask {
 
 	@Override
 	public void run() {
+		
+		Trader trader = Trader.getInstance();
+		
+		List<DecisionMaker> decisionMakers = trader.getDecisionMakers();
+		Observer observer = null;
+		
+		for (DecisionMaker maker : decisionMakers) {
+			observer = maker.getObserver();
+			observer.getSymbol();
+			// TODO finish me
+		}
+		
+		Wallet wallet = Wallet.getInstance();
+
+		
+		
 		// TODO Auto-generated method stub
 	}
 }

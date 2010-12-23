@@ -68,18 +68,11 @@ public class Observer implements Runnable {
 	 */
 	private double price = -1.;
 
+	/**
+	 * Price listeners list.
+	 */
 	private List<PriceListener> listeners = new LinkedList<PriceListener>();
 
-	/**
-	 * Create new observer. You have to specify observed symbol via the 
-	 * {@link Observer#observe(Symbol)} method.
-	 *  
-	 * @param provider - real time data provider
-	 */
-	public Observer(RealTimeDataProvider provider) {
-		this.provider = provider;
-	}
-	
 	/**
 	 * Create new data observer.
 	 *  
@@ -294,17 +287,24 @@ public class Observer implements Runnable {
 		return listeners.remove(listener);
 	}
 	
-//	public static void main(String[] args) {
-//		Observer o = new Observer(new BizzoneDataProvider());
-//		o.observe(Symbol.WIG20);
-//		o.setInterval(5);
-//		o.addPriceListener(new PriceListener() {
-//			@Override
-//			public void priceChange(PriceEvent event) {
-//				System.out.println(event.getPrevious() - event.getCurrent());
-//			}
-//		});
-//		o.start();
-//	}
-	
+	/**
+	 * @return Runnable runner.
+	 */
+	public Thread getRunner() {
+		return runner;
+	}
+
+	/**
+	 * @return Observer state.
+	 */
+	public State getState() {
+		return state;
+	}
+
+	/**
+	 * @return Observed symbol.
+	 */
+	public Symbol getSymbol() {
+		return symbol;
+	}	
 }

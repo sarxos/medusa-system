@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.data.db;
+package com.sarxos.gpwnotifier.db;
 
 import java.io.File;
 import java.sql.Connection;

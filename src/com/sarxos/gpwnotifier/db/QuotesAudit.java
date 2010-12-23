@@ -1,4 +1,4 @@
-package com.sarxos.gpwnotifier.data.db;
+package com.sarxos.gpwnotifier.db;
 
 import java.util.Calendar;
 import java.util.Date;
