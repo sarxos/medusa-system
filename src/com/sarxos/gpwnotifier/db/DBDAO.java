@@ -1,6 +1,7 @@
 package com.sarxos.gpwnotifier.db;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -34,13 +35,29 @@ public class DBDAO {
 
 	private Connection con = null;
 	
+	private SQLFileReader sqlreader = new SQLFileReader();
+	
 	
 	public DBDAO() {
 		try {
 			con = DriverManager.getConnection(url, "root", "secret");
+			installProcedure("GetQuotes");
+			installProcedure("AddPaper");
+			installProcedure("UpdatePaper");
+			installProcedure("GetPapers");
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+	}
+	
+	protected void installProcedure(String name) throws IOException, SQLException {
+		String sql = sqlreader.getSQL(name);
+		Statement st = con.createStatement();
+		st.execute("DROP PROCEDURE IF EXISTS " + name);
+		st.execute(sql);
+		
 	}
 	
 	protected void ensureSymbolTableExists(Symbol symbol) throws SQLException {
@@ -103,16 +120,16 @@ public class DBDAO {
 	 */
 	public List<Quote> getQuotes(Symbol symbol) {
 
-		Statement select = null;
+		PreparedStatement getQuoets = null;
 
 		List<Quote> quotes = new LinkedList<Quote>();
 		
 		try {
 
-			select = con.createStatement();
-			ResultSet result = select.executeQuery(
-					"SELECT * FROM " + symbol + " ORDER BY time"
-			);
+			getQuoets = con.prepareStatement("CALL GetQuotes(?)");
+			getQuoets.setString(1, symbol.toString());
+			
+			ResultSet result = getQuoets.executeQuery();
 
 			while (result.next()) {
 				Date date = new Date(result.getDate("time").getTime());
@@ -131,27 +148,19 @@ public class DBDAO {
 		return quotes;
 	}
 	
+	
+	
 	public boolean addPaper(Paper p) {
 		
 		try {
 			
 			ensureWalletTableExists();
 			
-			PreparedStatement insert = con.prepareStatement(
-					"INSERT INTO " +
-					"    wallet " +
-					"VALUES " +
-					"    (?, ?, ?) " +
-					"ON DUPLICATE KEY UPDATE " +
-					"    desired = ?, quantity = ?"
-			);
-			
-			insert.setString(1, p.getSymbol().toString());
-			insert.setDouble(2, p.getDesiredQuantity());
-			insert.setDouble(3, p.getQuantity());
-			insert.setDouble(4, p.getDesiredQuantity());
-			insert.setDouble(5, p.getQuantity());
-			insert.execute();
+			PreparedStatement addPaper = con.prepareStatement("CALL AddPaper(?, ?, ?)");
+			addPaper.setString(1, p.getSymbol().toString());
+			addPaper.setDouble(2, p.getQuantity());
+			addPaper.setDouble(3, p.getDesiredQuantity());
+			addPaper.execute();
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -159,6 +168,26 @@ public class DBDAO {
 		
 		return true;
 	}
+	
+	public boolean updatePaper(Paper p) {
+		
+		try {
+			
+			ensureWalletTableExists();
+			
+			PreparedStatement updateWallet = con.prepareStatement("CALL UpdateWallet(?, ?, ?)");
+			
+			updateWallet.setString(1, p.getSymbol().toString());
+			updateWallet.setDouble(2, p.getQuantity());
+			updateWallet.setDouble(3, p.getDesiredQuantity());
+			updateWallet.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+		
+		return true;
+	}	
 	
 	public List<Paper> getPapers() {
 
@@ -170,7 +199,7 @@ public class DBDAO {
 			ensureWalletTableExists();
 			
 			select = con.createStatement();
-			ResultSet result = select.executeQuery("SELECT * FROM wallet");
+			ResultSet result = select.executeQuery("CALL GetPapers()");
 
 			while (result.next()) {
 				Symbol symbol = Symbol.valueOf(result.getString("symbol"));
@@ -209,7 +238,9 @@ public class DBDAO {
 	
 	public static void main(String[] args) throws QuotesReaderException {
 		DBDAO dbdao = new DBDAO();
-		
 		dbdao.addPaper(new Paper(Symbol.KGH, 60, 10));
+		dbdao.updatePaper(new Paper(Symbol.KGH, 20, 10));
+		
+		System.out.println(dbdao.getQuotes(Symbol.KGH).size());
 	}
 }

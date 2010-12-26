@@ -69,12 +69,15 @@ public class Wallet {
 				n = p.getQuantity();
 				k = paper.getQuantity();
 				p.setQuantity(q = n + k);
+				dbdao.addPaper(p);
 				break;
 			}
 		}
 		if (!exist) {
 			papers.add(paper.clone());
+			dbdao.addPaper(paper);
 		}
+		
 		
 		return q;
 	}

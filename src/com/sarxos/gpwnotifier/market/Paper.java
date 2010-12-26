@@ -32,13 +32,13 @@ public class Paper implements Cloneable {
 	private SecuritiesGroup group = null;
 
 	// TODO read from file
-	private String[] indexes = new String[] {"FW20", "FW40"};
-	private String[] quotes = new String[] {"FACP", "FKGH", "FPEO", "FPGE", "FPGN", "FPKN", "FPKO", "FPZU", "FTPS"};
-	private String[] currency = new String[] {"FACP", "FEUR", "FUSD"};
-	private String[] options = new String[] {"OW20"};
-	private String[] miniwig = new String[] {"MW20"};
-	private String[] etf = new String[] {"ETFW"};
-	private String[] treasury = new String[] {"DS20", "DZ08"}; // and more
+	private transient String[] indexes = new String[] {"FW20", "FW40"};
+	private transient String[] quotes = new String[] {"FACP", "FKGH", "FPEO", "FPGE", "FPGN", "FPKN", "FPKO", "FPZU", "FTPS"};
+	private transient String[] currency = new String[] {"FACP", "FEUR", "FUSD"};
+	private transient String[] options = new String[] {"OW20"};
+	private transient String[] miniwig = new String[] {"MW20"};
+	private transient String[] etf = new String[] {"ETFW"};
+	private transient String[] treasury = new String[] {"DS20", "DZ08"}; // and more
 	
 	/**
 	 * Paper to be stored inside wallet. Constructor.
@@ -80,7 +80,7 @@ public class Paper implements Cloneable {
 			throw new IllegalArgumentException("Symbol cannot be null");
 		}
 		this.symbol = symbol;
-		this.fixGroup(symbol);
+		this.initGroup(symbol);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class Paper implements Cloneable {
 		}
 	}
 	
-	protected void fixGroup(Symbol symbol) {
+	protected void initGroup(Symbol symbol) {
 		
 		String sm = symbol.toString(); 
 		
