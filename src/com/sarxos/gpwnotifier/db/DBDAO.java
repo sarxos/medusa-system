@@ -41,10 +41,13 @@ public class DBDAO {
 	public DBDAO() {
 		try {
 			con = DriverManager.getConnection(url, "root", "secret");
+			
+			// TODO iterate via directory and install all
 			installProcedure("GetQuotes");
 			installProcedure("AddPaper");
 			installProcedure("UpdatePaper");
 			installProcedure("GetPapers");
+			installProcedure("RemovePaper");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -175,12 +178,28 @@ public class DBDAO {
 			
 			ensureWalletTableExists();
 			
-			PreparedStatement updateWallet = con.prepareStatement("CALL UpdateWallet(?, ?, ?)");
+			PreparedStatement updateWallet = con.prepareStatement("CALL UpdatePaper(?, ?, ?)");
 			
 			updateWallet.setString(1, p.getSymbol().toString());
 			updateWallet.setDouble(2, p.getQuantity());
 			updateWallet.setDouble(3, p.getDesiredQuantity());
 			updateWallet.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+		
+		return true;
+	}	
+	
+	public boolean removePaper(Paper p) {
+		
+		try {
+			
+			ensureWalletTableExists();
+			
+			PreparedStatement updateWallet = con.prepareStatement("CALL RemovePaper(?, ?, ?)");
+			updateWallet.setString(1, p.getSymbol().toString());
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

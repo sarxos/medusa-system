@@ -119,9 +119,11 @@ public class Wallet {
 				} else if (q == n) {
 					pi.remove();
 					k = 0;
+					dbdao.removePaper(p);
 					break;
 				} else if (q > n) {
 					p.setQuantity(k = q - n);
+					dbdao.updatePaper(p);
 					break;
 				}
 			}
