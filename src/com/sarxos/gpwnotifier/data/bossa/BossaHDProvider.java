@@ -27,7 +27,7 @@ import com.sarxos.gpwnotifier.market.Symbol;
 import com.sarxos.gpwnotifier.util.DateUtils;
 
 
-public class BossaDataProvider implements RealTimeDataProvider, HistoricalDataProvider {
+public class BossaHDProvider implements RealTimeDataProvider, HistoricalDataProvider {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
 	
@@ -328,7 +328,7 @@ public class BossaDataProvider implements RealTimeDataProvider, HistoricalDataPr
 	}
 	
 	public static void main(String[] args) throws DataProviderException {
-		BossaDataProvider b = new BossaDataProvider();
+		BossaHDProvider b = new BossaHDProvider();
 		List<Quote> quotes = b.getAllQuotes(Symbol.KGH);
 		for (int i = 0; i < quotes.size(); i++) {
 			System.out.println(quotes.get(i));

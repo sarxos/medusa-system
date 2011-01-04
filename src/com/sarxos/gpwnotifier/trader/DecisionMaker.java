@@ -1,8 +1,12 @@
 package com.sarxos.gpwnotifier.trader;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+
+import com.sarxos.gpwnotifier.market.Paper;
+import com.sarxos.gpwnotifier.market.Quote;
 
 
 public class DecisionMaker implements PriceListener {
@@ -14,14 +18,21 @@ public class DecisionMaker implements PriceListener {
 	
 	public DecisionMaker(Observer observer) {
 		this.observer = observer;
+		this.observer.addPriceListener(this);
 	}
 
 	@Override
 	public void priceChange(PriceEvent pe) {
+
+		Wallet wallet = Wallet.getInstance();
+		Paper paper = wallet.getPaper(observer.getSymbol());
+		
+		Quote tmp = new Quote(new Date(), pe.getCurrentPrice());
 		
 		
 		
-		// decision logic - sell or buy and notify decision listeners
+		
+		// decision logic
 	}
 	
 	/**

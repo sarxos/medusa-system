@@ -22,21 +22,21 @@ public class Quote {
 	private String datestring = null;
 
 	@StoqColumn("Open")
-	private double open = 0;
+	private double open = -1;
 	
 	@StoqColumn("High")
-	private double high = 0;
+	private double high = -1;
 	
 	@StoqColumn("Low")
-	private double low = 0;
+	private double low = -1;
 	
-	private double price = 0;
+	private double price = -1;
 	
 	@StoqColumn("Close")
-	private double close = 0;
+	private double close = -1;
 	
 	@StoqColumn("Volume")
-	private long volume = 0;
+	private long volume = -1;
 
 	private Quote next = null;
 	private Quote prev = null;
@@ -61,6 +61,14 @@ public class Quote {
 	 * This constructor exists only for reflection purpose. 
 	 */
 	public Quote() {
+	}
+
+	/**
+	 * This constructor exists only for reflection purpose. 
+	 */
+	public Quote(Date date, double price) {
+		setDate(date);
+		setPrice(price);
 	}
 	
 	/**

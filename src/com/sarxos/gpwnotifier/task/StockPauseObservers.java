@@ -54,7 +54,6 @@ public class StockPauseObservers extends PlannedTask {
 		for (DecisionMaker maker : decisionMakers) {
 			observer = maker.getObserver();
 			observer.getSymbol();
-			// TODO finish me
 		}
 		
 		Wallet wallet = Wallet.getInstance();

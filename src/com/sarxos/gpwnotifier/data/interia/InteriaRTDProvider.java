@@ -16,7 +16,7 @@ import com.sarxos.gpwnotifier.http.HTTPClient;
 import com.sarxos.gpwnotifier.market.Symbol;
 
 
-public class InteriaDataProvider implements RealTimeDataProvider {
+public class InteriaRTDProvider implements RealTimeDataProvider {
 
 	private String[] symbols = new String[] {
 			"KGH", "BRE"
@@ -24,7 +24,7 @@ public class InteriaDataProvider implements RealTimeDataProvider {
 	
 	private Map<String, Boolean> map = new HashMap<String, Boolean>();
 	
-	public InteriaDataProvider() {
+	public InteriaRTDProvider() {
 		for (int i = 0; i < symbols.length; i++) {
 			map.put(symbols[i], Boolean.TRUE);
 		}
@@ -134,7 +134,7 @@ public class InteriaDataProvider implements RealTimeDataProvider {
 	
 	public static void main(String[] args) throws DataProviderException {
 		
-		InteriaDataProvider idp = new InteriaDataProvider();
+		InteriaRTDProvider idp = new InteriaRTDProvider();
 		
 		idp.getValue(Symbol.KGH);
 		

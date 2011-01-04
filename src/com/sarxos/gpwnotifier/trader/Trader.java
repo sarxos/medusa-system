@@ -1,152 +1,135 @@
 package com.sarxos.gpwnotifier.trader;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.sarxos.gpwnotifier.data.HistoricalDataProvider;
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
-import com.sarxos.gpwnotifier.data.bizzone.BizzoneDataProvider;
-import com.sarxos.gpwnotifier.market.Calendarium;
+import com.sarxos.gpwnotifier.data.bossa.BossaHDProvider;
+import com.sarxos.gpwnotifier.data.interia.InteriaRTDProvider;
 import com.sarxos.gpwnotifier.market.Paper;
 import com.sarxos.gpwnotifier.market.Symbol;
 
 
 
-public class Trader extends Thread implements PriceListener {
+public class Trader extends Thread implements DecisionListener {
 
-	
-	private List<DecisionMaker> decisionMakers = new LinkedList<DecisionMaker>();
+	private Map<Symbol, DecisionMaker> makers = new HashMap<Symbol, DecisionMaker>();
 	
 	private static Trader instance = new Trader();
 	
-	
-	// old pieces
-	
-
-	private Map<Symbol, Observer> observers = new HashMap<Symbol, Observer>();
-	
-	private Calendarium calendarium = Calendarium.getInstance();
-	
 	private Wallet wallet = Wallet.getInstance();
+	
+	private HistoricalDataProvider hdp = null;
+	
+	private RealTimeDataProvider rtdp = null;
+
 	
 	public Trader() {
 		setDaemon(true);
+		// TODO read from config
+		hdp = new BossaHDProvider();
+		rtdp = new InteriaRTDProvider();
+		
+		init();
+	}
+
+	public static Trader getInstance() {
+		return instance;
+	}
+
+	protected DecisionMaker createDecisionMaker(Paper paper) {
+		Observer o = new Observer(rtdp, paper.getSymbol());
+		DecisionMaker dm = new DecisionMaker(o);
+		dm.addDecisionListener(this);
+		return dm;
+	}
+	
+	protected void init() {
+		List<Paper> papers = wallet.getPapers();
+		for (Paper paper : papers) {
+			makers.put(paper.getSymbol(), createDecisionMaker(paper));
+		}
 	}
 	
 	@Override
 	public void run() {
-		
 		super.run();
-		
-		RealTimeDataProvider provider = new BizzoneDataProvider();
-
-		Observer observer = null;
-		Symbol symbol = null;
-		
-		for (Paper paper : wallet.getPapers()) {
-			symbol = paper.getSymbol();
-			observer = new Observer(provider, symbol);
-			//observer.start();
-			observers.put(symbol, observer);
-		}
-		
-		Date now = null;
-		
-		boolean working = false;
-		boolean session = false;
-		
-		Paper paper = null;
-		
-		
-		do {
-			
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-			now = new Date();
-			working = calendarium.isWorkingDay(now);
-			
-			if (working) {
-
-				List<Paper> papers = wallet.getPapers();
-				Iterator<Paper> pi = papers.iterator();
-				paper = null;
-				
-				while (pi.hasNext()) {
-					
-					paper = pi.next();
-					observer = observers.get(paper.getSymbol());
-					
-					if (observer == null) {
-						throw new RuntimeException("Find null observer for paper " + paper.getSymbol());
-					}
-					
-					session = calendarium.isSessionInProgress(now, paper);
-				}
-
-				// if stock exchange is open and session in progress
-				if (session) {
-					// resume observers if paused
-				} else {
-					// pause observers if running
-				}
-				
-			}
-			
-		} while(true);
 	}
 
-	@Override
-	public void priceChange(PriceEvent event) {
-		// trade
-	}
+	
 	
 	/**
 	 * Add given paper to the wallet.
 	 * 
 	 * @param paper
-	 * @return Number of papers with given symbol after remove
+	 * @return 
 	 */
-	public int addToWallet(Paper paper) {
-		return wallet.add(paper);
+	public boolean addPaper(Paper paper) {
+		boolean added = wallet.addPaper(paper); 
+		if (added) {
+			makers.put(paper.getSymbol(), createDecisionMaker(paper));
+		}
+		return added;
 	}
 
 	/**
 	 * Remove given paper from the wallet.
 	 * 
 	 * @param paper - paper to remove
-	 * @return Number of papers with given symbol after remove
+	 * @return
 	 */
-	public int removeFromWallet(Paper paper) {
-		return wallet.remove(paper);
+	public boolean updateWallet(Paper paper) {
+		return wallet.removePaper(paper);
 	}
 
+	/**
+	 * Add given paper to the wallet.
+	 * 
+	 * @param paper
+	 * @return 
+	 */
+	public boolean removePaper(Paper paper) {
+		boolean removed = wallet.removePaper(paper); 
+		if (removed) {
+			makers.remove(paper.getSymbol());
+		}
+		return removed;
+	}
+	
 	public List<DecisionMaker> getDecisionMakers() {
-		int size = (int) (decisionMakers.size() * 1.5);
-		ArrayList<DecisionMaker> makers = new ArrayList<DecisionMaker>(size); 
-		makers.addAll(decisionMakers);
-		return makers;
+		int size = (int) (makers.size() * 1.5);
+		ArrayList<DecisionMaker> m = new ArrayList<DecisionMaker>(size);
+		m.addAll(makers.values());
+		return m;
 	}
 
-	public static Trader getInstance() {
-		return instance;
+	public DecisionMaker getDecisionMakerForPaper(Paper paper) {
+		Symbol symbol = paper.getSymbol();
+		if (symbol == null) {
+			throw new IllegalArgumentException(
+					"Cannot get decision maker for paper with " +
+					"null symbol"
+			);
+		}
+		return makers.get(symbol);
 	}
 	
 	public static void main(String[] args) {
 		Trader t = new Trader();
-		t.addToWallet(new Paper(Symbol.WIG20, 60));
+		t.addPaper(new Paper(Symbol.WIG20, 60));
 		t.start();
 		try {
 			t.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void decisionChange(DecisionEvent event) {
+		
 	}
 }

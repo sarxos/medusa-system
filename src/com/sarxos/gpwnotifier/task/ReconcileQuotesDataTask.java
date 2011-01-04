@@ -8,7 +8,7 @@ import java.util.ListIterator;
 
 import com.sarxos.gpwnotifier.data.DataProviderException;
 import com.sarxos.gpwnotifier.data.HistoricalDataProvider;
-import com.sarxos.gpwnotifier.data.bossa.BossaDataProvider;
+import com.sarxos.gpwnotifier.data.bossa.BossaHDProvider;
 import com.sarxos.gpwnotifier.db.DBDAO;
 import com.sarxos.gpwnotifier.db.QuotesAudit;
 import com.sarxos.gpwnotifier.market.Paper;
@@ -33,7 +33,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	
 	private DBDAO qdao = new DBDAO();
 
-	private HistoricalDataProvider bdp = new BossaDataProvider();
+	private HistoricalDataProvider bdp = new BossaHDProvider();
 
 	
 	public ReconcileQuotesDataTask() {
@@ -131,7 +131,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	public static void main(String[] args) {
 		
 		Wallet wallet = Wallet.getInstance();
-		wallet.add(new Paper(Symbol.KGH, 60));
+		wallet.addPaper(new Paper(Symbol.KGH, 60));
 		
 		ReconcileQuotesDataTask rqdt = new ReconcileQuotesDataTask();
 		rqdt.run();
