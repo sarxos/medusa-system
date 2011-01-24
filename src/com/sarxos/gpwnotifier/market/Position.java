@@ -9,12 +9,12 @@ package com.sarxos.gpwnotifier.market;
 public enum Position {
 
 	/**
-	 * When wallet is full.
+	 * When I have paper in wallet.
 	 */
 	LONG,
 	
 	/**
-	 * When wallet is empty.
+	 * When I do not have paper in my wallet.
 	 */
 	SHORT;
 }

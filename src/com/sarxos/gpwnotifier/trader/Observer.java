@@ -6,6 +6,7 @@ import java.util.ListIterator;
 
 import com.sarxos.gpwnotifier.data.DataProviderException;
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
+import com.sarxos.gpwnotifier.market.Quote;
 import com.sarxos.gpwnotifier.market.Symbol;
 
 /**
@@ -201,27 +202,26 @@ public class Observer implements Runnable {
 		do {
 			if (state == State.STOPPED) {
 				break;
-			}
-			try {
-				runOnce();
-			} catch (DataProviderException e) {
-				e.printStackTrace();
-			}
-			try {
-				Thread.sleep(interval);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			} else {
+				try {
+					runOnce();
+					Thread.sleep(interval);
+				} catch (DataProviderException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		} while(true);
 	}
 	
 	protected void runOnce() throws DataProviderException {
-		double tmp = provider.getValue(symbol);
+		Quote q = provider.getQuote(symbol);;
+		double tmp = q.getClose();
 		if (tmp != price && price != -1) {
-			notifyListeners(new PriceEvent(this, price, tmp));
+			notifyListeners(new PriceEvent(this, price, tmp, q));
 		}
 		price = tmp;
-		System.out.println(interval + " " + tmp);
 	}
 	
 	/**

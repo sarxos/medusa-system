@@ -20,32 +20,16 @@ import org.apache.http.client.methods.HttpGet;
 
 import com.sarxos.gpwnotifier.data.DataProviderException;
 import com.sarxos.gpwnotifier.data.HistoricalDataProvider;
-import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
 import com.sarxos.gpwnotifier.http.HTTPClient;
 import com.sarxos.gpwnotifier.market.Quote;
 import com.sarxos.gpwnotifier.market.Symbol;
 import com.sarxos.gpwnotifier.util.DateUtils;
 
 
-public class BossaHDProvider implements RealTimeDataProvider, HistoricalDataProvider {
+public class BossaHDProvider implements HistoricalDataProvider {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
 	
-	@Override
-	public boolean canServe(Symbol symbol) {
-		return false;
-	}
-
-	@Override
-	public double getValue(Symbol symbol) throws DataProviderException {
-		if (!canServe(symbol)) {
-			String name = getClass().getSimpleName(); 
-			throw new DataProviderException(name + " cannot serve data for symbol " + symbol);
-		}
-		return 0;
-	}
-
-
 	@Override
 	public List<Quote> getLastQuotes(Symbol symbol) throws DataProviderException {
 

@@ -1,19 +1,43 @@
 package com.sarxos.gpwnotifier.trader;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
 import com.sarxos.gpwnotifier.market.Paper;
+import com.sarxos.gpwnotifier.market.Position;
 import com.sarxos.gpwnotifier.market.Quote;
+import com.sarxos.gpwnotifier.market.Signal;
+import com.sarxos.gpwnotifier.market.SignalGenerator;
 
 
+/**
+ * Decision maker class. Here is decided if I shall buy or
+ * sell observed paper.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
 public class DecisionMaker implements PriceListener {
 
+	/**
+	 * Price observer.
+	 */
 	private Observer observer = null;
 	
+	/**
+	 * Signals generator.
+	 */
+	private SignalGenerator<Quote> generator = null; 
+	
+	/**
+	 * Decision listeners (traders).
+	 */
 	private List<DecisionListener> listeners = new LinkedList<DecisionListener>();
+	
+	/**
+	 * Current wallet position.
+	 */
+	private Position position = Position.SHORT;
 	
 	
 	public DecisionMaker(Observer observer) {
@@ -26,13 +50,12 @@ public class DecisionMaker implements PriceListener {
 
 		Wallet wallet = Wallet.getInstance();
 		Paper paper = wallet.getPaper(observer.getSymbol());
+		Quote quote = pe.getQuote();
 		
-		Quote tmp = new Quote(new Date(), pe.getCurrentPrice());
+		Signal signal = generator.generate(quote);
+		DecisionEvent de = new DecisionEvent(this, paper, signal.getType());
 		
-		
-		
-		
-		// decision logic
+		notifyListeners(de);
 	}
 	
 	/**
@@ -46,8 +69,8 @@ public class DecisionMaker implements PriceListener {
 		ListIterator<DecisionListener> i = listeners.listIterator();
 		
 		while (i.hasNext()) {
-			listener = i.next();
 			try {
+				listener = i.next();
 				listener.decisionChange(de);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -89,5 +112,53 @@ public class DecisionMaker implements PriceListener {
 	 */
 	public Observer getObserver() {
 		return observer;
+	}
+
+	/**
+	 * Set new price observer. If other observer has been set,
+	 * decision maker object will be removed from its listeners.
+	 * 
+	 * @param observer - new observer to set
+	 */
+	public void setObserver(Observer observer) {
+		if (this.observer != null) {
+			this.observer.removePriceListener(this);
+		}
+		this.observer = observer;
+		this.observer.addPriceListener(this);
+	}
+	
+	/**
+	 * Set signal generator.
+	 * 
+	 * @param generator - new generator to set.
+	 */
+	public void setGenerator(SignalGenerator<Quote> generator) {
+		this.generator = generator;
+	}
+	
+	/**
+	 * @return Signal generator.
+	 */
+	public SignalGenerator<Quote> getGenerator() {
+		return generator;
+	}
+
+	/**
+	 * @return Current position being set (long, short).
+	 */
+	public Position getPosition() {
+		return position;
+	}
+
+	/**
+	 * Set current position (long or short).
+	 * @param position - position type
+	 */
+	public void setPosition(Position position) {
+		if (position == null) {
+			throw new IllegalArgumentException("Position cannot be null");
+		}
+		this.position = position;
 	}
 }

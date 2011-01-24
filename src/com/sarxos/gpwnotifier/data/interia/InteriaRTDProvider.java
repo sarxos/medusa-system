@@ -1,6 +1,7 @@
 package com.sarxos.gpwnotifier.data.interia;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -13,6 +14,7 @@ import org.apache.http.client.methods.HttpGet;
 import com.sarxos.gpwnotifier.data.DataProviderException;
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
 import com.sarxos.gpwnotifier.http.HTTPClient;
+import com.sarxos.gpwnotifier.market.Quote;
 import com.sarxos.gpwnotifier.market.Symbol;
 
 
@@ -36,7 +38,7 @@ public class InteriaRTDProvider implements RealTimeDataProvider {
 	}
 
 	@Override
-	public double getValue(Symbol symbol) throws DataProviderException {
+	public Quote getQuote(Symbol symbol) throws DataProviderException {
 		
 		if (!canServe(symbol)) {
 			String name = getClass().getSimpleName(); 
@@ -92,22 +94,25 @@ public class InteriaRTDProvider implements RealTimeDataProvider {
 		p = html.indexOf("<td ", k);
 		k = html.indexOf("</td>", p);
 		double ost = readValue(html.substring(p, k));
+
+		p = html.indexOf("<td ", k);
+		k = html.indexOf("</td>", p);
+		// percentage change in the table - omit this one
 		
-//		System.out.println(odnies);
-//		System.out.println(otw);
-//		System.out.println(max);
-//		System.out.println(min);
-//		System.out.println(ost);
-		
-		return ost;
+		p = html.indexOf("<td ", k);
+		k = html.indexOf("</td>", p);
+		double wol = readValue(html.substring(p, k));
+
+		return new Quote(new Date(), otw, max, min, ost, (long)wol);
 	}
 
 	private double readValue(String fragment) throws DataProviderException {
 		
 		String part = fragment.replaceAll(",", ".");
+		part = part.replaceAll("(\\B\\s\\B)|(&nbsp;)", "");
 		
 		try {
-			Pattern pat = Pattern.compile("\\d+\\.\\d+");
+			Pattern pat = Pattern.compile("\\d+\\.?\\d+?");
 			Matcher matcher = pat.matcher(part);
 			if (matcher.find()) {
 				part = matcher.group();
@@ -136,7 +141,7 @@ public class InteriaRTDProvider implements RealTimeDataProvider {
 		
 		InteriaRTDProvider idp = new InteriaRTDProvider();
 		
-		idp.getValue(Symbol.KGH);
+		System.out.println(idp.getQuote(Symbol.KGH));
 		
 	}
 	

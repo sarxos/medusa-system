@@ -2,6 +2,8 @@ package com.sarxos.gpwnotifier.trader;
 
 import java.util.EventObject;
 
+import com.sarxos.gpwnotifier.market.Quote;
+
 
 /**
  * Price event - it handles information about price change.
@@ -11,6 +13,8 @@ import java.util.EventObject;
 public class PriceEvent extends EventObject {
 
 	private static final long serialVersionUID = 2024272282480149837L;
+
+	private Quote quote = null;
 
 	/**
 	 * Previous price.
@@ -28,12 +32,18 @@ public class PriceEvent extends EventObject {
 	 * 
 	 * @param observer - source observer
 	 * @param previous - previous price
-	 * @param current 0- current price
+	 * @param current - current price
+	 * @param quote - quote
 	 */
-	public PriceEvent(Observer observer, double previous, double current) {
+	public PriceEvent(Observer observer, double previous, double current, Quote quote) {
 		super(observer);
 		this.previous = previous;
 		this.current = current;
+		this.quote = quote;
+	}
+
+	public Quote getQuote() {
+		return quote;
 	}
 	
 	/**

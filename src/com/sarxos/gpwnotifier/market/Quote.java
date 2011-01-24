@@ -30,8 +30,6 @@ public class Quote {
 	@StoqColumn("Low")
 	private double low = -1;
 	
-	private double price = -1;
-	
 	@StoqColumn("Close")
 	private double close = -1;
 	
@@ -61,14 +59,6 @@ public class Quote {
 	 * This constructor exists only for reflection purpose. 
 	 */
 	public Quote() {
-	}
-
-	/**
-	 * This constructor exists only for reflection purpose. 
-	 */
-	public Quote(Date date, double price) {
-		setDate(date);
-		setPrice(price);
 	}
 	
 	/**
@@ -230,17 +220,16 @@ public class Quote {
 	
 	@Override
 	public String toString() {
-		return datestring + " " + open + " " + close;
+		return
+			"---- " + datestring + " ----" + 
+			"\n   open: " + open + 
+			"\n  close: " + close + 
+			"\n    low: " + low + 
+			"\n   high: " + high + 
+			"\n volume: " + volume + 
+			"\n--------------------";
 	}
 
-	public double getPrice() {
-		return price;
-	}
-
-	public void setPrice(double price) {
-		this.price = price;
-	}
-	
 	public static void main(String[] args) throws ParseException {
 		System.out.println(DATE_FORMAT.parse("2010-11-10"));
 	}

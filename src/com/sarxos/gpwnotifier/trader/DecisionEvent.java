@@ -53,9 +53,9 @@ public class DecisionEvent extends EventObject {
 	}
 
 	/**
-	 * @return Signal type - shall I buy or sell
+	 * @return signal
 	 */
-	public SignalType getSignal() {
+	public SignalType getSignalType() {
 		return signal;
 	}
 }

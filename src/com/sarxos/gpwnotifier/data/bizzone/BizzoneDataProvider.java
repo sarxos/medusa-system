@@ -25,7 +25,7 @@ import com.sarxos.gpwnotifier.market.Symbol;
 public class BizzoneDataProvider implements RealTimeDataProvider {
 
 	@Override
-	public double getValue(Symbol symbol) throws DataProviderException {
+	public double getQuote(Symbol symbol) throws DataProviderException {
 
 		if (!canServe(symbol)) {
 			String name = getClass().getSimpleName(); 
@@ -170,7 +170,7 @@ public class BizzoneDataProvider implements RealTimeDataProvider {
 	
 	public static void main(String[] args) throws DataProviderException {
 		BizzoneDataProvider provider = new BizzoneDataProvider();
-		double value = provider.getValue(Symbol.WIG20);
+		double value = provider.getQuote(Symbol.WIG20);
 		System.out.println(value);
 	}
 }

@@ -46,17 +46,19 @@ public class StockPauseObservers extends PlannedTask {
 	@Override
 	public void run() {
 		
-		Trader trader = Trader.getInstance();
+		// TODO implement me
 		
-		List<DecisionMaker> decisionMakers = trader.getDecisionMakers();
-		Observer observer = null;
-		
-		for (DecisionMaker maker : decisionMakers) {
-			observer = maker.getObserver();
-			observer.getSymbol();
-		}
-		
-		Wallet wallet = Wallet.getInstance();
+//		Trader trader = Trader.getInstance();
+//		
+//		List<DecisionMaker> decisionMakers = trader.getDecisionMakers();
+//		Observer observer = null;
+//		
+//		for (DecisionMaker maker : decisionMakers) {
+//			observer = maker.getObserver();
+//			observer.getSymbol();
+//		}
+//		
+//		Wallet wallet = Wallet.getInstance();
 
 		
 		
