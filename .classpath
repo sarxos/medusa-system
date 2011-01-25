@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry excluding="com/sarxos/gpwnotifier/examples/EMA3SMA10Example.java|com/sarxos/gpwnotifier/examples/RejczakAExample.java|com/sarxos/gpwnotifier/examples/RejczakAExample2.java|com/sarxos/gpwnotifier/examples/RejczakBExample.java|com/sarxos/gpwnotifier/examples/WilliamsOscillatorExample.java" kind="src" path="examples"/>
 	<classpathentry excluding="com/sarxos/gpwnotifier/generator/BFG.java|com/sarxos/gpwnotifier/generator/EMA3SMA10.java|com/sarxos/gpwnotifier/generator/RejczakA.java|com/sarxos/gpwnotifier/generator/RejczakB.java|com/sarxos/gpwnotifier/generator/WilliamsOscillator.java|com/sarxos/gpwnotifier/data/bizzone/BizzoneDataProvider.java" kind="src" path="src"/>
+	<classpathentry kind="src" path="bin"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/servlet.jar"/>
@@ -14,6 +15,7 @@
 	<classpathentry kind="lib" path="lib/httpmime-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.14-bin.jar"/>
+	<classpathentry kind="lib" path="lib/naturalcli-1.2.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="target"/>
 </classpath>

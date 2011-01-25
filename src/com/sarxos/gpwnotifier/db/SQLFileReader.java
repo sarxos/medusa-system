@@ -9,7 +9,8 @@ import java.io.InputStreamReader;
 
 public class SQLFileReader {
 
-	public static final String SQL_STORAGE = "database";
+	// TODO make it configurable
+	public static final String SQL_STORAGE = "db";
 	
 	public String getSQL(String name) throws IOException {
 		

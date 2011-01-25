@@ -1,0 +1,2 @@
+Project to test automated trading possibility and to experiment with
+few trading models.
