@@ -1,5 +1,9 @@
 #!/bin/ksh
 
-STQ_HOME=/usr/stq/
+. /etc/profile.d/javaenv.sh
 
-# TODO add CLI invocation
+LIB="/var/lib/medusa"
+
+${JAVA_HOME}/bin/java -classpath "${LIB}/medusa.jar" com.sarxos.medusa.CLI "$@"
+
+exit $?

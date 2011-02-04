@@ -48,6 +48,7 @@ public class DBDAO {
 			installProcedure("UpdatePaper");
 			installProcedure("GetPapers");
 			installProcedure("RemovePaper");
+			installProcedure("AddTrader");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -60,7 +61,6 @@ public class DBDAO {
 		Statement st = con.createStatement();
 		st.execute("DROP PROCEDURE IF EXISTS " + name);
 		st.execute(sql);
-		
 	}
 	
 	protected void ensureSymbolTableExists(Symbol symbol) throws SQLException {
