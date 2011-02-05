@@ -1,9 +1,9 @@
 package com.sarxos.gpwnotifier.examples;
 
-import com.sarxos.gpwnotifier.comm.Message;
-import com.sarxos.gpwnotifier.comm.MessageBroker;
-import com.sarxos.gpwnotifier.comm.MessagingException;
-import com.sarxos.gpwnotifier.comm.orange.OrangeSMSBroker;
+import com.sarxos.medusa.comm.Message;
+import com.sarxos.medusa.comm.MessageBroker;
+import com.sarxos.medusa.comm.MessagingException;
+import com.sarxos.medusa.comm.orange.OrangeSMSBroker;
 
 
 public class OrangeMBoxSendSMSExample {

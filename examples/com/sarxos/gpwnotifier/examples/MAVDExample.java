@@ -5,15 +5,15 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sarxos.gpwnotifier.data.QuotesReader;
-import com.sarxos.gpwnotifier.data.QuotesReaderException;
-import com.sarxos.gpwnotifier.data.stoq.StoqReader;
-import com.sarxos.gpwnotifier.generator.MAVD;
-import com.sarxos.gpwnotifier.market.Index;
-import com.sarxos.gpwnotifier.market.Quote;
-import com.sarxos.gpwnotifier.market.Signal;
-import com.sarxos.gpwnotifier.market.SignalGenerator;
-import com.sarxos.gpwnotifier.market.SignalType;
+import com.sarxos.medusa.data.QuotesReader;
+import com.sarxos.medusa.data.QuotesReaderException;
+import com.sarxos.medusa.data.stoq.StoqReader;
+import com.sarxos.medusa.generator.MAVD;
+import com.sarxos.medusa.market.Index;
+import com.sarxos.medusa.market.Quote;
+import com.sarxos.medusa.market.Signal;
+import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.market.SignalType;
 
 
 public class MAVDExample {

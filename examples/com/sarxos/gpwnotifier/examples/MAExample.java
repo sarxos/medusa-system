@@ -3,11 +3,11 @@ package com.sarxos.gpwnotifier.examples;
 import java.io.File;
 import java.util.List;
 
-import com.sarxos.gpwnotifier.data.QuotesReader;
-import com.sarxos.gpwnotifier.data.QuotesReaderException;
-import com.sarxos.gpwnotifier.data.stoq.StoqReader;
-import com.sarxos.gpwnotifier.market.Index;
-import com.sarxos.gpwnotifier.math.MA;
+import com.sarxos.medusa.data.QuotesReader;
+import com.sarxos.medusa.data.QuotesReaderException;
+import com.sarxos.medusa.data.stoq.StoqReader;
+import com.sarxos.medusa.market.Index;
+import com.sarxos.medusa.math.MA;
 
 
 public class MAExample {
