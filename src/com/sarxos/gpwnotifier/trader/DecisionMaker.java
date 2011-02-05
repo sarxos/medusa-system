@@ -155,7 +155,7 @@ public class DecisionMaker implements PriceListener {
 	 * Set current position (long or short).
 	 * @param position - position type
 	 */
-	public void setPosition(Position position) {
+	public void setCurrentPosition(Position position) {
 		if (position == null) {
 			throw new IllegalArgumentException("Position cannot be null");
 		}

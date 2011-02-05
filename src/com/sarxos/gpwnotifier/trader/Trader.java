@@ -1,15 +1,40 @@
 package com.sarxos.gpwnotifier.trader;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.sarxos.gpwnotifier.data.Providers;
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
+import com.sarxos.gpwnotifier.market.Position;
 import com.sarxos.gpwnotifier.market.SignalType;
 import com.sarxos.gpwnotifier.market.Symbol;
 
+import static com.sarxos.gpwnotifier.market.Position.LONG;
+import static com.sarxos.gpwnotifier.market.Position.SHORT;
 
+
+@XmlRootElement(name = "trader")
 public class Trader extends Thread implements DecisionListener {
 
+	/**
+	 * Decision maker (encapsulate decision logic).
+	 */
+	@XmlElement(name = "dm", required = true)
 	private DecisionMaker decisionMaker = null;
+
+	/**
+	 * Price observer.
+	 */
+	@XmlElement(name = "observer", required = true)
 	private Observer observer = null;
+	
+	/**
+	 * Current position.
+	 */
+	@XmlAttribute(name = "position", required = true)
+	private Position position = SHORT; 
 
 	
 	@Override
@@ -19,16 +44,40 @@ public class Trader extends Thread implements DecisionListener {
 		
 		switch (signal) {
 			case BUY:
+				// buy mechanism
+				setPosition(LONG);
 				break;
 			case SELL:
+				// sell mechanism
+				setPosition(SHORT);
 				break;
 			case DELAY:
+				// do nothing
 				break;
 		}
-		
-		// buy o sell and notify decision maker
+	}
+
+	/**
+	 * Set new position
+	 * @param p - new position to set
+	 */
+	public void setPosition(Position p) {
+		if (p == null) {
+			throw new IllegalArgumentException("Position cannot be null");
+		}
+		this.position = p;
+		getDecisionMaker().setCurrentPosition(p);
 	}
 	
+	/**
+	 * @return Return current position (long, short)
+	 */
+	@XmlTransient
+	public Position getPosition() {
+		return position;
+	}
+	
+	@XmlTransient
 	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
@@ -37,6 +86,7 @@ public class Trader extends Thread implements DecisionListener {
 		this.decisionMaker = decisionMaker;
 	}
 	
+	@XmlTransient
 	public Observer getObserver() {
 		return observer;
 	}
@@ -50,11 +100,13 @@ public class Trader extends Thread implements DecisionListener {
 		RealTimeDataProvider rtdp = Providers.getDefaultRealTimeDataProvider();
 		
 		Observer observer = new Observer(rtdp, symbol);
-		DecisionMaker dm = new DecisionMaker(observer); 
+		DecisionMaker dm = new DecisionMaker(observer);
 
 		dm.addDecisionListener(this);
 		
 		setObserver(observer);
 		setDecisionMaker(dm);
+		
+		observer.start();
 	}
 }

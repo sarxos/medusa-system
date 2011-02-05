@@ -4,6 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.sarxos.gpwnotifier.data.DataProviderException;
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
 import com.sarxos.gpwnotifier.market.Quote;
@@ -42,38 +48,53 @@ public class Observer implements Runnable {
 	/**
 	 * Stock data provider.
 	 */
+	@XmlElement(name = "provider", required = true)
 	private RealTimeDataProvider provider = null;
 	
 	/**
 	 * Runner for each observer;
 	 */
+	@XmlTransient
 	private Thread runner = null;
 
 	/**
 	 * Runner state.
 	 */
+	@XmlTransient
 	private State state = State.STOPPED;
 
 	/**
 	 * Observed symbol.
 	 */
+	@XmlAttribute(name = "symbol", required = true)
 	private Symbol symbol = null;
 	
 	/**
 	 * Default check interval (30s).
 	 */
+	@XmlAttribute(name = "intervel", required = true)
 	private long interval = 30000;
 
 	/**
 	 * Last observed symbol price.
 	 */
+	@XmlTransient
 	private double price = -1.;
 
 	/**
 	 * Price listeners list.
 	 */
+	@XmlElementWrapper(name = "listeners")
 	private List<PriceListener> listeners = new LinkedList<PriceListener>();
 
+	
+	/**
+	 * This constructor shall never be used, it is required only by 
+	 * JAXB reflection mechanism.
+	 */
+	protected Observer() {
+	}
+	
 	/**
 	 * Create new data observer.
 	 *  
@@ -175,6 +196,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Runner thread for this observer.
 	 */
+	@XmlTransient
 	protected Thread createRunner() {
 		Thread thread = new Thread(group, this, symbol.toString());
 		thread.setDaemon(true);
@@ -184,6 +206,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Return real time data provider.
 	 */
+	@XmlTransient
 	public RealTimeDataProvider getProvider() {
 		return provider;
 	}
@@ -234,6 +257,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Return last observed price or -1 if no price has been observed yet.
 	 */
+	@XmlTransient
 	public double getPrice() {
 		return price;
 	}
@@ -261,6 +285,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Price listeners array.
 	 */
+	@XmlTransient
 	public PriceListener[] getPriceListeners() {
 		return listeners.toArray(new PriceListener[listeners.size()]);
 	}
@@ -290,6 +315,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Runnable runner.
 	 */
+	@XmlTransient
 	public Thread getRunner() {
 		return runner;
 	}
@@ -297,6 +323,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Observer state.
 	 */
+	@XmlTransient
 	public State getState() {
 		return state;
 	}
@@ -304,6 +331,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Observed symbol.
 	 */
+	@XmlTransient
 	public Symbol getSymbol() {
 		return symbol;
 	}	
