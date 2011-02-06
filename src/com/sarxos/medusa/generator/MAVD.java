@@ -1,7 +1,9 @@
 package com.sarxos.medusa.generator;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
@@ -36,28 +38,30 @@ import static com.sarxos.medusa.market.SignalType.WAIT;
  */
 public class MAVD implements SignalGenerator<Quote> {
 
-	
 	private int A = 5;
+
 	private int B = 15;
+
 	private int C = 30;
+
+	
+	public MAVD() {
+	}
 	
 	public MAVD(int A, int B, int C) {
-		
-		if (A < 2) {
-			throw new IllegalArgumentException("EMA period canot be less then 2");
-		}
-		if (B < 2) {
-			throw new IllegalArgumentException("SMA period canot be less then 2");
-		}
-		if (C < 2) {
-			throw new IllegalArgumentException("EMAD period canot be less then 2");
-		}
+		init(A, B, C);
+	}
+
+	public void init(int A, int B, int C) {
+		if (A < 2) throw new IllegalArgumentException("EMA period canot be less then 2");
+		if (B < 2) throw new IllegalArgumentException("SMA period canot be less then 2");
+		if (C < 2) throw new IllegalArgumentException("EMAD period canot be less then 2");
 		
 		this.A = A;
 		this.B = B;
 		this.C = C;
 	}
-
+	
 	@Override
 	public List<Signal> generate(Quote[] data, int R) {
 		
@@ -133,5 +137,22 @@ public class MAVD implements SignalGenerator<Quote> {
 		}
 		
 		return signal;
+	}
+
+	@Override
+	public Map<String, Object> getParameters() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("A", A);
+		params.put("B", B);
+		params.put("C", C);
+		return params;
+	}
+
+	@Override
+	public void setParameters(Map<String, Object> params) {
+		int A = ((Integer) params.get("A")).intValue();
+		int B = ((Integer) params.get("B")).intValue();
+		int C = ((Integer) params.get("C")).intValue();
+		init(A, B, C);
 	}
 }

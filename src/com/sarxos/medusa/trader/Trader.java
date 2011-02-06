@@ -1,41 +1,61 @@
 package com.sarxos.medusa.trader;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import com.sarxos.medusa.data.Providers;
-import com.sarxos.medusa.data.RealTimeDataProvider;
-import com.sarxos.medusa.market.Position;
-import com.sarxos.medusa.market.SignalType;
-import com.sarxos.medusa.market.Symbol;
 
 import static com.sarxos.medusa.market.Position.LONG;
 import static com.sarxos.medusa.market.Position.SHORT;
 
+import com.sarxos.medusa.data.Providers;
+import com.sarxos.medusa.data.RealTimeDataProvider;
+import com.sarxos.medusa.market.Position;
+import com.sarxos.medusa.market.Quote;
+import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.market.SignalType;
+import com.sarxos.medusa.market.Symbol;
 
-@XmlRootElement(name = "trader")
-public class Trader extends Thread implements DecisionListener {
+
+public class Trader implements DecisionListener {
 
 	/**
 	 * Decision maker (encapsulate decision logic).
 	 */
-	@XmlElement(name = "dm", required = true)
 	private DecisionMaker decisionMaker = null;
-
-	/**
-	 * Price observer.
-	 */
-	@XmlElement(name = "observer", required = true)
-	private Observer observer = null;
 	
-	/**
-	 * Current position.
-	 */
-	@XmlAttribute(name = "position", required = true)
-	private Position position = SHORT; 
+	private SignalGenerator<Quote> siggen = null;
+	
+	private RealTimeDataProvider provider = null;
+	
+	private Symbol symbol = null;
+	
+	private String name = null;
+	
+	
+	public Trader(String name, SignalGenerator<Quote> siggen) {
+		this(name, siggen, null, null);
+	}
 
+	public Trader(String name, SignalGenerator<Quote> siggen, RealTimeDataProvider provider) {
+		this(name, siggen, provider, null);
+	}
+	
+	public Trader(String name, SignalGenerator<Quote> siggen, RealTimeDataProvider provider, Symbol symbol) {
+		if (name == null) {
+			throw new IllegalArgumentException("Trader name cannot be null");
+		}
+		if (siggen == null) {
+			throw new IllegalArgumentException("Signal generator cannotbe null");
+		}
+		this.name = name;
+		this.siggen = siggen;
+		this.provider = provider;
+		this.symbol = symbol;
+		this.init();
+	}
+	
+	protected void init() {
+		if (provider == null) {
+			provider = Providers.getDefaultRealTimeDataProvider();
+		}
+	}
 	
 	@Override
 	public void decisionChange(DecisionEvent de) {
@@ -44,11 +64,11 @@ public class Trader extends Thread implements DecisionListener {
 		
 		switch (signal) {
 			case BUY:
-				// buy mechanism
+				// TODO buy mechanism
 				setPosition(LONG);
 				break;
 			case SELL:
-				// sell mechanism
+				// TODO sell mechanism
 				setPosition(SHORT);
 				break;
 			case DELAY:
@@ -65,19 +85,20 @@ public class Trader extends Thread implements DecisionListener {
 		if (p == null) {
 			throw new IllegalArgumentException("Position cannot be null");
 		}
-		this.position = p;
 		getDecisionMaker().setCurrentPosition(p);
 	}
 	
 	/**
 	 * @return Return current position (long, short)
 	 */
-	@XmlTransient
 	public Position getPosition() {
-		return position;
+		DecisionMaker dm = getDecisionMaker();
+		if (dm == null) {
+			return null;
+		}
+		return dm.getCurrentPosition();
 	}
 	
-	@XmlTransient
 	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
@@ -86,27 +107,66 @@ public class Trader extends Thread implements DecisionListener {
 		this.decisionMaker = decisionMaker;
 	}
 	
-	@XmlTransient
 	public Observer getObserver() {
-		return observer;
+		if (getDecisionMaker() == null) {
+			return null;
+		}
+		return getDecisionMaker().getObserver();
 	}
 
 	public void setObserver(Observer observer) {
-		this.observer = observer;
+		if (getDecisionMaker() == null) {
+			throw new IllegalStateException(
+					"Cannot set observer because decision maker " +
+					"is not created."
+			);
+		}
+		getDecisionMaker().setObserver(observer);
 	}
 
+	public Symbol getSymbol() {
+		DecisionMaker dm = getDecisionMaker();
+		Observer o = null;
+		if (dm != null && (o = dm.getObserver()) != null) {
+			return o.getSymbol();
+		} else {
+			return symbol;
+		}
+	}
+	
+	public String getGeneratorName(){
+		return siggen.getClass().getName();
+	}
+	
+	public SignalGenerator<Quote> getGenerator() {
+		return siggen;
+	}
+
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * Start trade.
+	 *  
+	 * @param symbol - observed symbol
+	 */
 	public void trade(Symbol symbol) {
 		
-		RealTimeDataProvider rtdp = Providers.getDefaultRealTimeDataProvider();
+		if (symbol == null) {
+			throw new IllegalArgumentException("Symbol to trade cannot be null");
+		}
 		
-		Observer observer = new Observer(rtdp, symbol);
-		DecisionMaker dm = new DecisionMaker(observer);
-
+		Observer observer = new Observer(provider, symbol);
+		DecisionMaker dm = new DecisionMaker(observer, siggen);
 		dm.addDecisionListener(this);
 		
-		setObserver(observer);
 		setDecisionMaker(dm);
 		
-		observer.start();
+		dm.getObserver().start();
+	}
+
+	public void trade() {
+		this.trade(symbol);
 	}
 }

@@ -11,14 +11,18 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.sarxos.medusa.data.DataFileFormat;
+import com.sarxos.medusa.data.PersistanceProvider;
 import com.sarxos.medusa.data.QuotesReader;
 import com.sarxos.medusa.data.QuotesReaderException;
 import com.sarxos.medusa.data.stoq.StoqReader;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Quote;
+import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.trader.Trader;
 
 
 public class DBDAO {
@@ -49,6 +53,8 @@ public class DBDAO {
 			installProcedure("GetPapers");
 			installProcedure("RemovePaper");
 			installProcedure("AddTrader");
+			installProcedure("GetTrader");
+			installProcedure("GetTraders");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -165,11 +171,13 @@ public class DBDAO {
 			addPaper.setDouble(3, p.getDesiredQuantity());
 			addPaper.execute();
 			
+			return true;
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}		
 		
-		return true;
+		return false;
 	}
 	
 	public boolean updatePaper(Paper p) {
@@ -185,11 +193,13 @@ public class DBDAO {
 			updateWallet.setDouble(3, p.getDesiredQuantity());
 			updateWallet.execute();
 			
+			return true;
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}		
 		
-		return true;
+		return false;
 	}	
 	
 	public boolean removePaper(Paper p) {
@@ -201,11 +211,13 @@ public class DBDAO {
 			PreparedStatement updateWallet = con.prepareStatement("CALL RemovePaper(?, ?, ?)");
 			updateWallet.setString(1, p.getSymbol().toString());
 			
+			return true;
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}		
 		
-		return true;
+		return false;
 	}	
 	
 	public List<Paper> getPapers() {
@@ -232,6 +244,72 @@ public class DBDAO {
 		}
 		
 		return papers;
+	}
+	
+	public boolean addTrader(Trader trader) {
+		
+		try {
+			
+			PreparedStatement addTrader = con.prepareStatement("CALL AddTrader(?, ?, ?, ?)");
+			
+			addTrader.setString(1, trader.getName());
+			addTrader.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
+			addTrader.setString(3, trader.getGeneratorName());
+			addTrader.setString(4, PersistanceProvider.marshalGenParams(trader.getGenerator()));
+			addTrader.execute();
+			
+			return true;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+		
+		return false;
+	}
+	
+	public Trader getTrader(String name) {
+		
+		try {
+			PreparedStatement get = con.prepareStatement("CALL GetTrader(?)");
+			get.setString(1, name);
+			ResultSet rs = get.executeQuery();
+			
+			List<Trader> traders = resultSetToTraders(rs);
+			if (traders.size() > 0) {
+				return traders.get(0);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		return null;
+	}
+
+	public List<Trader> getTraders() {
+		
+		try {
+			PreparedStatement get = con.prepareStatement("CALL GetTraders()");
+			ResultSet rs = get.executeQuery();
+			
+			return resultSetToTraders(rs);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Trader> resultSetToTraders(ResultSet rs) throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+		List<Trader> traders = new LinkedList<Trader>();
+		while (rs.next()) {
+			String name = rs.getString("name");
+			Symbol symbol = Symbol.valueOf(rs.getString("symbol"));
+			Class<?> clazz = Class.forName(rs.getString("siggen"));
+			Map<String, Object> params = PersistanceProvider.unmarshalGenParams(rs.getString("params"));
+			SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
+			siggen.setParameters(params);
+			traders.add(new Trader(name, siggen, null, symbol));
+		}
+		return traders;
 	}
 	
 	public boolean importData(File f, DataFileFormat format, Symbol symbol) throws QuotesReaderException {

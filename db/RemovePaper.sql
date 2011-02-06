@@ -1,4 +1,4 @@
-CREATE PROCEDURE emovePaper(
+CREATE PROCEDURE RemovePaper(
 	IN sym VARCHAR(20)
 )
 
