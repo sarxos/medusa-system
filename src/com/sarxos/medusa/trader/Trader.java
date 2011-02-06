@@ -13,6 +13,12 @@ import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
 
 
+/**
+ * Trader class. It is designed to handle decision events from decision maker,
+ * send notification/question and buy or sell given paper.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
 public class Trader implements DecisionListener {
 
 	/**
@@ -20,10 +26,19 @@ public class Trader implements DecisionListener {
 	 */
 	private DecisionMaker decisionMaker = null;
 	
+	/**
+	 * Signal generator to use.
+	 */
 	private SignalGenerator<Quote> siggen = null;
 	
+	/**
+	 * Real time data provider.
+	 */
 	private RealTimeDataProvider provider = null;
-	
+
+	/**
+	 * Observed symbol.
+	 */
 	private Symbol symbol = null;
 	
 	private String name = null;
@@ -51,6 +66,9 @@ public class Trader implements DecisionListener {
 		this.init();
 	}
 	
+	/**
+	 * Initialize trader
+	 */
 	protected void init() {
 		if (provider == null) {
 			provider = Providers.getDefaultRealTimeDataProvider();
@@ -99,14 +117,25 @@ public class Trader implements DecisionListener {
 		return dm.getCurrentPosition();
 	}
 	
+	/**
+	 * @return Decision maker
+	 */
 	public DecisionMaker getDecisionMaker() {
 		return decisionMaker;
 	}
 
+	/**
+	 * Set new decision maker
+	 * 
+	 * @param decisionMaker - new decision maker to set
+	 */
 	public void setDecisionMaker(DecisionMaker decisionMaker) {
 		this.decisionMaker = decisionMaker;
 	}
 	
+	/**
+	 * @return Price observer
+	 */
 	public Observer getObserver() {
 		if (getDecisionMaker() == null) {
 			return null;
@@ -114,6 +143,11 @@ public class Trader implements DecisionListener {
 		return getDecisionMaker().getObserver();
 	}
 
+	/**
+	 * Set new price observer.
+	 * 
+	 * @param observer - new observer to set
+	 */
 	public void setObserver(Observer observer) {
 		if (getDecisionMaker() == null) {
 			throw new IllegalStateException(
@@ -124,6 +158,9 @@ public class Trader implements DecisionListener {
 		getDecisionMaker().setObserver(observer);
 	}
 
+	/**
+	 * @return Observed symbol
+	 */
 	public Symbol getSymbol() {
 		DecisionMaker dm = getDecisionMaker();
 		Observer o = null;
@@ -134,14 +171,23 @@ public class Trader implements DecisionListener {
 		}
 	}
 	
-	public String getGeneratorName(){
+	/**
+	 * @return Signal generator class name
+	 */
+	public String getGeneratorClassName(){
 		return siggen.getClass().getName();
 	}
 	
+	/**
+	 * @return Signal generator
+	 */
 	public SignalGenerator<Quote> getGenerator() {
 		return siggen;
 	}
 
+	/**
+	 * @return Trader's name
+	 */
 	public String getName() {
 		return name;
 	}
@@ -157,15 +203,20 @@ public class Trader implements DecisionListener {
 			throw new IllegalArgumentException("Symbol to trade cannot be null");
 		}
 		
+		this.symbol = symbol;
+		
 		Observer observer = new Observer(provider, symbol);
 		DecisionMaker dm = new DecisionMaker(observer, siggen);
 		dm.addDecisionListener(this);
 		
 		setDecisionMaker(dm);
 		
-		dm.getObserver().start();
+		observer.start();
 	}
 
+	/**
+	 * Start trade.
+	 */
 	public void trade() {
 		this.trade(symbol);
 	}

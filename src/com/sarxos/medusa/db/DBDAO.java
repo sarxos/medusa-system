@@ -254,7 +254,7 @@ public class DBDAO {
 			
 			addTrader.setString(1, trader.getName());
 			addTrader.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
-			addTrader.setString(3, trader.getGeneratorName());
+			addTrader.setString(3, trader.getGeneratorClassName());
 			addTrader.setString(4, PersistanceProvider.marshalGenParams(trader.getGenerator()));
 			addTrader.execute();
 			
