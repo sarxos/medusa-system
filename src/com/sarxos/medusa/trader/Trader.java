@@ -44,15 +44,17 @@ public class Trader implements DecisionListener {
 	private String name = null;
 	
 	
-	public Trader(String name, SignalGenerator<Quote> siggen) {
-		this(name, siggen, null, null);
+	/**
+	 * Trader constructor.
+	 * 
+	 * @param name 
+	 * @param siggen
+	 */
+	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol) {
+		this(name, siggen, symbol, null);
 	}
 
-	public Trader(String name, SignalGenerator<Quote> siggen, RealTimeDataProvider provider) {
-		this(name, siggen, provider, null);
-	}
-	
-	public Trader(String name, SignalGenerator<Quote> siggen, RealTimeDataProvider provider, Symbol symbol) {
+	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol, RealTimeDataProvider provider) {
 		if (name == null) {
 			throw new IllegalArgumentException("Trader name cannot be null");
 		}
@@ -61,6 +63,7 @@ public class Trader implements DecisionListener {
 		}
 		this.name = name;
 		this.siggen = siggen;
+		this.symbol = symbol;
 		this.provider = provider;
 		this.symbol = symbol;
 		this.init();
@@ -73,6 +76,12 @@ public class Trader implements DecisionListener {
 		if (provider == null) {
 			provider = Providers.getDefaultRealTimeDataProvider();
 		}
+		
+		Observer observer = new Observer(provider, symbol);
+		DecisionMaker dm = new DecisionMaker(observer, siggen);
+		dm.addDecisionListener(this);
+		
+		setDecisionMaker(dm);		
 	}
 	
 	@Override
@@ -197,27 +206,7 @@ public class Trader implements DecisionListener {
 	 *  
 	 * @param symbol - observed symbol
 	 */
-	public void trade(Symbol symbol) {
-		
-		if (symbol == null) {
-			throw new IllegalArgumentException("Symbol to trade cannot be null");
-		}
-		
-		this.symbol = symbol;
-		
-		Observer observer = new Observer(provider, symbol);
-		DecisionMaker dm = new DecisionMaker(observer, siggen);
-		dm.addDecisionListener(this);
-		
-		setDecisionMaker(dm);
-		
-		observer.start();
-	}
-
-	/**
-	 * Start trade.
-	 */
 	public void trade() {
-		this.trade(symbol);
+		getDecisionMaker().getObserver().start();
 	}
 }

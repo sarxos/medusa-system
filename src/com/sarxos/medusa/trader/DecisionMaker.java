@@ -4,12 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
@@ -28,25 +22,21 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * Price observer.
 	 */
-	@XmlElement(name = "observer", required = true)
 	private Observer observer = null;
 	
 	/**
 	 * Signals generator.
 	 */
-	@XmlTransient
 	private SignalGenerator<Quote> generator = null; 
 	
 	/**
 	 * Decision listeners (traders).
 	 */
-	@XmlTransient
 	private List<DecisionListener> listeners = new LinkedList<DecisionListener>();
 	
 	/**
 	 * Current wallet position.
 	 */
-	@XmlAttribute
 	private Position position = Position.SHORT;
 
 	
@@ -124,7 +114,6 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * @return Paper observer
 	 */
-	@XmlTransient
 	public Observer getObserver() {
 		return observer;
 	}
@@ -155,7 +144,6 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * @return Signal generator.
 	 */
-	@XmlTransient
 	public SignalGenerator<Quote> getGenerator() {
 		return generator;
 	}
@@ -163,7 +151,6 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * @return Current position being set (long, short).
 	 */
-	@XmlTransient
 	public Position getCurrentPosition() {
 		return position;
 	}

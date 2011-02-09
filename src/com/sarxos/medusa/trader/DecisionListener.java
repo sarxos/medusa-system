@@ -1,7 +1,5 @@
 package com.sarxos.medusa.trader;
 
-import javax.xml.bind.annotation.XmlTransient;
-
 
 /**
  * Decision listener interface.
@@ -15,7 +13,6 @@ public interface DecisionListener {
 	 * 
 	 * @param event - decision event
 	 */
-	@XmlTransient
 	public void decisionChange(DecisionEvent event);
 	
 }

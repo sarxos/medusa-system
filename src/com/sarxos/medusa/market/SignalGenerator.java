@@ -3,11 +3,7 @@ package com.sarxos.medusa.market;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlType;
 
-
-
-@XmlType(name = "siggen")
 public interface SignalGenerator<T extends Quote> {
 
 	public List<Signal> generate(T[] data, int range);

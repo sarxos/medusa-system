@@ -4,11 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.sarxos.medusa.data.DataProviderException;
 import com.sarxos.medusa.data.RealTimeDataProvider;
 import com.sarxos.medusa.market.Quote;
@@ -48,43 +43,36 @@ public class Observer implements Runnable {
 	/**
 	 * Stock data provider.
 	 */
-	@XmlTransient
 	private RealTimeDataProvider provider = null;
 	
 	/**
 	 * Runner for each observer;
 	 */
-	@XmlTransient
 	private Thread runner = null;
 
 	/**
 	 * Runner state.
 	 */
-	@XmlTransient
 	private State state = State.STOPPED;
 
 	/**
 	 * Observed symbol.
 	 */
-	@XmlAttribute(name = "symbol", required = true)
 	private Symbol symbol = null;
 	
 	/**
 	 * Default check interval (30s).
 	 */
-	@XmlAttribute(name = "intervel", required = true)
 	private long interval = 30000;
 
 	/**
 	 * Last observed symbol price.
 	 */
-	@XmlTransient
 	private double price = -1.;
 
 	/**
 	 * Price listeners list.
 	 */
-	@XmlTransient
 	private List<PriceListener> listeners = new LinkedList<PriceListener>();
 
 	
@@ -125,7 +113,6 @@ public class Observer implements Runnable {
 	/**
 	 * @return Return check interval in seconds
 	 */
-	@XmlTransient
 	public long getInterval() {
 		return interval / 1000;
 	}
@@ -206,7 +193,6 @@ public class Observer implements Runnable {
 	/**
 	 * @return Return real time data provider.
 	 */
-	@XmlTransient
 	public RealTimeDataProvider getProvider() {
 		return provider;
 	}

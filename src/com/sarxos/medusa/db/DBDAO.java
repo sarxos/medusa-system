@@ -307,7 +307,7 @@ public class DBDAO {
 			Map<String, Object> params = PersistanceProvider.unmarshalGenParams(rs.getString("params"));
 			SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
 			siggen.setParameters(params);
-			traders.add(new Trader(name, siggen, null, symbol));
+			traders.add(new Trader(name, siggen, symbol));
 		}
 		return traders;
 	}
