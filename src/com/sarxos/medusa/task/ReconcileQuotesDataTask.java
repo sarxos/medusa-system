@@ -31,7 +31,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	
 	private QuotesAudit qa = new QuotesAudit();
 	
-	private DBDAO qdao = new DBDAO();
+	private DBDAO qdao = DBDAO.getInstance();
 
 	private HistoricalDataProvider bdp = new BossaHDProvider();
 

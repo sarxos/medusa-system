@@ -10,7 +10,7 @@ public class QuotesRegistry {
 
 	private WeakHashMap<Symbol, List<Quote>> quotes = new WeakHashMap<Symbol, List<Quote>>();
 	
-	private DBDAO dbdao = new DBDAO();
+	private DBDAO dbdao = DBDAO.getInstance();
 
 	private static QuotesRegistry instance = null;
 	

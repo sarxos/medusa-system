@@ -19,7 +19,7 @@ import com.sarxos.medusa.market.Symbol;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class Trader implements DecisionListener {
+public class Trader implements DecisionListener, Runnable {
 
 	/**
 	 * Decision maker (encapsulate decision logic).
@@ -41,14 +41,18 @@ public class Trader implements DecisionListener {
 	 */
 	private Symbol symbol = null;
 	
+	/**
+	 * Trader name.
+	 */
 	private String name = null;
 	
 	
 	/**
 	 * Trader constructor.
 	 * 
-	 * @param name 
-	 * @param siggen
+	 * @param name - trader name
+	 * @param siggen - signal generator
+	 * @param symbol - symbol to trade (e.g. KGH, BRE)
 	 */
 	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol) {
 		this(name, siggen, symbol, null);
@@ -73,6 +77,7 @@ public class Trader implements DecisionListener {
 	 * Initialize trader
 	 */
 	protected void init() {
+		
 		if (provider == null) {
 			provider = Providers.getDefaultRealTimeDataProvider();
 		}
@@ -168,7 +173,7 @@ public class Trader implements DecisionListener {
 	}
 
 	/**
-	 * @return Observed symbol
+	 * @return Observed symbol (e.g. KGH, BRE)
 	 */
 	public Symbol getSymbol() {
 		DecisionMaker dm = getDecisionMaker();
@@ -208,5 +213,10 @@ public class Trader implements DecisionListener {
 	 */
 	public void trade() {
 		getDecisionMaker().getObserver().start();
+	}
+
+	@Override
+	public void run() {
+		trade();
 	}
 }

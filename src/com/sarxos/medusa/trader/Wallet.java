@@ -30,7 +30,7 @@ public class Wallet {
 	/**
 	 * Database DAO.
 	 */
-	private DBDAO dbdao = new DBDAO();
+	private DBDAO dbdao = DBDAO.getInstance();
 	
 	/**
 	 * Private constructor.

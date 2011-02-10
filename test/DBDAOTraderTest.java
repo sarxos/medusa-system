@@ -18,21 +18,33 @@ public class DBDAOTraderTest extends TestCase {
 	private Trader trader = null;
 	
 	public DBDAOTraderTest() {
-		this.dbdao = new DBDAO();
-		this.trader = new Trader(NAME, SIGGEN);
+		this.dbdao = DBDAO.getInstance();
+		this.trader = new Trader(NAME, SIGGEN, SYM);
 	}
 	
 	public void test_addTrader() {
-		trader.trade(SYM);
-		boolean ok = dbdao.addTrader(trader);
-		assertTrue(ok);
+		try {
+			boolean ok = dbdao.addTrader(trader);
+			assertTrue(ok);
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
 	}
 
 	public void test_getTrader() {
-		Trader t = dbdao.getTrader(NAME);
-		assertEquals(NAME, t.getName());
-		assertEquals(SYM, t.getSymbol());
-		assertEquals(SIGGEN.getClass(), t.getGenerator().getClass());
+		Trader t = null;
+		try {
+			t = dbdao.getTrader(NAME);
+			assertEquals(NAME, t.getName());
+			assertEquals(SYM, t.getSymbol());
+			assertEquals(SIGGEN.getClass(), t.getGenerator().getClass());
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
 	}
+	
+	
 	
 }

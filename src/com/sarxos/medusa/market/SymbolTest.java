@@ -1,6 +1,7 @@
 package com.sarxos.medusa.market;
 
 import org.apache.bcel.Repository;
+import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.ClassGen;
 
@@ -18,7 +19,7 @@ public class SymbolTest {
 		System.out.println(jc);
 		
 		ClassGen cg = new ClassGen(jc);
-		cg.addField(new Field);
+		cg.addField(new Field());
 		
 	}
 	

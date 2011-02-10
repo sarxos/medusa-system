@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.sarxos.medusa.data.DataFileFormat;
 import com.sarxos.medusa.data.PersistanceProvider;
@@ -40,9 +41,11 @@ public class DBDAO {
 	private Connection con = null;
 	
 	private SQLFileReader sqlreader = new SQLFileReader();
+
+	private static AtomicReference<DBDAO> instance = new AtomicReference<DBDAO>();
 	
 	
-	public DBDAO() {
+	private DBDAO() {
 		try {
 			con = DriverManager.getConnection(url, "root", "secret");
 			
@@ -60,6 +63,14 @@ public class DBDAO {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * @return DBDAO static instance
+	 */
+	public static DBDAO getInstance() {
+		instance.compareAndSet(null, new DBDAO());
+		return instance.get();
 	}
 	
 	protected void installProcedure(String name) throws IOException, SQLException {
