@@ -1,4 +1,4 @@
-package com.sarxos.medusa.comm.smeskom.v22;
+package com.sarxos.smeskom.v22;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import static com.sarxos.medusa.comm.smeskom.v22.SmesXEntity.DATE_FORMAT;
+import static com.sarxos.smeskom.v22.SmesXEntity.DATE_FORMAT;
 
 
 /**

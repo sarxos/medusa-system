@@ -54,12 +54,14 @@ public class InteriaRTDProvider implements RealTimeDataProvider {
 			HttpGet get = new HttpGet("http://mojeinwestycje.interia.pl/gie/notgpw/notc/c_akcje");
 			get.setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.99 Safari/533.4");
 			
-			HttpResponse response = client.execute(get);
-			HttpEntity entity = response.getEntity();
-			entity.writeTo(baos);
-			html = new String(baos.toByteArray());
-			entity.consumeContent();
-			baos.reset();
+			synchronized (client) {
+				HttpResponse response = client.execute(get);
+				HttpEntity entity = response.getEntity();
+				entity.writeTo(baos);
+				html = new String(baos.toByteArray());
+				entity.consumeContent();
+				baos.reset();
+			}
 			
 		} catch (Exception e) {
 			throw new DataProviderException(e);

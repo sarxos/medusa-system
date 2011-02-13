@@ -1,4 +1,4 @@
-package com.sarxos.medusa.comm.smeskom.v22;
+package com.sarxos.smeskom.v22;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

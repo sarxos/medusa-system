@@ -48,9 +48,12 @@ public class BossaHDProvider implements HistoricalDataProvider {
 			try {
 				HTTPClient client = HTTPClient.getInstance();
 				HttpGet get = new HttpGet("http://bossa.pl/pub/metastock/mstock/sesjaall/few_last.zip");
-				HttpResponse response = client.execute(get);
-				HttpEntity entity = response.getEntity();
-				entity.writeTo(new FileOutputStream(f));
+				
+				synchronized (client) {
+					HttpResponse response = client.execute(get);
+					HttpEntity entity = response.getEntity();
+					entity.writeTo(new FileOutputStream(f));
+				}
 			} catch (Exception e) {
 				throw new DataProviderException(e);
 			}
@@ -185,9 +188,11 @@ public class BossaHDProvider implements HistoricalDataProvider {
 			try {
 				HTTPClient client = HTTPClient.getInstance();
 				HttpGet get = new HttpGet("http://bossa.pl/pub/metastock/cgl/mstcgl.zip");
-				HttpResponse response = client.execute(get);
-				HttpEntity entity = response.getEntity();
-				entity.writeTo(new FileOutputStream(f));
+				synchronized (client) {
+					HttpResponse response = client.execute(get);
+					HttpEntity entity = response.getEntity();
+					entity.writeTo(new FileOutputStream(f));
+				}
 			} catch (Exception e) {
 				throw new DataProviderException(e);
 			}

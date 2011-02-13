@@ -11,7 +11,7 @@ import com.sarxos.medusa.db.DBDAO;
 import com.sarxos.medusa.trader.Trader;
 
 
-public class Runner extends Thread {
+public class MedusaDaemon extends Thread {
 
 	/**
 	 * Traders executor.
@@ -27,15 +27,17 @@ public class Runner extends Thread {
 	 * Is runner running?
 	 */
 	private AtomicBoolean running = new AtomicBoolean(false);
-	
-	
-	public Runner() {
+
+
+	public MedusaDaemon() {
 		super("Traders Runner");
 	}
 	
 	protected void startOnce() {
 
 		super.start();
+
+		MySQLRunner.getInstance().runMySQL();
 		
 		DBDAO dao = null;
 		List<Trader> tmp = null;
@@ -79,6 +81,7 @@ public class Runner extends Thread {
 				System.out.println("Starting trader " + trader);
 				try {
 					executor.execute(trader);
+					traders.add(trader);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -107,7 +110,7 @@ public class Runner extends Thread {
 	}
 
 	public static void main(String[] args) {
-		Runner r = new Runner();
+		MedusaDaemon r = new MedusaDaemon();
 		r.startTraders();
 		try {
 			r.join();

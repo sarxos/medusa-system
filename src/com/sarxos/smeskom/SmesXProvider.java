@@ -1,4 +1,4 @@
-package com.sarxos.medusa.comm.smeskom;
+package com.sarxos.smeskom;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,12 +26,12 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.sarxos.medusa.comm.Message;
-import com.sarxos.medusa.comm.smeskom.v22.SmesXExecutionStatus;
-import com.sarxos.medusa.comm.smeskom.v22.SmesXRequest;
-import com.sarxos.medusa.comm.smeskom.v22.SmesXResponse;
-import com.sarxos.medusa.comm.smeskom.v22.SmesXSMSSend;
 import com.sarxos.medusa.http.HTTPClient;
 import com.sarxos.medusa.http.NaiveSSLFactory;
+import com.sarxos.smeskom.v22.SmesXExecutionStatus;
+import com.sarxos.smeskom.v22.SmesXRequest;
+import com.sarxos.smeskom.v22.SmesXResponse;
+import com.sarxos.smeskom.v22.SmesXSMSSend;
 
 
 /**
@@ -154,13 +154,13 @@ public class SmesXProvider {
 			//entity.writeTo(baos);
 			//baos.reset();
 			
-			HttpResponse response = client.execute(post);
-			HttpEntity rentity = response.getEntity();
-			
-			headers = response.getAllHeaders();
-			
-			rentity.writeTo(baos);
-			rentity.consumeContent();
+			synchronized (client) {
+				HttpResponse response = client.execute(post);
+				HttpEntity rentity = response.getEntity();
+				headers = response.getAllHeaders();
+				rentity.writeTo(baos);
+				rentity.consumeContent();
+			}
 
 			// TODO write response xml to file 
 			bytes = baos.toByteArray();

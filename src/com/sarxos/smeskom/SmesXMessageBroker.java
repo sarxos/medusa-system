@@ -1,4 +1,4 @@
-package com.sarxos.medusa.comm.smeskom;
+package com.sarxos.smeskom;
 
 public class SmesXMessageBroker {
 

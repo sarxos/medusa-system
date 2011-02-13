@@ -48,7 +48,6 @@ public class DBDAO {
 	private DBDAO() {
 		try {
 			con = DriverManager.getConnection(url, "root", "secret");
-			
 			// TODO iterate via directory and install all
 			installProcedure("GetQuotes");
 			installProcedure("AddPaper");

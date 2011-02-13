@@ -219,4 +219,10 @@ public class Trader implements DecisionListener, Runnable {
 	public void run() {
 		trade();
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[" + getSymbol() + "][" 
+			+ getGeneratorClassName() + "]";
+	}
 }

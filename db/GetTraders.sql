@@ -7,7 +7,5 @@ BEGIN
 	SELECT 
 		*
 	FROM
-		trader 
-	WHERE
-		name = i_name;
+		trader;
 END
