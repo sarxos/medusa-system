@@ -1,4 +1,4 @@
-package com.sarxos.medusa.cli;
+package com.sarxos.medusa.cli.command;
 
 import org.naturalcli.Command;
 import org.naturalcli.ExecutionException;

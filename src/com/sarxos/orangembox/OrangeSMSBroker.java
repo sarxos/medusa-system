@@ -1,4 +1,4 @@
-package com.sarxos.medusa.comm.orange;
+package com.sarxos.orangembox;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;

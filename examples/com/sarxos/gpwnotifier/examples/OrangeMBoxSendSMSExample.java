@@ -3,7 +3,7 @@ package com.sarxos.gpwnotifier.examples;
 import com.sarxos.medusa.comm.Message;
 import com.sarxos.medusa.comm.MessageBroker;
 import com.sarxos.medusa.comm.MessagingException;
-import com.sarxos.medusa.comm.orange.OrangeSMSBroker;
+import com.sarxos.orangembox.OrangeSMSBroker;
 
 
 public class OrangeMBoxSendSMSExample {

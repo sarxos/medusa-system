@@ -13,12 +13,6 @@ import com.sarxos.medusa.market.Symbol;
 
 public class QuotesAudit {
 
-	public static void main(String[] args) {
-		// TODO parametrize
-		QuotesAudit qa = new QuotesAudit();
-		qa.audit(Symbol.KGH);
-	}
-
 	/**
 	 * Will return dates with lacking quotes.
 	 *  

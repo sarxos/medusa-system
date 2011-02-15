@@ -9,6 +9,9 @@ import org.naturalcli.InvalidSyntaxException;
 import org.naturalcli.NaturalCLI;
 import org.naturalcli.commands.HelpCommand;
 
+import com.sarxos.medusa.cli.command.AuditQuoteCommand;
+import com.sarxos.medusa.cli.command.ObservePaperCommand;
+
 
 public class CLI {
 
@@ -17,6 +20,7 @@ public class CLI {
 		Set<Command> cs = new HashSet<Command>();
 		cs.add(new HelpCommand(cs));
 		cs.add(new ObservePaperCommand());
+		cs.add(new AuditQuoteCommand());
 
 		new NaturalCLI(cs).execute(args);
 	}

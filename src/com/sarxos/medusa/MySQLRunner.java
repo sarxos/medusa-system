@@ -5,14 +5,27 @@ import java.net.Socket;
 import java.util.concurrent.atomic.AtomicReference;
 
 
+/**
+ * Goal of this class is to run MySQL: service and ensure it is running.
+ * If service is not running after 10s new <code>RuntimeException</code>
+ * is being threw. 
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
 public class MySQLRunner {
 
+	/**
+	 * Static instance - this is singleton. 
+	 */
 	private static AtomicReference<MySQLRunner> instance = new AtomicReference<MySQLRunner>();
 	
 	
 	private MySQLRunner() {
 	}
 	
+	/**
+	 * @return Will return static instance of this class. 
+	 */
 	protected static MySQLRunner getInstance() {
 		instance.compareAndSet(null, new MySQLRunner());
 		return instance.get();
@@ -42,28 +55,13 @@ public class MySQLRunner {
 	}
 	
 	/**
-	 * Run MySQL service.
+	 * Run MySQL service and ensure it is running.
 	 */
 	public void runMySQL() {
 		
 		if (!isMySQLRunning()) {
 
-			ProcessBuilder pb = new ProcessBuilder();
-			String os = System.getProperty("os.name");
-			
-			if ("Windows XP".equals(os)) {
-				pb = pb.command("net", "start", "mysql");
-			} else if ("Linux".equals(os)) {
-				pb = pb.command("service", "mysql", "start");
-			} else {
-				throw new RuntimeException("Unsupported Operating System '" + os + "'");
-			}
-			
-			try {
-				pb.start();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+			runMySQLOnce();
 			
 			int i = 0;
 			while (!isMySQLRunning()) {
@@ -76,7 +74,29 @@ public class MySQLRunner {
 					throw new RuntimeException("MySQL service is not running");
 				}
 			}
-			
+		}
+	}
+	
+	/**
+	 * Run MySQL service.
+	 */
+	protected void runMySQLOnce() {
+		
+		ProcessBuilder pb = new ProcessBuilder();
+		String os = System.getProperty("os.name");
+		
+		if ("Windows XP".equals(os)) {
+			pb = pb.command("net", "start", "mysql");
+		} else if ("Linux".equals(os)) {
+			pb = pb.command("service", "mysql", "start");
+		} else {
+			throw new RuntimeException("Unsupported operating system '" + os + "'");
+		}
+		
+		try {
+			pb.start();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
