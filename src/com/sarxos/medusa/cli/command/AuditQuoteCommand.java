@@ -9,7 +9,7 @@ import org.naturalcli.ICommandExecutor;
 import org.naturalcli.InvalidSyntaxException;
 import org.naturalcli.ParseResult;
 
-import com.sarxos.medusa.db.QuotesAudit;
+import com.sarxos.medusa.data.QuotesAudit;
 import com.sarxos.medusa.market.Symbol;
 
 

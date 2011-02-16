@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.sarxos.medusa.data.DataProviderException;
+import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.data.RealTimeDataProvider;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
@@ -30,21 +31,19 @@ public class Observer implements Runnable {
 	 * @author Bartosz Firyn (SarXos)
 	 */
 	public static enum State {
-		RUNNIG,
-		PAUSED,
-		STOPPED;
+		RUNNIG, PAUSED, STOPPED;
 	}
 
 	/**
-	 * Thread group for all observer runners. 
+	 * Thread group for all observer runners.
 	 */
 	private static ThreadGroup group = new ThreadGroup("Observers");
-	
+
 	/**
 	 * Stock data provider.
 	 */
 	private RealTimeDataProvider provider = null;
-	
+
 	/**
 	 * Runner for each observer;
 	 */
@@ -59,11 +58,11 @@ public class Observer implements Runnable {
 	 * Observed symbol.
 	 */
 	private Symbol symbol = null;
-	
+
 	/**
 	 * Default check interval (30s).
 	 */
-	private long interval = 30000;
+	private long interval = 1000;
 
 	/**
 	 * Last observed symbol price.
@@ -75,17 +74,16 @@ public class Observer implements Runnable {
 	 */
 	private List<PriceListener> listeners = new LinkedList<PriceListener>();
 
-	
 	/**
-	 * This constructor shall never be used, it is required only by 
-	 * JAXB reflection mechanism.
+	 * This constructor shall never be used, it is required only by JAXB
+	 * reflection mechanism.
 	 */
 	protected Observer() {
 	}
-	
+
 	/**
 	 * Create new data observer.
-	 *  
+	 * 
 	 * @param provider - real time data provider
 	 * @param symbol - observed symbol
 	 */
@@ -93,7 +91,7 @@ public class Observer implements Runnable {
 		this.provider = provider;
 		this.observe(symbol);
 	}
-	
+
 	/**
 	 * Observe symbol.
 	 * 
@@ -104,12 +102,11 @@ public class Observer implements Runnable {
 			this.symbol = symbol;
 		} else {
 			throw new IllegalArgumentException(
-					"Data provider " + provider.getClass().getName() + " " +
-					"cannot serve " + symbol + " data"
-			);
+				"Data provider " + provider.getClass().getName() +
+				" " + "cannot serve " + symbol + " data");
 		}
 	}
-	
+
 	/**
 	 * @return Return check interval in seconds
 	 */
@@ -118,7 +115,7 @@ public class Observer implements Runnable {
 	}
 
 	/**
-	 * Set check interval in seconds. 
+	 * Set check interval in seconds.
 	 * 
 	 * @param interval
 	 */
@@ -130,8 +127,8 @@ public class Observer implements Runnable {
 	}
 
 	/**
-	 * Stop observation. After calling this method observation will be
-	 * stopped, but observer can be run once again in any moment.
+	 * Stop observation. After calling this method observation will be stopped,
+	 * but observer can be run once again in any moment.
 	 */
 	public void stop() {
 		if (state != State.RUNNIG && state != State.PAUSED) {
@@ -139,7 +136,7 @@ public class Observer implements Runnable {
 		}
 		this.state = State.STOPPED;
 	}
-	
+
 	/**
 	 * Pause observation.
 	 */
@@ -164,7 +161,7 @@ public class Observer implements Runnable {
 		}
 		this.state = State.RUNNIG;
 	}
-	
+
 	/**
 	 * Start observation.
 	 */
@@ -180,7 +177,7 @@ public class Observer implements Runnable {
 		state = State.RUNNIG;
 		runner.start();
 	}
-	
+
 	/**
 	 * @return Runner thread for this observer.
 	 */
@@ -189,7 +186,7 @@ public class Observer implements Runnable {
 		thread.setDaemon(true);
 		return thread;
 	}
-	
+
 	/**
 	 * @return Return real time data provider.
 	 */
@@ -214,25 +211,47 @@ public class Observer implements Runnable {
 			} else {
 				try {
 					runOnce();
-					Thread.sleep(interval);
 				} catch (DataProviderException e) {
 					e.printStackTrace();
+				}
+				try {
+					Thread.sleep(interval);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-		} while(true);
+		} while (true);
 	}
-	
+
 	protected void runOnce() throws DataProviderException {
-		Quote q = provider.getQuote(symbol);;
+
+		Quote q = null;
+		q = provider.getQuote(symbol);
+		q = bind(q, symbol);
+
 		double tmp = q.getClose();
 		if (tmp != price && price != -1) {
 			notifyListeners(new PriceEvent(this, price, tmp, q));
 		}
+
 		price = tmp;
 	}
-	
+
+	/**
+	 * Bind quote with historical data.
+	 * 
+	 * @param q - quote to bind
+	 * @param symbol - symbol to lookup in the quotes registry
+	 * @return Quote
+	 */
+	private Quote bind(Quote q, Symbol symbol) {
+		List<Quote> quotes = QuotesRegistry.getInstance().getQuotes(symbol);
+		Quote p = quotes.get(quotes.size() - 1);
+		q.setPrev(p);
+		p.setNext(q);
+		return q;
+	}
+
 	/**
 	 * @return Thread group for observation runners.
 	 */
@@ -241,43 +260,45 @@ public class Observer implements Runnable {
 	}
 
 	/**
-	 * @return Return last observed price or -1 if no price has been observed yet.
+	 * @return Return last observed price or -1 if no price has been observed
+	 *         yet.
 	 */
 	public double getPrice() {
 		return price;
 	}
-	
+
 	/**
 	 * Notify all listeners about price change.
 	 * 
 	 * @param pe - price event
 	 */
 	protected void notifyListeners(PriceEvent pe) {
-		
+
 		PriceListener listener = null;
 		ListIterator<PriceListener> i = listeners.listIterator();
-		
+
 		while (i.hasNext()) {
 			listener = i.next();
 			try {
 				listener.priceChange(pe);
+				System.out.println(pe);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	/**
 	 * @return Price listeners array.
 	 */
 	public PriceListener[] getPriceListeners() {
 		return listeners.toArray(new PriceListener[listeners.size()]);
 	}
-	
+
 	/**
 	 * 
 	 * @param listener
-	 * @return true if listener was added or false if it is already on the list 
+	 * @return true if listener was added or false if it is already on the list
 	 */
 	public boolean addPriceListener(PriceListener listener) {
 		if (!listeners.contains(listener)) {
@@ -285,7 +306,7 @@ public class Observer implements Runnable {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Remove particular price listener.
 	 * 
@@ -295,7 +316,7 @@ public class Observer implements Runnable {
 	public boolean removePriceListener(PriceListener listener) {
 		return listeners.remove(listener);
 	}
-	
+
 	/**
 	 * @return Runnable runner.
 	 */
@@ -315,5 +336,9 @@ public class Observer implements Runnable {
 	 */
 	public Symbol getSymbol() {
 		return symbol;
-	}	
+	}
+
+	public static void main(String[] args) {
+		Observer o = new Observer();
+	}
 }

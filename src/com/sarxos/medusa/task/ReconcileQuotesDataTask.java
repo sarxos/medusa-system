@@ -8,9 +8,9 @@ import java.util.ListIterator;
 
 import com.sarxos.medusa.data.DataProviderException;
 import com.sarxos.medusa.data.HistoricalDataProvider;
+import com.sarxos.medusa.data.QuotesAudit;
 import com.sarxos.medusa.data.bossa.BossaHDProvider;
 import com.sarxos.medusa.db.DBDAO;
-import com.sarxos.medusa.db.QuotesAudit;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;

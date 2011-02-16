@@ -14,19 +14,21 @@ public class PriceEvent extends EventObject {
 
 	private static final long serialVersionUID = 2024272282480149837L;
 
+	/**
+	 * Quote with current data.
+	 */
 	private Quote quote = null;
 
 	/**
 	 * Previous price.
 	 */
 	private double previous = 0;
-	
+
 	/**
 	 * Current (newest) price.
 	 */
 	private double current = 0;
-	
-	
+
 	/**
 	 * Create price event.
 	 * 
@@ -42,17 +44,20 @@ public class PriceEvent extends EventObject {
 		this.quote = quote;
 	}
 
+	/**
+	 * @return Quote with current data
+	 */
 	public Quote getQuote() {
 		return quote;
 	}
-	
+
 	/**
 	 * @return Return previous price.
 	 */
 	public double getPreviousPrice() {
 		return previous;
 	}
-	
+
 	/**
 	 * @return Return current price.
 	 */
@@ -62,6 +67,11 @@ public class PriceEvent extends EventObject {
 
 	@Override
 	public Observer getSource() {
-		return (Observer)super.getSource();
+		return (Observer) super.getSource();
+	}
+
+	@Override
+	public String toString() {
+		return "---- PriceEvent ----\n" + quote.toString();
 	}
 }
