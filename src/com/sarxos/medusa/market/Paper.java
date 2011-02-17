@@ -1,28 +1,25 @@
 package com.sarxos.medusa.market;
 
-
-
 /**
  * Paper to be stored inside wallet.
  * 
  * @author Bartosz Firyn (SarXos)
  */
 public class Paper implements Cloneable {
-	
+
 	/**
 	 * Paper symbol (e.g. KGHM, BRE, etc).
 	 */
 	private Symbol symbol = null;
-	
+
 	/**
-	 * Current paper quantity (how much items of given paper
-	 * I have).
+	 * Current paper quantity (how much items of given paper I have).
 	 */
 	private int quantity = 0;
-	
+
 	/**
-	 * Desired paper quantity (how much items of this paper
-	 * I would like to have)
+	 * Desired paper quantity (how much items of this paper I would like to
+	 * have)
 	 */
 	private int desiredQuantity = 0;
 
@@ -32,14 +29,15 @@ public class Paper implements Cloneable {
 	private SecuritiesGroup group = null;
 
 	// TODO read from file
-	private transient String[] indexes = new String[] {"FW20", "FW40"};
-	private transient String[] quotes = new String[] {"FACP", "FKGH", "FPEO", "FPGE", "FPGN", "FPKN", "FPKO", "FPZU", "FTPS"};
-	private transient String[] currency = new String[] {"FACP", "FEUR", "FUSD"};
-	private transient String[] options = new String[] {"OW20"};
-	private transient String[] miniwig = new String[] {"MW20"};
-	private transient String[] etf = new String[] {"ETFW"};
-	private transient String[] treasury = new String[] {"DS20", "DZ08"}; // and more
-	
+	private transient String[] indexes = new String[] { "FW20", "FW40" };
+	private transient String[] quotes = new String[] { "FACP", "FKGH", "FPEO", "FPGE", "FPGN", "FPKN", "FPKO", "FPZU", "FTPS" };
+	private transient String[] currency = new String[] { "FACP", "FEUR", "FUSD" };
+	private transient String[] options = new String[] { "OW20" };
+	private transient String[] miniwig = new String[] { "MW20" };
+	private transient String[] etf = new String[] { "ETFW" };
+	private transient String[] treasury = new String[] { "DS20", "DZ08" }; // and
+																			// more
+
 	/**
 	 * Paper to be stored inside wallet. Constructor.
 	 * 
@@ -62,7 +60,7 @@ public class Paper implements Cloneable {
 		this.setDesiredQuantity(desired);
 		this.setQuantity(quantity);
 	}
-	
+
 	/**
 	 * @return Paper symbol.
 	 */
@@ -102,7 +100,7 @@ public class Paper implements Cloneable {
 		this.quantity = quantity;
 	}
 
-	/** 
+	/**
 	 * @return Desired paper quantity.
 	 */
 	public int getDesiredQuantity() {
@@ -120,7 +118,7 @@ public class Paper implements Cloneable {
 		}
 		this.desiredQuantity = desired;
 	}
-	
+
 	@Override
 	public Paper clone() {
 		try {
@@ -129,11 +127,11 @@ public class Paper implements Cloneable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	protected void initGroup(Symbol symbol) {
-		
-		String sm = symbol.toString(); 
-		
+
+		String sm = symbol.toString();
+
 		if (inGroup(sm, indexes)) {
 			group = SecuritiesGroup.FUTURES_INDEXES;
 		} else if (inGroup(sm, quotes)) {
@@ -156,7 +154,7 @@ public class Paper implements Cloneable {
 
 	/**
 	 * @param sm - symbol string to check
-	 * @param arr - array of prefixes 
+	 * @param arr - array of prefixes
 	 * @return true / false
 	 */
 	protected boolean inGroup(String sm, String[] arr) {

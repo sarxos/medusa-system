@@ -1,3 +1,4 @@
+package com.sarxos.medusa.test;
 import junit.framework.TestCase;
 
 

@@ -337,8 +337,4 @@ public class Observer implements Runnable {
 	public Symbol getSymbol() {
 		return symbol;
 	}
-
-	public static void main(String[] args) {
-		Observer o = new Observer();
-	}
 }

@@ -20,6 +20,7 @@ import com.sarxos.medusa.data.QuotesReader;
 import com.sarxos.medusa.data.QuotesReaderException;
 import com.sarxos.medusa.data.stoq.StoqReader;
 import com.sarxos.medusa.market.Paper;
+import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
@@ -44,7 +45,7 @@ public class DBDAO {
 
 	private static AtomicReference<DBDAO> instance = new AtomicReference<DBDAO>();
 
-	private DBDAO() {
+	private DBDAO() throws DBDAOException {
 		try {
 			con = DriverManager.getConnection(url, "root", "secret");
 			// TODO iterate via directory and install all
@@ -55,11 +56,10 @@ public class DBDAO {
 			installProcedure("RemovePaper");
 			installProcedure("AddTrader");
 			installProcedure("GetTrader");
+			installProcedure("RemoveTrader");
 			installProcedure("GetTraders");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new DBDAOException(e);
 		}
 	}
 
@@ -67,7 +67,11 @@ public class DBDAO {
 	 * @return DBDAO static instance
 	 */
 	public static DBDAO getInstance() {
-		instance.compareAndSet(null, new DBDAO());
+		try {
+			instance.compareAndSet(null, new DBDAO());
+		} catch (DBDAOException e) {
+			e.printStackTrace();
+		}
 		return instance.get();
 	}
 
@@ -189,20 +193,27 @@ public class DBDAO {
 
 	public boolean addPaper(Paper p) {
 
+		PreparedStatement add = null;
 		try {
-
 			ensureWalletTableExists();
 
-			PreparedStatement addPaper = con.prepareStatement("CALL AddPaper(?, ?, ?)");
-			addPaper.setString(1, p.getSymbol().toString());
-			addPaper.setDouble(2, p.getQuantity());
-			addPaper.setDouble(3, p.getDesiredQuantity());
-			addPaper.execute();
+			add = con.prepareStatement("CALL AddPaper(?, ?, ?)");
+			add.setString(1, p.getSymbol().toString());
+			add.setDouble(2, p.getQuantity());
+			add.setDouble(3, p.getDesiredQuantity());
+			add.execute();
 
 			return true;
-
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			if (add != null) {
+				try {
+					add.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return false;
@@ -214,12 +225,12 @@ public class DBDAO {
 
 			ensureWalletTableExists();
 
-			PreparedStatement updateWallet = con.prepareStatement("CALL UpdatePaper(?, ?, ?)");
+			PreparedStatement update = con.prepareStatement("CALL UpdatePaper(?, ?, ?)");
 
-			updateWallet.setString(1, p.getSymbol().toString());
-			updateWallet.setDouble(2, p.getQuantity());
-			updateWallet.setDouble(3, p.getDesiredQuantity());
-			updateWallet.execute();
+			update.setString(1, p.getSymbol().toString());
+			update.setDouble(2, p.getQuantity());
+			update.setDouble(3, p.getDesiredQuantity());
+			update.execute();
 
 			return true;
 
@@ -232,17 +243,26 @@ public class DBDAO {
 
 	public boolean removePaper(Paper p) {
 
+		PreparedStatement update = null;
 		try {
-
 			ensureWalletTableExists();
 
-			PreparedStatement updateWallet = con.prepareStatement("CALL RemovePaper(?, ?, ?)");
-			updateWallet.setString(1, p.getSymbol().toString());
+			update = con.prepareStatement("CALL RemovePaper(?, ?, ?)");
+			update.setString(1, p.getSymbol().toString());
+			update.execute();
 
 			return true;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			if (update != null) {
+				try {
+					update.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return false;
@@ -269,60 +289,153 @@ public class DBDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			if (select != null) {
+				try {
+					select.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return papers;
 	}
 
-	public boolean addTrader(Trader trader) {
+	/**
+	 * Add trader to the DB.
+	 * 
+	 * @param trader - trader to add
+	 * @return true if trader has been added, false otherwise
+	 * @throws DBDAOException
+	 */
+	public boolean addTrader(Trader trader) throws DBDAOException {
 
+		PreparedStatement add = null;
 		try {
-
-			PreparedStatement addTrader = con.prepareStatement("CALL AddTrader(?, ?, ?, ?)");
-
-			addTrader.setString(1, trader.getName());
-			addTrader.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
-			addTrader.setString(3, trader.getGeneratorClassName());
-			addTrader.setString(4, PersistanceProvider.marshalGenParams(trader.getGenerator()));
-			addTrader.execute();
+			add = con.prepareStatement("CALL AddTrader(?, ?, ?, ?, ?)");
+			add.setString(1, trader.getName());
+			add.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
+			add.setInt(3, trader.getPosition() == Position.SHORT ? 0 : 1);
+			add.setString(4, trader.getGeneratorClassName());
+			add.setString(5, PersistanceProvider.marshalGenParams(trader.getGenerator()));
+			add.execute();
 
 			return true;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DBDAOException(e);
+		} finally {
+			if (add != null) {
+				try {
+					add.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-
-		return false;
 	}
 
-	public Trader getTrader(String name) {
+	/**
+	 * Update trader in the DB.
+	 * 
+	 * @param trader - trader to update
+	 * @return true if trader has been updated, false otherwise
+	 * @throws DBDAOException
+	 */
+	public boolean updateTrader(Trader trader) throws DBDAOException {
+		return addTrader(trader);
+	}
 
+	/**
+	 * Read given trader from the DB.
+	 * 
+	 * @param name - trader's name to read
+	 * @return Will return trader or null if something is wrong
+	 * @throws DBDAOException
+	 */
+	public Trader getTrader(String name) throws DBDAOException {
+
+		PreparedStatement get = null;
 		try {
-			PreparedStatement get = con.prepareStatement("CALL GetTrader(?)");
+			get = con.prepareStatement("CALL GetTrader(?)");
 			get.setString(1, name);
+
 			ResultSet rs = get.executeQuery();
 
 			List<Trader> traders = resultSetToTraders(rs);
 			if (traders.size() > 0) {
 				return traders.get(0);
+			} else {
+				return null;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new DBDAOException(e);
+		} finally {
+			if (get != null) {
+				try {
+					get.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		return null;
 	}
 
-	public List<Trader> getTraders() {
+	/**
+	 * @return Return all traders
+	 * @throws DBDAOException
+	 */
+	public List<Trader> getTraders() throws DBDAOException {
 
+		PreparedStatement get = null;
 		try {
-			PreparedStatement get = con.prepareStatement("CALL GetTraders()");
+			get = con.prepareStatement("CALL GetTraders()");
+
 			ResultSet rs = get.executeQuery();
 
 			return resultSetToTraders(rs);
+
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new DBDAOException(e);
+		} finally {
+			if (get != null) {
+				try {
+					get.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		return null;
+	}
+
+	/**
+	 * Remove trader from the DB.
+	 * 
+	 * @param name - trader's name to remove
+	 * @return true in case of successful operation, false otherwise
+	 * @throws DBDAOException
+	 */
+	public boolean removeTrader(String name) throws DBDAOException {
+
+		PreparedStatement get = null;
+		try {
+			get = con.prepareStatement("CALL RemoveTrader(?)");
+			get.setString(1, name);
+			get.execute();
+
+			return true;
+		} catch (Exception e) {
+			throw new DBDAOException(e);
+		} finally {
+			if (get != null) {
+				try {
+					get.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -335,7 +448,11 @@ public class DBDAO {
 			Map<String, Object> params = PersistanceProvider.unmarshalGenParams(rs.getString("params"));
 			SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
 			siggen.setParameters(params);
-			traders.add(new Trader(name, siggen, symbol));
+
+			Trader t = new Trader(name, siggen, symbol);
+			t.setPosition(rs.getInt("position") == 0 ? Position.SHORT : Position.LONG);
+
+			traders.add(t);
 		}
 		return traders;
 	}

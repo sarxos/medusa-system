@@ -3,13 +3,8 @@ package com.sarxos.medusa.task;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
-import com.sarxos.medusa.trader.DecisionMaker;
-import com.sarxos.medusa.trader.Observer;
 import com.sarxos.medusa.trader.PlannedTask;
-import com.sarxos.medusa.trader.Trader;
-import com.sarxos.medusa.trader.Wallet;
 
 
 /**
@@ -40,28 +35,26 @@ public class StockPauseObservers extends PlannedTask {
 		execution = calendar.getTime();
 
 		setExecutionTime(execution);
-		setExecutionPeriod(PlannedTask.PERIOD_DAY);		
+		setExecutionPeriod(PlannedTask.PERIOD_DAY);
 	}
 
 	@Override
 	public void run() {
-		
-		// TODO implement me
-		
-//		Trader trader = Trader.getInstance();
-//		
-//		List<DecisionMaker> decisionMakers = trader.getDecisionMakers();
-//		Observer observer = null;
-//		
-//		for (DecisionMaker maker : decisionMakers) {
-//			observer = maker.getObserver();
-//			observer.getSymbol();
-//		}
-//		
-//		Wallet wallet = Wallet.getInstance();
 
-		
-		
+		// TODO implement me
+
+		// Trader trader = Trader.getInstance();
+		//
+		// List<DecisionMaker> decisionMakers = trader.getDecisionMakers();
+		// Observer observer = null;
+		//
+		// for (DecisionMaker maker : decisionMakers) {
+		// observer = maker.getObserver();
+		// observer.getSymbol();
+		// }
+		//
+		// Wallet wallet = Wallet.getInstance();
+
 		// TODO Auto-generated method stub
 	}
 }
