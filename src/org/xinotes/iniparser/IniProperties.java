@@ -41,7 +41,7 @@ import java.util.Properties;
  * @see http://www.xinotes.org/notes/note/407/
  * @author Dr. Xi
  */
-public class IniProperties {
+public class INIProperties {
 
 	private Properties globalProperties;
 
@@ -54,7 +54,7 @@ public class IniProperties {
 		COMMENT
 	}
 
-	public IniProperties() {
+	public INIProperties() {
 		globalProperties = new Properties();
 		properties = new HashMap<String, Properties>();
 	}
@@ -286,7 +286,7 @@ public class IniProperties {
 	}
 
 	public static void main(String[] args) throws IOException {
-		IniProperties props = new IniProperties();
+		INIProperties props = new INIProperties();
 		InputStream in = new BufferedInputStream(new FileInputStream("test.ini"));
 		props.load(in);
 		in.close();

@@ -25,6 +25,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.trader.Trader;
+import com.sarxos.medusa.util.Configuration;
 
 
 public class DBDAO {
@@ -46,8 +47,16 @@ public class DBDAO {
 	private static AtomicReference<DBDAO> instance = new AtomicReference<DBDAO>();
 
 	private DBDAO() throws DBDAOException {
+
+		Configuration cfg = Configuration.getInstance();
+
+		String usr = cfg.getProperty("database", "user");
+		String pwd = cfg.getProperty("database", "password");
+
 		try {
-			con = DriverManager.getConnection(url, "root", "secret");
+
+			con = DriverManager.getConnection(url, usr, pwd);
+
 			// TODO iterate via directory and install all
 			installProcedure("GetQuotes");
 			installProcedure("AddPaper");
@@ -101,6 +110,7 @@ public class DBDAO {
 				"    volume BIGINT NOT NULL " +
 				")"
 		);
+		create.close();
 	}
 
 	protected void ensureWalletTableExists() throws SQLException {
@@ -112,6 +122,7 @@ public class DBDAO {
 				"    quantity INT NOT NULL" +
 				")"
 		);
+		create.close();
 	}
 
 	public boolean addQuotes(Symbol symbol, List<Quote> quotes) {
@@ -134,11 +145,15 @@ public class DBDAO {
 				insert.execute();
 			}
 
+			insert.close();
+
+			return true;
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
