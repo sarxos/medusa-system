@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 
-
 /**
  * SmesX request.
  * 
@@ -28,16 +27,18 @@ public class SmesXRequest extends SmesXEntity {
 	@XmlAttribute(name = "password")
 	private String password = null;
 
+	/**
+	 * Various SmesX operations.
+	 */
 	@XmlElementRef
 	private SmesXOperation operation = null;
-	
 
 	/**
 	 * Create SmesX request.
 	 */
 	public SmesXRequest() {
 	}
-	
+
 	/**
 	 * @return Return SmesX user's name.
 	 */

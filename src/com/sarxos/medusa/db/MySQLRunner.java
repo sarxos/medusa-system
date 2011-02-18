@@ -1,4 +1,4 @@
-package com.sarxos.medusa;
+package com.sarxos.medusa.db;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,7 +25,7 @@ public class MySQLRunner {
 	/**
 	 * @return Will return static instance of this class.
 	 */
-	protected static MySQLRunner getInstance() {
+	public static MySQLRunner getInstance() {
 		if (instance.get() == null) {
 			instance.compareAndSet(null, new MySQLRunner());
 		}

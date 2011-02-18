@@ -1,13 +1,13 @@
 package com.sarxos.smeskom.v22;
 
+import static com.sarxos.smeskom.v22.SmesXEntity.DATE_FORMAT;
+
 import java.text.ParseException;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
-import static com.sarxos.smeskom.v22.SmesXEntity.DATE_FORMAT;
 
 
 /**
@@ -23,18 +23,18 @@ public class SmesXSMS {
 	 */
 	@XmlElement(name = "id")
 	private String id = null;
-	
+
 	/**
 	 * SMS status.
 	 */
 	@XmlElement(name = "status")
 	private SmesXSMSStatus status = null;
-	
+
 	/**
 	 * SMS sent data ({@link Date} object).
 	 */
 	@XmlTransient
-	private Date sentAtDate = null;
+	private transient Date sentAtDate = null;
 
 	/**
 	 * SMS sent data ({@link String} object).
@@ -46,21 +46,56 @@ public class SmesXSMS {
 	 * SMS delivery data ({@link Date} object).
 	 */
 	@XmlTransient
-	private Date deliveredAtDate = null;
+	private transient Date deliveredAtDate = null;
 
 	/**
 	 * SMS delivery data ({@link String} object).
 	 */
 	@XmlElement(name = "delivered_at")
 	private String deliveredAtString = null;
-	
+
+	/**
+	 * SMS received by GSM modem date (Date).
+	 */
+	@XmlTransient
+	private transient Date receivedAtDate = null;
+
+	/**
+	 * SMS received by GSM modem date (String).
+	 */
+	@XmlElement(name = "received_at")
+	private String receivedAtString = null;
+
+	/**
+	 * When SMS has been inserted to the messages pool (Date).
+	 */
+	@XmlTransient
+	private transient Date insertedAtDate = null;
+
+	/**
+	 * When SMS has been inserted to the messages pool (String).
+	 */
+	@XmlElement(name = "inserted_at")
+	private String insertedAtString = null;
+
+	/**
+	 * When SMS has been marked as read (Date).
+	 */
+	@XmlTransient
+	private transient Date markedAtDate = null;
+
+	/**
+	 * When SMS has been marked as read (String).
+	 */
+	@XmlElement(name = "marked_at")
+	private String markedAtString = null;
+
 	/**
 	 * Fail code number.
 	 */
 	@XmlElement(name = "fail_code")
-	private Integer failCode = null; 
-	
-	
+	private Integer failCode = null;
+
 	/**
 	 * Constructor.
 	 */
@@ -113,7 +148,7 @@ public class SmesXSMS {
 				String msg = "Cannot parse sent at date '" + sentAtString + "'";
 				throw new RuntimeException(msg, e);
 			}
-		}		
+		}
 		return sentAtDate;
 	}
 
@@ -151,6 +186,84 @@ public class SmesXSMS {
 	public void setDeliveredAtDate(Date deliveredAtDate) {
 		this.deliveredAtDate = deliveredAtDate;
 		this.deliveredAtString = DATE_FORMAT.format(deliveredAtDate);
+	}
+
+	/**
+	 * @return Return the date when SMS has been received by GSM modem.
+	 */
+	@XmlTransient
+	public Date getReceivedAtDate() {
+		if (receivedAtDate == null && receivedAtString != null) {
+			try {
+				receivedAtDate = DATE_FORMAT.parse(receivedAtString);
+			} catch (ParseException e) {
+				String msg = "Cannot parse received at date '" + receivedAtString + "'";
+				throw new RuntimeException(msg, e);
+			}
+		}
+		return receivedAtDate;
+	}
+
+	/**
+	 * Set the date when SMS has been received by GSM modem.
+	 * 
+	 * @param deliveredAtDate - date to set
+	 */
+	public void setReceivedAtDate(Date receivedAtDate) {
+		this.receivedAtDate = receivedAtDate;
+		this.receivedAtString = DATE_FORMAT.format(receivedAtDate);
+	}
+
+	/**
+	 * @return Return the date when SMS has been inserted to the SMS pool.
+	 */
+	@XmlTransient
+	public Date getInsertedAtDate() {
+		if (insertedAtDate == null && insertedAtString != null) {
+			try {
+				insertedAtDate = DATE_FORMAT.parse(insertedAtString);
+			} catch (ParseException e) {
+				String msg = "Cannot parse inserted at date '" + insertedAtString + "'";
+				throw new RuntimeException(msg, e);
+			}
+		}
+		return insertedAtDate;
+	}
+
+	/**
+	 * Set the date when SMS has been received by GSM modem.
+	 * 
+	 * @param deliveredAtDate - date to set
+	 */
+	public void setInsertedAtDate(Date insertedAtDate) {
+		this.insertedAtDate = insertedAtDate;
+		this.insertedAtString = DATE_FORMAT.format(insertedAtDate);
+	}
+
+	/**
+	 * @return Return the date when SMS has been marked as read.
+	 */
+	@XmlTransient
+	public Date getMarkedAtDate() {
+		if (markedAtDate == null && markedAtString != null) {
+			try {
+				markedAtDate = DATE_FORMAT.parse(markedAtString);
+			} catch (ParseException e) {
+				String msg = "Cannot parse marked at date '" + markedAtString + "'";
+				throw new RuntimeException(msg, e);
+			}
+		}
+		return markedAtDate;
+	}
+
+	/**
+	 * Set the date when SMS has been marked as read.
+	 * 
+	 * @param deliveredAtDate - date to set
+	 */
+	public void setMarkedAtDate(Date markedAtDate) {
+		this.markedAtDate = markedAtDate;
+		this.markedAtString = DATE_FORMAT.format(markedAtDate);
 	}
 
 	/**

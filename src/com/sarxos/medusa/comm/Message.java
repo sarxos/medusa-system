@@ -1,20 +1,20 @@
 package com.sarxos.medusa.comm;
 
-
 public class Message {
 
-	public String recipient = null;
-	
-	public String message = null;
-	
-	public String code = null;
-	
+	private String recipient = null;
+
+	private String message = null;
+
+	private String code = null;
+
 	public Message() {
 	}
-	
+
 	public Message(String recipient, String body, String code) {
 		this.recipient = recipient;
 		this.message = code + ": " + body;
+		this.code = code;
 	}
 
 	public String getRecipient() {
@@ -31,5 +31,13 @@ public class Message {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 }

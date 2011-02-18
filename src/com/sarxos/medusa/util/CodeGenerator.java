@@ -1,4 +1,4 @@
-package com.sarxos.medusa.comm;
+package com.sarxos.medusa.util;
 
 import java.util.LinkedList;
 import java.util.List;
