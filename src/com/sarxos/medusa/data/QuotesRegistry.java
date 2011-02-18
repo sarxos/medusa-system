@@ -10,9 +10,9 @@ import com.sarxos.medusa.market.Symbol;
 
 
 /**
- * This class is a runtime storage for quotes for various market
- * symbols. Quotes are stored in weak hash map, so it is always 
- * purged whenever GC requires more memory to allocate. 
+ * This class is a runtime storage for quotes for various market symbols. Quotes
+ * are stored in weak hash map, so it is always purged whenever GC requires more
+ * memory to allocate.
  * 
  * @author Bartosz Firyn (SarXos)
  */
@@ -22,7 +22,7 @@ public class QuotesRegistry {
 	 * Weak hash storage for market quotes.
 	 */
 	private WeakHashMap<Symbol, List<Quote>> quotes = new WeakHashMap<Symbol, List<Quote>>();
-	
+
 	/**
 	 * Database DAO instance.
 	 */
@@ -32,8 +32,7 @@ public class QuotesRegistry {
 	 * Quotes registry singleton instance.
 	 */
 	private static AtomicReference<QuotesRegistry> instance = new AtomicReference<QuotesRegistry>();
-	
-	
+
 	/**
 	 * Private constructor - this class is a singleton.
 	 */
@@ -44,10 +43,12 @@ public class QuotesRegistry {
 	 * @return Return quotes registry instance.
 	 */
 	public static QuotesRegistry getInstance() {
-		instance.compareAndSet(null, new QuotesRegistry());
+		if (instance.get() == null) {
+			instance.compareAndSet(null, new QuotesRegistry());
+		}
 		return instance.get();
 	}
-	
+
 	/**
 	 * This method return quotes for given symbol.
 	 * 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.sarxos.medusa.data.DataProviderException;
+import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.data.RealTimeDataProvider;
 import com.sarxos.medusa.market.Quote;
@@ -81,6 +82,10 @@ public class Observer implements Runnable {
 	protected Observer() {
 	}
 
+	public Observer(Symbol symbol) {
+		this(null, symbol);
+	}
+
 	/**
 	 * Create new data observer.
 	 * 
@@ -88,6 +93,9 @@ public class Observer implements Runnable {
 	 * @param symbol - observed symbol
 	 */
 	public Observer(RealTimeDataProvider provider, Symbol symbol) {
+		if (provider == null) {
+			provider = Providers.getDefaultRealTimeDataProvider();
+		}
 		this.provider = provider;
 		this.observe(symbol);
 	}
@@ -182,7 +190,7 @@ public class Observer implements Runnable {
 	 * @return Runner thread for this observer.
 	 */
 	protected Thread createRunner() {
-		Thread thread = new Thread(group, this, symbol.toString());
+		Thread thread = new Thread(group, this, symbol.toString() + " Observer");
 		thread.setDaemon(true);
 		return thread;
 	}
@@ -281,7 +289,6 @@ public class Observer implements Runnable {
 			listener = i.next();
 			try {
 				listener.priceChange(pe);
-				System.out.println(pe);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -1,11 +1,11 @@
 package com.sarxos.medusa.trader;
 
-
 import static com.sarxos.medusa.market.Position.LONG;
 import static com.sarxos.medusa.market.Position.SHORT;
 
 import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.RealTimeDataProvider;
+import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
@@ -25,12 +25,12 @@ public class Trader implements DecisionListener, Runnable {
 	 * Decision maker (encapsulate decision logic).
 	 */
 	private DecisionMaker decisionMaker = null;
-	
+
 	/**
 	 * Signal generator to use.
 	 */
 	private SignalGenerator<Quote> siggen = null;
-	
+
 	/**
 	 * Real time data provider.
 	 */
@@ -40,13 +40,12 @@ public class Trader implements DecisionListener, Runnable {
 	 * Observed symbol.
 	 */
 	private Symbol symbol = null;
-	
+
 	/**
 	 * Trader name.
 	 */
 	private String name = null;
-	
-	
+
 	/**
 	 * Trader constructor.
 	 * 
@@ -72,28 +71,30 @@ public class Trader implements DecisionListener, Runnable {
 		this.symbol = symbol;
 		this.init();
 	}
-	
+
 	/**
 	 * Initialize trader
 	 */
 	protected void init() {
-		
+
 		if (provider == null) {
 			provider = Providers.getDefaultRealTimeDataProvider();
 		}
-		
+
 		Observer observer = new Observer(provider, symbol);
 		DecisionMaker dm = new DecisionMaker(observer, siggen);
 		dm.addDecisionListener(this);
-		
-		setDecisionMaker(dm);		
+
+		setDecisionMaker(dm);
 	}
-	
+
 	@Override
 	public void decisionChange(DecisionEvent de) {
-		
+
+		System.out.println(de);
+
 		SignalType signal = de.getSignalType();
-		
+
 		switch (signal) {
 			case BUY:
 				// TODO buy mechanism
@@ -111,6 +112,7 @@ public class Trader implements DecisionListener, Runnable {
 
 	/**
 	 * Set new position
+	 * 
 	 * @param p - new position to set
 	 */
 	public void setPosition(Position p) {
@@ -119,7 +121,7 @@ public class Trader implements DecisionListener, Runnable {
 		}
 		getDecisionMaker().setCurrentPosition(p);
 	}
-	
+
 	/**
 	 * @return Return current position (long, short)
 	 */
@@ -130,7 +132,7 @@ public class Trader implements DecisionListener, Runnable {
 		}
 		return dm.getCurrentPosition();
 	}
-	
+
 	/**
 	 * @return Decision maker
 	 */
@@ -146,7 +148,7 @@ public class Trader implements DecisionListener, Runnable {
 	public void setDecisionMaker(DecisionMaker decisionMaker) {
 		this.decisionMaker = decisionMaker;
 	}
-	
+
 	/**
 	 * @return Price observer
 	 */
@@ -165,9 +167,8 @@ public class Trader implements DecisionListener, Runnable {
 	public void setObserver(Observer observer) {
 		if (getDecisionMaker() == null) {
 			throw new IllegalStateException(
-					"Cannot set observer because decision maker " +
-					"is not created."
-			);
+				"Cannot set observer because decision maker is not " +
+				"created.");
 		}
 		getDecisionMaker().setObserver(observer);
 	}
@@ -184,14 +185,14 @@ public class Trader implements DecisionListener, Runnable {
 			return symbol;
 		}
 	}
-	
+
 	/**
 	 * @return Signal generator class name
 	 */
-	public String getGeneratorClassName(){
+	public String getGeneratorClassName() {
 		return siggen.getClass().getName();
 	}
-	
+
 	/**
 	 * @return Signal generator
 	 */
@@ -205,13 +206,23 @@ public class Trader implements DecisionListener, Runnable {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Start trade.
-	 *  
+	 * 
 	 * @param symbol - observed symbol
 	 */
 	public void trade() {
+
+		Wallet wallet = Wallet.getInstance();
+		Paper paper = wallet.getPaper(getSymbol());
+		if (paper == null) {
+			throw new IllegalStateException(
+				"There is no '" + symbol + "' paper specified in the wallet. " +
+				"You have to add paper to the wallet first, and then start " +
+				"trading.");
+		}
+
 		getDecisionMaker().getObserver().start();
 	}
 
@@ -219,10 +230,10 @@ public class Trader implements DecisionListener, Runnable {
 	public void run() {
 		trade();
 	}
-	
+
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[" + getSymbol() + "][" 
+		return getClass().getSimpleName() + "[" + getSymbol() + "]["
 			+ getGeneratorClassName() + "]";
 	}
 }

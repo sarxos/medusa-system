@@ -1,32 +1,55 @@
 package com.sarxos.medusa.data;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.CompactWriter;
 
 
 public class PersistanceProvider {
 
-	private static XStream streamer = new XStream();
-	
 	public static String marshalGenParams(SignalGenerator<Quote> siggen) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Map<String, Object> params = siggen.getParameters();
-		OutputStreamWriter osw = new OutputStreamWriter(baos, Charset.defaultCharset());
-		CompactWriter cw = new CompactWriter(osw);
-		streamer.marshal(params, cw);
-		return new String(baos.toByteArray(), Charset.defaultCharset());
+
+		Map<String, String> params = siggen.getParameters();
+
+		Set<Entry<String, String>> entries = params.entrySet();
+		Iterator<Entry<String, String>> ei = entries.iterator();
+		Entry<String, String> entry = null;
+
+		StringBuffer sb = new StringBuffer();
+
+		while (ei.hasNext()) {
+			entry = ei.next();
+			String key = entry.getKey();
+			String val = entry.getValue().toString();
+			sb.append(key).append(':').append(val).append(';');
+		}
+
+		return sb.toString();
 	}
-	
-	@SuppressWarnings("unchecked")
-	public static Map<String, Object> unmarshalGenParams(String xml) {
-		return (Map<String, Object>) streamer.fromXML(xml);
+
+	public static Map<String, String> unmarshalGenParams(String str) {
+
+		Map<String, String> map = new HashMap<String, String>();
+
+		String[] entries = str.split(";");
+		String entry = null;
+
+		for (int i = 0; i < entries.length; i++) {
+			entry = entries[i];
+			if (entry != null && entry.length() > 0) {
+				String[] kv = entry.split(":");
+				if (kv.length != 2) {
+					continue;
+				}
+				map.put(kv[0], kv[1]);
+			}
+		}
+
+		return map;
 	}
-	
 }

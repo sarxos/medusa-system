@@ -174,4 +174,9 @@ public class Paper implements Cloneable {
 	public SecuritiesGroup getGroup() {
 		return group;
 	}
+
+	@Override
+	public String toString() {
+		return "Paper[" + getSymbol() + ":" + getQuantity() + "/" + getDesiredQuantity() + "]";
+	}
 }

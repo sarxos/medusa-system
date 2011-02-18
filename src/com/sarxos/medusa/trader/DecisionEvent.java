@@ -19,12 +19,11 @@ public class DecisionEvent extends EventObject {
 	 * Paper to buy / sell.
 	 */
 	private Paper paper = null;
-	
+
 	/**
 	 * Signal type (buy, sell)
 	 */
 	private SignalType signal = null;
-	
 
 	/**
 	 * Create price event.
@@ -38,11 +37,10 @@ public class DecisionEvent extends EventObject {
 		this.paper = paper;
 		this.signal = signal;
 	}
-	
 
 	@Override
 	public DecisionMaker getSource() {
-		return (DecisionMaker)super.getSource();
+		return (DecisionMaker) super.getSource();
 	}
 
 	/**
@@ -57,5 +55,11 @@ public class DecisionEvent extends EventObject {
 	 */
 	public SignalType getSignalType() {
 		return signal;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() +
+			"[" + getSignalType() + " " + getPaper() + "]";
 	}
 }

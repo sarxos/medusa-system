@@ -2,7 +2,6 @@ package com.sarxos.medusa.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.xinotes.iniparser.INIProperties;
 
@@ -69,7 +68,7 @@ public class Configuration extends INIProperties {
 	/**
 	 * Singleton instance.
 	 */
-	private static AtomicReference<Configuration> instance = new AtomicReference<Configuration>();
+	private static Configuration instance = new Configuration();
 
 	/**
 	 * Path to the configuration file.
@@ -90,9 +89,12 @@ public class Configuration extends INIProperties {
 		loadFile(ini);
 		updater.setTimestamp(ini.lastModified());
 
-		Thread runner = new Thread(updater);
+		Thread runner = new Thread(updater, "Configuration Updater");
 		runner.setDaemon(true);
 		runner.start();
+
+		System.out.println("Starting configuration updater");
+
 	}
 
 	/**
@@ -112,7 +114,6 @@ public class Configuration extends INIProperties {
 	 * @return Singleton instance for the Medusa Configuration
 	 */
 	public static Configuration getInstance() {
-		instance.compareAndSet(null, new Configuration());
-		return instance.get();
+		return instance;
 	}
 }

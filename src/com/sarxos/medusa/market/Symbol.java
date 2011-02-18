@@ -51,11 +51,22 @@ public enum Symbol {
 	 * KGHM
 	 */
 	KGH("KGHM"),
-	BRE("BRE");
+	BRE("BRE"),
+	BZW("BZWBK");
 
+	/**
+	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)
+	 */
 	private String name = null;
 
+	/**
+	 * Static instance for symbols enum set.
+	 */
 	private static AtomicReference<EnumSet<Symbol>> set = new AtomicReference<EnumSet<Symbol>>();
+
+	/**
+	 * Name-Symbol mapping.
+	 */
 	private static Map<String, Symbol> mapping = new HashMap<String, Symbol>();
 
 	private Symbol(String name) {
@@ -79,7 +90,9 @@ public enum Symbol {
 			throw new IllegalArgumentException("Symbol name cannot be null");
 		}
 
-		set.compareAndSet(null, EnumSet.allOf(Symbol.class));
+		if (set.get() == null) {
+			set.compareAndSet(null, EnumSet.allOf(Symbol.class));
+		}
 
 		EnumSet<Symbol> enums = set.get();
 		Symbol sym = null;

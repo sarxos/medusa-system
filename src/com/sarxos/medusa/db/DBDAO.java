@@ -77,7 +77,9 @@ public class DBDAO {
 	 */
 	public static DBDAO getInstance() {
 		try {
-			instance.compareAndSet(null, new DBDAO());
+			if (instance.get() == null) {
+				instance.compareAndSet(null, new DBDAO());
+			}
 		} catch (DBDAOException e) {
 			e.printStackTrace();
 		}
@@ -460,7 +462,7 @@ public class DBDAO {
 			String name = rs.getString("name");
 			Symbol symbol = Symbol.valueOf(rs.getString("symbol"));
 			Class<?> clazz = Class.forName(rs.getString("siggen"));
-			Map<String, Object> params = PersistanceProvider.unmarshalGenParams(rs.getString("params"));
+			Map<String, String> params = PersistanceProvider.unmarshalGenParams(rs.getString("params"));
 			SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
 			siggen.setParameters(params);
 

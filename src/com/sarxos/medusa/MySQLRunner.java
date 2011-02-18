@@ -26,7 +26,9 @@ public class MySQLRunner {
 	 * @return Will return static instance of this class.
 	 */
 	protected static MySQLRunner getInstance() {
-		instance.compareAndSet(null, new MySQLRunner());
+		if (instance.get() == null) {
+			instance.compareAndSet(null, new MySQLRunner());
+		}
 		return instance.get();
 	}
 

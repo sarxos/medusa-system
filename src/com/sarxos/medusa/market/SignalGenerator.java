@@ -9,8 +9,8 @@ public interface SignalGenerator<T extends Quote> {
 	public List<Signal> generate(T[] data, int range);
 
 	public Signal generate(T data);
-	
-	public Map<String, Object> getParameters();
-	
-	public void setParameters(Map<String, Object> params);
+
+	public Map<String, String> getParameters();
+
+	public void setParameters(Map<String, String> params);
 }
