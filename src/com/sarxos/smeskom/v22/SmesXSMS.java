@@ -21,19 +21,18 @@ public class SmesXSMS {
 	/**
 	 * SMS ID.
 	 */
-	@XmlElement(name = "id")
+	@XmlElement
 	private String id = null;
 
 	/**
 	 * SMS status.
 	 */
-	@XmlElement(name = "status")
+	@XmlElement
 	private SmesXSMSStatus status = null;
 
 	/**
 	 * SMS sent data ({@link Date} object).
 	 */
-	@XmlTransient
 	private transient Date sentAtDate = null;
 
 	/**
@@ -45,7 +44,6 @@ public class SmesXSMS {
 	/**
 	 * SMS delivery data ({@link Date} object).
 	 */
-	@XmlTransient
 	private transient Date deliveredAtDate = null;
 
 	/**
@@ -57,7 +55,6 @@ public class SmesXSMS {
 	/**
 	 * SMS received by GSM modem date (Date).
 	 */
-	@XmlTransient
 	private transient Date receivedAtDate = null;
 
 	/**
@@ -69,7 +66,6 @@ public class SmesXSMS {
 	/**
 	 * When SMS has been inserted to the messages pool (Date).
 	 */
-	@XmlTransient
 	private transient Date insertedAtDate = null;
 
 	/**
@@ -81,7 +77,6 @@ public class SmesXSMS {
 	/**
 	 * When SMS has been marked as read (Date).
 	 */
-	@XmlTransient
 	private transient Date markedAtDate = null;
 
 	/**
@@ -95,6 +90,18 @@ public class SmesXSMS {
 	 */
 	@XmlElement(name = "fail_code")
 	private Integer failCode = null;
+
+	/**
+	 * Sender MSISDN number.
+	 */
+	@XmlElement
+	private String msisdn = null;
+
+	/**
+	 * Message body.
+	 */
+	@XmlElement
+	private String body = null;
 
 	/**
 	 * Constructor.
@@ -281,5 +288,22 @@ public class SmesXSMS {
 	 */
 	public void setFailCode(Integer failCode) {
 		this.failCode = failCode;
+	}
+
+	/**
+	 * @return Sender MSISDN number.
+	 */
+	@XmlTransient
+	public String getMSISDN() {
+		return msisdn;
+	}
+
+	@XmlTransient
+	public String getBody() {
+		return body;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
 	}
 }

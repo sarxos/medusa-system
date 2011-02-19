@@ -3,6 +3,7 @@ package com.sarxos.smeskom.v22;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 
 @XmlRootElement(name = "response")
@@ -32,21 +33,23 @@ public class SmesXResponse extends SmesXEntity {
 	@XmlElementRef
 	private SmesXOperation operation = null;
 
+	public SmesXResponse() {
+	}
+
+	/**
+	 * @return SmesX operation.
+	 */
+	@XmlTransient
 	public SmesXOperation getOperation() {
 		return operation;
 	}
 
-	public SmesXResponse() {
-	}
-
+	@XmlTransient
 	public SmesXExecutionStatus getExecutionStatus() {
 		return executionStatus;
 	}
 
-	public void setExecutionStatus(SmesXExecutionStatus executionStatus) {
-		this.executionStatus = executionStatus;
-	}
-
+	@XmlTransient
 	public int getFailCode() {
 		if (failCode != null) {
 			return failCode.intValue();
@@ -58,6 +61,7 @@ public class SmesXResponse extends SmesXEntity {
 		this.failCode = Integer.valueOf(code);
 	}
 
+	@XmlTransient
 	public String getFailDescription() {
 		return failDescription;
 	}

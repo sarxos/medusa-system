@@ -30,7 +30,10 @@ public class Player {
 		String body = buildMessageString(paper, type);
 		String code = codegen.generate();
 
-		Message message = new Message(recipient, body, code);
+		Message message = new Message();
+		message.setCode(code);
+		message.setBody(body);
+		message.setRecipient(recipient);
 
 		try {
 			broker.send(message);

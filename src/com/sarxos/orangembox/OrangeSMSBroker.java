@@ -260,7 +260,7 @@ public class OrangeSMSBroker implements MessageBroker {
 		post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
 		String to = message.getRecipient();
-		String msg = message.getMessage();
+		String msg = message.getBody();
 		
 		nvps = new ArrayList <NameValuePair>();
 		nvps.add(new BasicNameValuePair("_dyncharset", "UTF-8"));

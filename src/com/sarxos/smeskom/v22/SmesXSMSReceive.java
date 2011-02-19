@@ -1,11 +1,18 @@
 package com.sarxos.smeskom.v22;
 
-import java.util.LinkedList;
-import java.util.List;
+import static com.sarxos.smeskom.v22.SmesXEntity.DATE_FORMAT;
+import static com.sarxos.smeskom.v22.SmesXSMSReceiveType.TIME;
+import static com.sarxos.smeskom.v22.SmesXSMSReceiveType.UNREAD;
+
+import java.text.ParseException;
+import java.util.Date;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+
+import com.sarxos.smeskom.Validable;
+import com.sarxos.smeskom.ValidationContext;
 
 
 /**
@@ -14,19 +21,68 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Bartosz Firyn (SarXos)
  */
 @XmlRootElement(name = "receive_sms")
-public class SmesXSMSReceive extends SmesXOperation {
+public class SmesXSMSReceive extends SmesXOperation implements Validable {
 
 	/**
-	 * ID of the SMS to check.
+	 * Receive type - can be time or simply unread.
 	 */
-	@XmlElement(name = "id")
-	private List<String> ids = null;
+	@XmlElement(name = "type", required = true)
+	private SmesXSMSReceiveType type = UNREAD;
 
 	/**
-	 * SMS list with statuses.
+	 * Start time (String only).
+	 */
+	@XmlElement(name = "start_time")
+	private String startTimeString = null;
+
+	/**
+	 * Start time (Date).
+	 */
+	private transient Date startTimeDate = null;
+
+	/**
+	 * Stop time (String only).
+	 */
+	@XmlElement(name = "stop_time")
+	private String stopTimeString = null;
+
+	/**
+	 * Stop time (Date).
+	 */
+	private transient Date stopTimeDate = null;
+
+	/**
+	 * Receive list of SMS messages after this ID.
+	 */
+	@XmlElement(name = "after_id")
+	private String afterID = null;
+
+	/**
+	 * If we set this value to true, SMS will be marked as read after receiving
+	 * it. In other case when we set to false, SMS will be still unread after
+	 * receive.
+	 */
+	@XmlElement(name = "mark")
+	private Boolean mark = Boolean.valueOf(true);
+
+	/**
+	 * True if response contains at least one received SMS message.
+	 */
+	@XmlElement(name = "contain_sms")
+	private Boolean containSMS = null;
+
+	/**
+	 * Set to true means that there are more SMS messages available for the same
+	 * request.
+	 */
+	@XmlElement(name = "has_more")
+	private Boolean hasMore = null;
+
+	/**
+	 * Received SMS messages list.
 	 */
 	@XmlElement(name = "sms")
-	private List<SmesXSMS> smses = null;
+	private SmesXSMS sms = null;
 
 	/**
 	 * Constructor.
@@ -35,42 +91,120 @@ public class SmesXSMSReceive extends SmesXOperation {
 	}
 
 	/**
-	 * Add SMS ID to check status of.
-	 * 
-	 * @param id - SMS ID
-	 */
-	public void addID(String id) {
-		if (ids == null) {
-			ids = new LinkedList<String>();
-		}
-		ids.add(id);
-	}
-
-	/**
-	 * @return Return SMS IDs to check status of.
-	 */
-	@XmlTransient
-	public List<String> getIDs() {
-		return ids;
-	}
-
-	/**
 	 * Used to add SMS status to the list.
 	 * 
 	 * @param sms - SMS status descriptor
 	 */
-	public void addSMS(SmesXSMS sms) {
-		if (smses == null) {
-			smses = new LinkedList<SmesXSMS>();
-		}
-		smses.add(sms);
+	public void setSMS(SmesXSMS sms) {
+		this.sms = sms;
 	}
 
 	/**
 	 * @return Return all SMS statuses
 	 */
 	@XmlTransient
-	public List<SmesXSMS> getSMSs() {
-		return smses;
+	public SmesXSMS getSMS() {
+		return sms;
+	}
+
+	@Override
+	public boolean validate(ValidationContext ctx) {
+
+		boolean ok = true;
+
+		if (type == TIME) {
+			if (startTimeString == null) {
+				ctx.addMessage(
+					"Start time have to be specified when using '" + TIME +
+					"' receive SMS type. Currently used type is '" + type + "'.");
+				ok = false;
+			}
+		} else {
+			if (startTimeString != null) {
+				ctx.addMessage(
+					"Start time has sense only when using '" + TIME +
+					"' receive SMS type. Currently used type is '" + type + "'.");
+				ok = false;
+			}
+			if (stopTimeString != null) {
+				ctx.addMessage(
+					"Stop time has sense only when using '" + TIME +
+					"' receive SMS type. Currently used type is '" + type + "'.");
+				ok = false;
+			}
+		}
+
+		return ok;
+	}
+
+	@XmlTransient
+	public SmesXSMSReceiveType getType() {
+		return type;
+	}
+
+	public void setType(SmesXSMSReceiveType type) {
+		this.type = type;
+	}
+
+	@XmlTransient
+	public Date getStartTimeDate() {
+		if (startTimeDate == null && startTimeString != null) {
+			try {
+				startTimeDate = DATE_FORMAT.parse(startTimeString);
+			} catch (ParseException e) {
+				String msg = "Cannot parse start time date '" + startTimeString + "'";
+				throw new RuntimeException(msg, e);
+			}
+		}
+		return startTimeDate;
+	}
+
+	public void setStartTimeDate(Date startTimeDate) {
+		this.startTimeDate = startTimeDate;
+		this.startTimeString = DATE_FORMAT.format(startTimeDate);
+	}
+
+	@XmlTransient
+	public Date getStopTimeDate() {
+		if (stopTimeDate == null && stopTimeString != null) {
+			try {
+				stopTimeDate = DATE_FORMAT.parse(stopTimeString);
+			} catch (ParseException e) {
+				String msg = "Cannot parse stop time date '" + stopTimeString + "'";
+				throw new RuntimeException(msg, e);
+			}
+		}
+		return stopTimeDate;
+	}
+
+	public void setStopTimeDate(Date stopTimeDate) {
+		this.stopTimeDate = stopTimeDate;
+		this.stopTimeString = DATE_FORMAT.format(stopTimeDate);
+	}
+
+	@XmlTransient
+	public String getAfterID() {
+		return afterID;
+	}
+
+	public void setAfterID(String afterID) {
+		this.afterID = afterID;
+	}
+
+	@XmlTransient
+	public boolean isMarkAsRead() {
+		return mark != null ? mark.booleanValue() : true;
+	}
+
+	public void setMarkAsRead(boolean mark) {
+		this.mark = Boolean.valueOf(mark);
+	}
+
+	public boolean containSMS() {
+		return containSMS != null ? containSMS.booleanValue() : false;
+	}
+
+	public Boolean hasMore() {
+		return hasMore;
 	}
 }
