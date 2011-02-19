@@ -21,22 +21,22 @@ public class SmesXSMSGetStatus extends SmesXOperation {
 	 */
 	@XmlElement(name = "id")
 	private List<String> ids = null;
-	
+
 	/**
 	 * SMS list with statuses.
 	 */
 	@XmlElement(name = "sms")
 	private List<SmesXSMS> smses = null;
 
-	
 	/**
 	 * Constructor.
 	 */
 	public SmesXSMSGetStatus() {
 	}
-	
+
 	/**
-	 * Add SMS ID to check status of. 
+	 * Add SMS ID to check status of.
+	 * 
 	 * @param id - SMS ID
 	 */
 	public void addID(String id) {
@@ -45,7 +45,7 @@ public class SmesXSMSGetStatus extends SmesXOperation {
 		}
 		ids.add(id);
 	}
-	
+
 	/**
 	 * @return Return SMS IDs to check status of.
 	 */
@@ -53,7 +53,7 @@ public class SmesXSMSGetStatus extends SmesXOperation {
 	public List<String> getIDs() {
 		return ids;
 	}
-	
+
 	/**
 	 * Used to add SMS status to the list.
 	 * 
@@ -65,7 +65,7 @@ public class SmesXSMSGetStatus extends SmesXOperation {
 		}
 		smses.add(sms);
 	}
-	
+
 	/**
 	 * @return Return all SMS statuses
 	 */

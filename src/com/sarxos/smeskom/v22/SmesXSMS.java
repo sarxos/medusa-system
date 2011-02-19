@@ -113,7 +113,7 @@ public class SmesXSMS {
 	 * @return Return SMS ID.
 	 */
 	@XmlTransient
-	public String getId() {
+	public String getID() {
 		return id;
 	}
 
@@ -122,7 +122,7 @@ public class SmesXSMS {
 	 * 
 	 * @param id - ID to set
 	 */
-	public void setId(String id) {
+	public void setID(String id) {
 		this.id = id;
 	}
 

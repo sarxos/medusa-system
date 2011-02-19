@@ -41,6 +41,7 @@ import com.sarxos.smeskom.v22.SmesXOperation;
 import com.sarxos.smeskom.v22.SmesXRequest;
 import com.sarxos.smeskom.v22.SmesXResponse;
 import com.sarxos.smeskom.v22.SmesXSMS;
+import com.sarxos.smeskom.v22.SmesXSMSMarkRead;
 import com.sarxos.smeskom.v22.SmesXSMSReceive;
 import com.sarxos.smeskom.v22.SmesXSMSSend;
 
@@ -263,7 +264,7 @@ public class SmesXProvider {
 		return response.getExecutionStatus() == SmesXExecutionStatus.SUCCESS;
 	}
 
-	public List<Message> receiveUnreadSMSs() throws SmesXException {
+	public List<Message> receiveSMSsUnread() throws SmesXException {
 		return receiveSMSs(false);
 	}
 
@@ -271,11 +272,10 @@ public class SmesXProvider {
 
 		List<Message> messages = new LinkedList<Message>();
 
-		SmesXSMSReceive receiveSMS = null;
+		SmesXSMSReceive receiveSMS = new SmesXSMSReceive();
 
 		do {
 
-			receiveSMS = new SmesXSMSReceive();
 			receiveSMS.setMarkAsRead(markAsRead);
 			receiveSMS.setType(UNREAD);
 
@@ -296,7 +296,8 @@ public class SmesXProvider {
 					messages.add(message);
 
 					if (receiveSMS.hasMore()) {
-						receiveSMS.setAfterID(sms.getId());
+						receiveSMS.setSMS(null);
+						receiveSMS.setAfterID(sms.getID());
 					}
 				}
 			} else {
@@ -318,16 +319,19 @@ public class SmesXProvider {
 	 * @throws SmesXException
 	 */
 	public Message receiveSMSForCode(String code) throws SmesXException {
+		return smsToMessage(receiveRawSMSForCode(code));
+	}
+
+	public SmesXSMS receiveRawSMSForCode(String code) throws SmesXException {
 
 		if (code == null) {
-			throw new IllegalArgumentException("Message code to receive cannot be null");
+			throw new IllegalArgumentException("Message code to receive raw SMS cannot be null");
 		}
 
-		SmesXSMSReceive receiveSMS = null;
+		SmesXSMSReceive receiveSMS = new SmesXSMSReceive();
 
 		do {
 
-			receiveSMS = new SmesXSMSReceive();
 			receiveSMS.setMarkAsRead(false);
 			receiveSMS.setType(UNREAD);
 
@@ -342,11 +346,12 @@ public class SmesXProvider {
 					Message message = smsToMessage(sms);
 
 					if (code.equals(message.getCode())) {
-						return message;
+						return sms;
 					}
 
 					if (receiveSMS.hasMore()) {
-						receiveSMS.setAfterID(sms.getId());
+						receiveSMS.setSMS(null);
+						receiveSMS.setAfterID(sms.getID());
 					}
 				}
 			}
@@ -361,7 +366,7 @@ public class SmesXProvider {
 	 * @param sms - SMS to convert
 	 * @return New message converted from SMS
 	 */
-	private Message smsToMessage(SmesXSMS sms) {
+	protected Message smsToMessage(SmesXSMS sms) {
 
 		String body = sms.getBody();
 		String code = null;
@@ -385,6 +390,24 @@ public class SmesXProvider {
 		return message;
 	}
 
+	/**
+	 * Mark SMS as read.
+	 * 
+	 * @param sms - SMS to mark as read
+	 * @return true in case of successful response, false otherwise
+	 * @throws SmesXException
+	 */
+	public boolean markRawSMSAsRead(SmesXSMS sms) throws SmesXException {
+
+		if (sms == null) {
+			throw new IllegalArgumentException("SMS to mark as read cannot be null");
+		}
+
+		SmesXResponse resposne = execute(new SmesXSMSMarkRead(sms));
+
+		return resposne.getExecutionStatus() == SmesXExecutionStatus.SUCCESS;
+	}
+
 	public static void main(String[] args) {
 
 		Configuration cfg = Configuration.getInstance();
@@ -397,13 +420,28 @@ public class SmesXProvider {
 		try {
 			// p.sendSMS(new Message("+48509934614", "Test A", "123456"));
 
-			// List<Message> messages = p.receiveUnreadSMSs();
-			// for (Message m : messages) {
+			// Message m = p.receiveSMSForCode("123456");
 			// System.out.println(m);
-			// }
 
-			Message m = p.receiveSMSForCode("123456");
-			System.out.println(m);
+			List<Message> messages = p.receiveSMSsUnread();
+			for (Message m : messages) {
+				System.out.println(m);
+			}
+
+			System.out.println("get sms");
+
+			SmesXSMS sms = p.receiveRawSMSForCode("123456");
+
+			System.out.println("marking " + sms);
+
+			p.markRawSMSAsRead(sms);
+
+			System.out.println("marked");
+
+			messages = p.receiveSMSsUnread();
+			for (Message m : messages) {
+				System.out.println(m);
+			}
 
 		} catch (SmesXException e) {
 			e.printStackTrace();

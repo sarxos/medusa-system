@@ -5,6 +5,7 @@ SmesXRequest
 SmesXResponse
 SmesXSMS
 SmesXSMSGetStatus
+SmesXSMSMarkRead
 SmesXSMSReceive
 SmesXSMSReceiveType
 SmesXSMSSend
