@@ -137,6 +137,9 @@ public class SmesXSMSReceive extends SmesXOperation implements Validable {
 		return ok;
 	}
 
+	/**
+	 * @return Receive SMS type (unread, time)
+	 */
 	@XmlTransient
 	public SmesXSMSReceiveType getType() {
 		return type;
@@ -147,7 +150,7 @@ public class SmesXSMSReceive extends SmesXOperation implements Validable {
 	}
 
 	@XmlTransient
-	public Date getStartTimeDate() {
+	public Date getStartTime() {
 		if (startTimeDate == null && startTimeString != null) {
 			try {
 				startTimeDate = DATE_FORMAT.parse(startTimeString);
@@ -159,13 +162,13 @@ public class SmesXSMSReceive extends SmesXOperation implements Validable {
 		return startTimeDate;
 	}
 
-	public void setStartTimeDate(Date startTimeDate) {
-		this.startTimeDate = startTimeDate;
-		this.startTimeString = DATE_FORMAT.format(startTimeDate);
+	public void setStartTime(Date start) {
+		this.startTimeDate = start;
+		this.startTimeString = DATE_FORMAT.format(start);
 	}
 
 	@XmlTransient
-	public Date getStopTimeDate() {
+	public Date getStopTime() {
 		if (stopTimeDate == null && stopTimeString != null) {
 			try {
 				stopTimeDate = DATE_FORMAT.parse(stopTimeString);
@@ -177,9 +180,9 @@ public class SmesXSMSReceive extends SmesXOperation implements Validable {
 		return stopTimeDate;
 	}
 
-	public void setStopTimeDate(Date stopTimeDate) {
-		this.stopTimeDate = stopTimeDate;
-		this.stopTimeString = DATE_FORMAT.format(stopTimeDate);
+	public void setStopTime(Date stop) {
+		this.stopTimeDate = stop;
+		this.stopTimeString = DATE_FORMAT.format(stop);
 	}
 
 	@XmlTransient

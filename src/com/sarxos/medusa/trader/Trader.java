@@ -2,7 +2,11 @@ package com.sarxos.medusa.trader;
 
 import static com.sarxos.medusa.market.Position.LONG;
 import static com.sarxos.medusa.market.Position.SHORT;
+import static com.sarxos.medusa.market.SignalType.BUY;
+import static com.sarxos.medusa.market.SignalType.SELL;
 
+import com.sarxos.medusa.comm.Broker;
+import com.sarxos.medusa.comm.MessagingException;
 import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.RealTimeDataProvider;
 import com.sarxos.medusa.market.Paper;
@@ -46,6 +50,8 @@ public class Trader implements DecisionListener, Runnable {
 	 */
 	private String name = null;
 
+	private Broker broker = null;
+
 	/**
 	 * Trader constructor.
 	 * 
@@ -86,6 +92,12 @@ public class Trader implements DecisionListener, Runnable {
 		dm.addDecisionListener(this);
 
 		setDecisionMaker(dm);
+
+		try {
+			broker = new Broker();
+		} catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -95,18 +107,29 @@ public class Trader implements DecisionListener, Runnable {
 
 		SignalType signal = de.getSignalType();
 
-		switch (signal) {
-			case BUY:
-				// TODO buy mechanism
-				setPosition(LONG);
-				break;
-			case SELL:
-				// TODO sell mechanism
-				setPosition(SHORT);
-				break;
-			case DELAY:
-				// do nothing
-				break;
+		boolean acknowledge = false;
+
+		if (signal == BUY || signal == SELL) {
+			try {
+				acknowledge = broker.acknowledge(de.getPaper(), signal);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (acknowledge) {
+			switch (signal) {
+				case BUY:
+					// TODO buy mechanism - future - need QuickFixJ endpoint
+					setPosition(LONG);
+					break;
+				case SELL:
+					// TODO sell mechanism - future - need QuickFixJ endpoint
+					setPosition(SHORT);
+					break;
+				case DELAY:
+					break;
+			}
 		}
 	}
 

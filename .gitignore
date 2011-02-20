@@ -1,1 +1,7 @@
 target
+data/medusa.ini
+data/medusa.lock
+data/mstcgl
+data/*.prn
+ispag
+

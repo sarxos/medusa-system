@@ -1,2 +1,10 @@
-Project to test automated trading possibility and to experiment with
-few trading models.
+Project to test automated trading possibility and to experiment with few trading models.
+
+# Install how-to:
+** Install and run MySQL
+** Create database gpw
+** Grant all permission for user 'root' with password set to 'secret'
+** Change file data/default.ini to data/medusa.ini and fill all preferences
+# Running
+** TBD
+

@@ -1,16 +1,16 @@
 package com.sarxos.gpwnotifier.examples;
 
 import com.sarxos.medusa.comm.Message;
-import com.sarxos.medusa.comm.MessageBroker;
+import com.sarxos.medusa.comm.Driver;
 import com.sarxos.medusa.comm.MessagingException;
-import com.sarxos.orangembox.OrangeSMSBroker;
+import com.sarxos.medusa.comm.driver.OrangeDriver;
 
 
 public class OrangeMBoxSendSMSExample {
 
 	public static void main(String[] args) {
 
-		MessageBroker broker = new OrangeSMSBroker("mbox.TN", "mbox.password");
+		Driver broker = new OrangeDriver("mbox.TN", "mbox.password");
 		Message message = new Message();
 		message.setCode("1");
 		message.setBody("This is message");

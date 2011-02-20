@@ -1,11 +1,14 @@
 package com.sarxos.smeskom;
 
+import static com.sarxos.smeskom.v22.SmesXEntity.DATE_FORMAT;
+import static com.sarxos.smeskom.v22.SmesXSMSReceiveType.TIME;
 import static com.sarxos.smeskom.v22.SmesXSMSReceiveType.UNREAD;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -291,6 +294,8 @@ public class SmesXProvider {
 				if (receiveSMS.containSMS()) {
 
 					SmesXSMS sms = receiveSMS.getSMS();
+
+					// TODO rework - get rid of Message here
 					Message message = smsToMessage(sms);
 
 					messages.add(message);
@@ -301,9 +306,13 @@ public class SmesXProvider {
 					}
 				}
 			} else {
+
+				String received = operation.getClass().getSimpleName();
+				String shouldbe = receiveSMS.getClass().getSimpleName();
+
 				throw new RuntimeException(
-					"Resposne operation '" + operation.getClass().getSimpleName() + "' " +
-					"is not allowed for the '" + receiveSMS.getClass().getSimpleName() +
+					"Resposne operation '" + received + "' " +
+					"is not allowed for the '" + shouldbe +
 					"' request");
 			}
 		} while (receiveSMS.hasMore());
@@ -318,11 +327,21 @@ public class SmesXProvider {
 	 * @return Message for given code or null if message has not been found
 	 * @throws SmesXException
 	 */
-	public Message receiveSMSForCode(String code) throws SmesXException {
-		return smsToMessage(receiveRawSMSForCode(code));
+	public Message receiveSMSForCode(boolean mark, String code) throws SmesXException {
+		// TODO rework - get rid of Message here
+		return smsToMessage(receiveRawSMSForCode(mark, code));
 	}
 
-	public SmesXSMS receiveRawSMSForCode(String code) throws SmesXException {
+	public Message receiveSMSForCode(boolean mark, String code, Date start) throws SmesXException {
+		// TODO rework - get rid of Message here
+		return smsToMessage(receiveRawSMSForCode(mark, code, start));
+	}
+
+	public SmesXSMS receiveRawSMSForCode(boolean mark, String code) throws SmesXException {
+		return receiveRawSMSForCode(mark, code, null);
+	}
+
+	public SmesXSMS receiveRawSMSForCode(boolean mark, String code, Date start) throws SmesXException {
 
 		if (code == null) {
 			throw new IllegalArgumentException("Message code to receive raw SMS cannot be null");
@@ -332,8 +351,19 @@ public class SmesXProvider {
 
 		do {
 
-			receiveSMS.setMarkAsRead(false);
-			receiveSMS.setType(UNREAD);
+			receiveSMS.setMarkAsRead(mark);
+
+			if (start == null) {
+				receiveSMS.setType(UNREAD);
+			} else {
+				receiveSMS.setType(TIME);
+				receiveSMS.setStartTime(start);
+
+				// in v2.2 stop_time has to be specified, in other case SmesX
+				// endpoint won't return messages - set end date to now, this
+				// is a bug I guess. I've sent message to the SmesX developers.
+				receiveSMS.setStopTime(new Date());
+			}
 
 			SmesXResponse response = execute(receiveSMS);
 			SmesXOperation operation = response.getOperation();
@@ -343,6 +373,7 @@ public class SmesXProvider {
 				if (receiveSMS.containSMS()) {
 
 					SmesXSMS sms = receiveSMS.getSMS();
+					// TODO rework - get rid of Message here
 					Message message = smsToMessage(sms);
 
 					if (code.equals(message.getCode())) {
@@ -366,6 +397,7 @@ public class SmesXProvider {
 	 * @param sms - SMS to convert
 	 * @return New message converted from SMS
 	 */
+	// TODO rework - get rid of Message here
 	protected Message smsToMessage(SmesXSMS sms) {
 
 		String body = sms.getBody();
@@ -398,17 +430,14 @@ public class SmesXProvider {
 	 * @throws SmesXException
 	 */
 	public boolean markRawSMSAsRead(SmesXSMS sms) throws SmesXException {
-
 		if (sms == null) {
 			throw new IllegalArgumentException("SMS to mark as read cannot be null");
 		}
-
 		SmesXResponse resposne = execute(new SmesXSMSMarkRead(sms));
-
 		return resposne.getExecutionStatus() == SmesXExecutionStatus.SUCCESS;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
 
 		Configuration cfg = Configuration.getInstance();
 
@@ -423,25 +452,25 @@ public class SmesXProvider {
 			// Message m = p.receiveSMSForCode("123456");
 			// System.out.println(m);
 
-			List<Message> messages = p.receiveSMSsUnread();
-			for (Message m : messages) {
-				System.out.println(m);
-			}
+			// List<Message> messages = p.receiveSMSsUnread();
+			// for (Message m : messages) {
+			// System.out.println(m);
+			// }
+			//
+			// System.out.println("get sms");
 
-			System.out.println("get sms");
+			SmesXSMS sms = p.receiveRawSMSForCode(false, "123456", DATE_FORMAT.parse("2011-02-19 20:20:57"));
 
-			SmesXSMS sms = p.receiveRawSMSForCode("123456");
+			System.out.println("marking \n" + p.smsToMessage(sms));
 
-			System.out.println("marking " + sms);
-
-			p.markRawSMSAsRead(sms);
-
-			System.out.println("marked");
-
-			messages = p.receiveSMSsUnread();
-			for (Message m : messages) {
-				System.out.println(m);
-			}
+			// p.markRawSMSAsRead(sms);
+			//
+			// System.out.println("marked");
+			//
+			// messages = p.receiveSMSsUnread();
+			// for (Message m : messages) {
+			// System.out.println(m);
+			// }
 
 		} catch (SmesXException e) {
 			e.printStackTrace();
