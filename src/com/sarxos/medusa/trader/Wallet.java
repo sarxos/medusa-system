@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.sarxos.medusa.db.DBDAO;
+import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Symbol;
 

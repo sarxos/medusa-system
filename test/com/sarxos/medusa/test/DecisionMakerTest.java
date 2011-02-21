@@ -12,6 +12,7 @@ import com.sarxos.medusa.trader.DecisionEvent;
 import com.sarxos.medusa.trader.DecisionListener;
 import com.sarxos.medusa.trader.DecisionMaker;
 import com.sarxos.medusa.trader.Observer;
+import com.sarxos.medusa.trader.PositionEvent;
 
 
 public class DecisionMakerTest extends TestCase {
@@ -29,6 +30,11 @@ public class DecisionMakerTest extends TestCase {
 			@Override
 			public void decisionChange(DecisionEvent event) {
 				System.out.println(event);
+			}
+
+			@Override
+			public void positionChange(PositionEvent pe) {
+				System.out.println(pe);
 			}
 		};
 

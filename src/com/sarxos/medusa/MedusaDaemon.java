@@ -9,8 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.sarxos.medusa.db.DBDAO;
-import com.sarxos.medusa.db.MySQLRunner;
+import com.sarxos.medusa.data.DBDAO;
+import com.sarxos.medusa.data.MySQLRunner;
 import com.sarxos.medusa.trader.Trader;
 
 

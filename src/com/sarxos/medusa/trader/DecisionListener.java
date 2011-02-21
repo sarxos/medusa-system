@@ -1,6 +1,5 @@
 package com.sarxos.medusa.trader;
 
-
 /**
  * Decision listener interface.
  * 
@@ -14,5 +13,12 @@ public interface DecisionListener {
 	 * @param event - decision event
 	 */
 	public void decisionChange(DecisionEvent event);
-	
+
+	/**
+	 * Notified after position change.
+	 * 
+	 * @param pe
+	 */
+	public void positionChange(PositionEvent pe);
+
 }

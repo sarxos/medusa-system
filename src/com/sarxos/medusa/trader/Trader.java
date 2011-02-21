@@ -5,8 +5,13 @@ import static com.sarxos.medusa.market.Position.SHORT;
 import static com.sarxos.medusa.market.SignalType.BUY;
 import static com.sarxos.medusa.market.SignalType.SELL;
 
+import java.util.EnumSet;
+
 import com.sarxos.medusa.comm.Broker;
 import com.sarxos.medusa.comm.MessagingException;
+import com.sarxos.medusa.data.DBDAO;
+import com.sarxos.medusa.data.DBDAOException;
+import com.sarxos.medusa.data.Persisteable;
 import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.RealTimeDataProvider;
 import com.sarxos.medusa.market.Paper;
@@ -23,7 +28,7 @@ import com.sarxos.medusa.market.Symbol;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class Trader implements DecisionListener, Runnable {
+public class Trader implements DecisionListener, Runnable, Persisteable {
 
 	/**
 	 * Decision maker (encapsulate decision logic).
@@ -50,7 +55,17 @@ public class Trader implements DecisionListener, Runnable {
 	 */
 	private String name = null;
 
+	private Position position = null;
+
+	/**
+	 * Messaging broker.
+	 */
 	private Broker broker = null;
+
+	/**
+	 * Set of signal types to be acknowledged by player.
+	 */
+	private EnumSet<SignalType> notification = EnumSet.of(BUY, SELL);
 
 	/**
 	 * Trader constructor.
@@ -109,7 +124,7 @@ public class Trader implements DecisionListener, Runnable {
 
 		boolean acknowledge = false;
 
-		if (signal == BUY || signal == SELL) {
+		if (notification.contains(signal)) {
 			try {
 				acknowledge = broker.acknowledge(de.getPaper(), signal);
 			} catch (MessagingException e) {
@@ -121,16 +136,21 @@ public class Trader implements DecisionListener, Runnable {
 			switch (signal) {
 				case BUY:
 					// TODO buy mechanism - future - need QuickFixJ endpoint
+					// for Bossa or Alior DAO (preferred)
 					setPosition(LONG);
 					break;
 				case SELL:
 					// TODO sell mechanism - future - need QuickFixJ endpoint
+					// for Bossa or Alior DAO (preferred)
 					setPosition(SHORT);
-					break;
-				case DELAY:
 					break;
 			}
 		}
+	}
+
+	@Override
+	public void positionChange(PositionEvent pe) {
+		this.position = pe.getNewPosition();
 	}
 
 	/**
@@ -142,6 +162,7 @@ public class Trader implements DecisionListener, Runnable {
 		if (p == null) {
 			throw new IllegalArgumentException("Position cannot be null");
 		}
+		this.position = p;
 		getDecisionMaker().setCurrentPosition(p);
 	}
 
@@ -149,11 +170,15 @@ public class Trader implements DecisionListener, Runnable {
 	 * @return Return current position (long, short)
 	 */
 	public Position getPosition() {
-		DecisionMaker dm = getDecisionMaker();
-		if (dm == null) {
-			return null;
+		if (position == null) {
+			DecisionMaker dm = getDecisionMaker();
+			if (dm == null) {
+				return null;
+			}
+			return dm.getCurrentPosition();
+		} else {
+			return position;
 		}
-		return dm.getCurrentPosition();
 	}
 
 	/**
@@ -258,5 +283,14 @@ public class Trader implements DecisionListener, Runnable {
 	public String toString() {
 		return getClass().getSimpleName() + "[" + getSymbol() + "]["
 			+ getGeneratorClassName() + "]";
+	}
+
+	@Override
+	public void persist() {
+		try {
+			DBDAO.getInstance().updateTrader(this);
+		} catch (DBDAOException e) {
+			e.printStackTrace();
+		}
 	}
 }

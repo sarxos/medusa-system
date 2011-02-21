@@ -12,8 +12,7 @@ import com.sarxos.medusa.market.SignalGenerator;
 
 
 /**
- * Decision maker class. Here is decided if I shall buy or
- * sell observed paper.
+ * Decision maker class. Here is decided if I shall buy or sell observed paper.
  * 
  * @author Bartosz Firyn (SarXos)
  */
@@ -23,26 +22,25 @@ public class DecisionMaker implements PriceListener {
 	 * Price observer.
 	 */
 	private Observer observer = null;
-	
+
 	/**
 	 * Signals generator.
 	 */
-	private SignalGenerator<Quote> generator = null; 
-	
+	private SignalGenerator<Quote> generator = null;
+
 	/**
 	 * Decision listeners (traders).
 	 */
 	private List<DecisionListener> listeners = new LinkedList<DecisionListener>();
-	
+
 	/**
 	 * Current wallet position.
 	 */
 	private Position position = Position.SHORT;
 
-	
 	protected DecisionMaker() {
 	}
-	
+
 	public DecisionMaker(Observer observer, SignalGenerator<Quote> generator) {
 		this.observer = observer;
 		this.observer.addPriceListener(this);
@@ -55,23 +53,23 @@ public class DecisionMaker implements PriceListener {
 		Wallet wallet = Wallet.getInstance();
 		Paper paper = wallet.getPaper(observer.getSymbol());
 		Quote quote = pe.getQuote();
-		
+
 		Signal signal = generator.generate(quote);
 		DecisionEvent de = new DecisionEvent(this, paper, signal.getType());
-		
+
 		notifyListeners(de);
 	}
-	
+
 	/**
 	 * Notify all listeners about price change.
 	 * 
 	 * @param de - decision event (buy or sell paper)
 	 */
 	protected void notifyListeners(DecisionEvent de) {
-		
+
 		DecisionListener listener = null;
 		ListIterator<DecisionListener> i = listeners.listIterator();
-		
+
 		while (i.hasNext()) {
 			try {
 				listener = i.next();
@@ -81,18 +79,38 @@ public class DecisionMaker implements PriceListener {
 			}
 		}
 	}
-	
+
+	/**
+	 * Notify all listeners about price change.
+	 * 
+	 * @param de - decision event (buy or sell paper)
+	 */
+	protected void notifyListeners(PositionEvent pe) {
+
+		DecisionListener listener = null;
+		ListIterator<DecisionListener> i = listeners.listIterator();
+
+		while (i.hasNext()) {
+			try {
+				listener = i.next();
+				listener.positionChange(pe);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * @return Decision listeners array.
 	 */
 	public DecisionListener[] getDecisionListeners() {
 		return listeners.toArray(new DecisionListener[listeners.size()]);
 	}
-	
+
 	/**
 	 * 
 	 * @param listener
-	 * @return true if listener was added or false if it is already on the list 
+	 * @return true if listener was added or false if it is already on the list
 	 */
 	public boolean addDecisionListener(DecisionListener listener) {
 		if (!listeners.contains(listener)) {
@@ -100,7 +118,7 @@ public class DecisionMaker implements PriceListener {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Remove particular decision listener.
 	 * 
@@ -119,8 +137,8 @@ public class DecisionMaker implements PriceListener {
 	}
 
 	/**
-	 * Set new price observer. If other observer has been set,
-	 * decision maker object will be removed from its listeners.
+	 * Set new price observer. If other observer has been set, decision maker
+	 * object will be removed from its listeners.
 	 * 
 	 * @param observer - new observer to set
 	 */
@@ -131,7 +149,7 @@ public class DecisionMaker implements PriceListener {
 		this.observer = observer;
 		this.observer.addPriceListener(this);
 	}
-	
+
 	/**
 	 * Set signal generator.
 	 * 
@@ -140,7 +158,7 @@ public class DecisionMaker implements PriceListener {
 	public void setGenerator(SignalGenerator<Quote> generator) {
 		this.generator = generator;
 	}
-	
+
 	/**
 	 * @return Signal generator.
 	 */
@@ -157,12 +175,23 @@ public class DecisionMaker implements PriceListener {
 
 	/**
 	 * Set current position (long or short).
+	 * 
 	 * @param position - position type
 	 */
 	public void setCurrentPosition(Position position) {
 		if (position == null) {
 			throw new IllegalArgumentException("Position cannot be null");
 		}
+
+		PositionEvent pe = null;
+		if (position != this.position) {
+			pe = new PositionEvent(this, this.position, position);
+		}
+
 		this.position = position;
+
+		if (pe != null) {
+			notifyListeners(pe);
+		}
 	}
 }

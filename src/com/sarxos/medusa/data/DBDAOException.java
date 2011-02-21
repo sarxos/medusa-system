@@ -1,4 +1,4 @@
-package com.sarxos.medusa.db;
+package com.sarxos.medusa.data;
 
 public class DBDAOException extends Exception {
 

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.sarxos.medusa.db.DBDAO;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 

@@ -2,7 +2,7 @@ package com.sarxos.medusa.test;
 
 import junit.framework.TestCase;
 
-import com.sarxos.medusa.db.DBDAO;
+import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;

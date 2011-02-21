@@ -6,7 +6,6 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.sarxos.medusa.db.DBDAO;
 import com.sarxos.medusa.market.Calendarium;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;

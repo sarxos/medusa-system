@@ -1,4 +1,4 @@
-package com.sarxos.medusa.db;
+package com.sarxos.medusa.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.sarxos.medusa.data.DataFileFormat;
-import com.sarxos.medusa.data.PersistanceProvider;
-import com.sarxos.medusa.data.QuotesReader;
-import com.sarxos.medusa.data.QuotesReaderException;
 import com.sarxos.medusa.data.stoq.StoqReader;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
@@ -335,7 +331,7 @@ public class DBDAO {
 			add.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
 			add.setInt(3, trader.getPosition() == Position.SHORT ? 0 : 1);
 			add.setString(4, trader.getGeneratorClassName());
-			add.setString(5, PersistanceProvider.marshalGenParams(trader.getGenerator()));
+			add.setString(5, PersistenceProvider.marshalGenParams(trader.getGenerator()));
 			add.execute();
 
 			return true;
@@ -462,7 +458,7 @@ public class DBDAO {
 			String name = rs.getString("name");
 			Symbol symbol = Symbol.valueOf(rs.getString("symbol"));
 			Class<?> clazz = Class.forName(rs.getString("siggen"));
-			Map<String, String> params = PersistanceProvider.unmarshalGenParams(rs.getString("params"));
+			Map<String, String> params = PersistenceProvider.unmarshalGenParams(rs.getString("params"));
 			SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
 			siggen.setParameters(params);
 

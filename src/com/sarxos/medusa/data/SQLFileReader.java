@@ -1,4 +1,4 @@
-package com.sarxos.medusa.db;
+package com.sarxos.medusa.data;
 
 import java.io.BufferedReader;
 import java.io.File;

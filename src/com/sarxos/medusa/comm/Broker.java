@@ -30,9 +30,9 @@ public class Broker {
 	private CodeGenerator codegen = CodeGenerator.getInstance();
 
 	/**
-	 * Interval to check messages.
+	 * Interval to check messages in seconds.
 	 */
-	private long checkInterval = 30000;
+	private long[] intervals = new long[] { 30, 60, 120, 240, 480, 960 }; // seconds
 
 	/**
 	 * Create message broker.
@@ -109,9 +109,16 @@ public class Broker {
 			throw new MessagingException("Message cannot be sent");
 		}
 
+		int i = 0;
 		do {
+
+			long sleep = intervals[i]; // seconds
+			if (i < intervals.length - 1) {
+				i++;
+			}
+
 			try {
-				Thread.sleep(getCheckInterval());
+				Thread.sleep(sleep * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -162,17 +169,17 @@ public class Broker {
 	/**
 	 * @return Check interval in seconds (30s by default)
 	 */
-	public long getCheckInterval() {
-		return checkInterval / 1000;
+	public long[] getCheckIntervals() {
+		return intervals;
 	}
 
 	/**
 	 * Set check interval (seconds).
 	 * 
-	 * @param checkInterval - new interval to set in seconds
+	 * @param intervals - new interval to set in seconds
 	 */
-	public void setCheckInterval(long checkInterval) {
-		this.checkInterval = checkInterval * 1000;
+	public void setCheckIntervals(long[] intervals) {
+		this.intervals = intervals;
 	}
 
 }

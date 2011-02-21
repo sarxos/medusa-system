@@ -10,7 +10,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 
 
-public class PersistanceProvider {
+public class PersistenceProvider {
 
 	public static String marshalGenParams(SignalGenerator<Quote> siggen) {
 
