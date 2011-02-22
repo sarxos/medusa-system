@@ -10,6 +10,8 @@ import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.data.DBDAOException;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.trader.FuturesTrader;
+import com.sarxos.medusa.trader.StocksTrader;
 import com.sarxos.medusa.trader.Trader;
 
 
@@ -20,9 +22,9 @@ import com.sarxos.medusa.trader.Trader;
  */
 public class AddTraderCommand extends Command implements ICommandExecutor {
 
-	protected static final String syntax = "trade <symbol:string> <name:string>";
+	protected static final String syntax = "trade <symbol:string> <name:string> <type:string>";
 
-	protected static final String help = "Add trader";
+	protected static final String help = "Add trader, type = [futures, stocks]";
 
 	public AddTraderCommand() throws InvalidSyntaxException {
 		prepare(syntax, help, this);
@@ -45,8 +47,14 @@ public class AddTraderCommand extends Command implements ICommandExecutor {
 		}
 
 		String name = (String) pr.getParameterValue(1);
+		String type = (String) pr.getParameterValue(2);
 
-		Trader t = new Trader(name, new MAVD(3, 13, 30), symbol);
+		Trader t = null;
+		if (type.equals("future")) {
+			t = new FuturesTrader(name, new MAVD(3, 13, 30), symbol);
+		} else if (type.equals("stocks")) {
+			t = new StocksTrader(name, new MAVD(3, 13, 30), symbol);
+		}
 
 		try {
 			DBDAO.getInstance().addTrader(t);

@@ -105,6 +105,28 @@ public class ATR {
 	}
 
 	/**
+	 * Generate ATR vector for 2-days period. 2-days period is used in Rejczak's
+	 * system.
+	 * 
+	 * @param data
+	 * @return ATR vector
+	 */
+	public static double[] atr2(Quote[] data) {
+		return atr(data, 2);
+	}
+
+	/**
+	 * Generate ATR vector for 2-days period. 2-days period is used in Rejczak's
+	 * system.
+	 * 
+	 * @param data
+	 * @return ATR vector
+	 */
+	public static double atr2(Quote data) {
+		return atr(new Quote[] { data }, 2)[0];
+	}
+
+	/**
 	 * Return true range.
 	 * 
 	 * @param data

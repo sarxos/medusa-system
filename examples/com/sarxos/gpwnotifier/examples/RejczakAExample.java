@@ -41,7 +41,7 @@ public class RejczakAExample extends ApplicationFrame {
 		double max_income = 0;
 
 		QuotesReader<Index> reader = new StoqReader<Index>(Index.class);
-		List<Index> data = reader.read(new File("data/wig20_d.csv").toURI());
+		List<Index> data = reader.read(new File("data/tmp/csv/wig20_d.csv").toURI());
 		
 //		/* NOTE!
 //		 * Create dataset for the candlestick chart.   

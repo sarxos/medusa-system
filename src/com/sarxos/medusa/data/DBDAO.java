@@ -2,6 +2,7 @@ package com.sarxos.medusa.data;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -36,7 +37,15 @@ public class DBDAO implements PersistenceProvider {
 		}
 	}
 
-	private static String url = "jdbc:mysql://localhost:3306/gpw";
+	private static Configuration cfg = Configuration.getInstance();
+
+	private static String url = null;
+	static {
+		String host = cfg.getProperty("database", "host");
+		String port = cfg.getProperty("database", "port");
+		String name = cfg.getProperty("database", "name");
+		url = "jdbc:mysql://" + host + ":" + port + "/" + name;
+	}
 
 	private Connection con = null;
 
@@ -45,8 +54,6 @@ public class DBDAO implements PersistenceProvider {
 	private static AtomicReference<DBDAO> instance = new AtomicReference<DBDAO>();
 
 	private DBDAO() throws DBDAOException {
-
-		Configuration cfg = Configuration.getInstance();
 
 		String usr = cfg.getProperty("database", "user");
 		String pwd = cfg.getProperty("database", "password");
@@ -101,14 +108,14 @@ public class DBDAO implements PersistenceProvider {
 	protected void ensureSymbolTableExists(Symbol symbol) throws SQLException {
 		Statement create = con.createStatement();
 		create.execute(
-				"CREATE TABLE IF NOT EXISTS " + symbol + " ( " +
-				"    time DATE NOT NULL PRIMARY KEY, " +
-				"    open FLOAT NOT NULL, " +
-				"    high FLOAT NOT NULL, " +
-				"    low FLOAT NOT NULL, " +
-				"    close FLOAT NOT NULL, " +
-				"    volume BIGINT NOT NULL " +
-				")"
+		"CREATE TABLE IF NOT EXISTS " + symbol + " ( " +
+		"    time DATE NOT NULL PRIMARY KEY, " +
+		"    open FLOAT NOT NULL, " +
+		"    high FLOAT NOT NULL, " +
+		"    low FLOAT NOT NULL, " +
+		"    close FLOAT NOT NULL, " +
+		"    volume BIGINT NOT NULL " +
+		")"
 		);
 		create.close();
 	}
@@ -116,11 +123,11 @@ public class DBDAO implements PersistenceProvider {
 	protected void ensureWalletTableExists() throws SQLException {
 		Statement create = con.createStatement();
 		create.execute(
-				"CREATE TABLE IF NOT EXISTS wallet ( " +
-				"    symbol VARCHAR(20) NOT NULL PRIMARY KEY, " +
-				"    desired INT NOT NULL, " +
-				"    quantity INT NOT NULL" +
-				")"
+		"CREATE TABLE IF NOT EXISTS wallet ( " +
+		"    symbol VARCHAR(20) NOT NULL PRIMARY KEY, " +
+		"    desired INT NOT NULL, " +
+		"    quantity INT NOT NULL" +
+		")"
 		);
 		create.close();
 	}
@@ -131,8 +138,8 @@ public class DBDAO implements PersistenceProvider {
 			ensureSymbolTableExists(symbol);
 
 			PreparedStatement insert = con.prepareStatement(
-					"INSERT INTO " + symbol + " " +
-					"VALUES (?, ?, ?, ?, ?, ?)"
+			"INSERT INTO " + symbol + " " +
+			"VALUES (?, ?, ?, ?, ?, ?)"
 			);
 
 			for (Quote quote : quotes) {
@@ -328,12 +335,14 @@ public class DBDAO implements PersistenceProvider {
 
 		PreparedStatement add = null;
 		try {
-			add = con.prepareStatement("CALL AddTrader(?, ?, ?, ?, ?)");
+
+			add = con.prepareStatement("CALL AddTrader(?, ?, ?, ?, ?, ?)");
 			add.setString(1, trader.getName());
 			add.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
 			add.setInt(3, trader.getPosition() == Position.SHORT ? 0 : 1);
 			add.setString(4, trader.getGeneratorClassName());
-			add.setString(5, Marshaller.marshalGenParams(trader.getGenerator()));
+			add.setString(5, trader.getClass().getName());
+			add.setString(6, Marshaller.marshalGenParams(trader.getGenerator()));
 			add.execute();
 
 			return true;
@@ -384,6 +393,7 @@ public class DBDAO implements PersistenceProvider {
 			} else {
 				return null;
 			}
+
 		} catch (Exception e) {
 			throw new DBDAOException(e);
 		} finally {
@@ -454,20 +464,32 @@ public class DBDAO implements PersistenceProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Trader> resultSetToTraders(ResultSet rs) throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+	private List<Trader> resultSetToTraders(ResultSet rs) throws DBDAOException {
+
+		Class<?> clazz = null;
 		List<Trader> traders = new LinkedList<Trader>();
-		while (rs.next()) {
-			String name = rs.getString("name");
-			Symbol symbol = Symbol.valueOf(rs.getString("symbol"));
-			Class<?> clazz = Class.forName(rs.getString("siggen"));
-			Map<String, String> params = Marshaller.unmarshalGenParams(rs.getString("params"));
-			SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
-			siggen.setParameters(params);
 
-			Trader t = new Trader(name, siggen, symbol);
-			t.setPosition(rs.getInt("position") == 0 ? Position.SHORT : Position.LONG);
+		try {
+			while (rs.next()) {
 
-			traders.add(t);
+				String name = rs.getString("name");
+				Symbol symbol = Symbol.valueOf(rs.getString("symbol"));
+
+				clazz = Class.forName(rs.getString("siggen"));
+				Map<String, String> params = Marshaller.unmarshalGenParams(rs.getString("params"));
+				SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
+				siggen.setParameters(params);
+
+				clazz = Class.forName(rs.getString("class"));
+				Constructor<?> cnstr = clazz.getConstructor(String.class, SignalGenerator.class, Symbol.class);
+				Trader t = (Trader) cnstr.newInstance(name, siggen, symbol);
+
+				t.setPosition(rs.getInt("position") == 0 ? Position.SHORT : Position.LONG);
+
+				traders.add(t);
+			}
+		} catch (Exception e) {
+			throw new DBDAOException(e);
 		}
 		return traders;
 	}

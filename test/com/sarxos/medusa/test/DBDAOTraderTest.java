@@ -8,6 +8,7 @@ import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.trader.DecisionEvent;
 import com.sarxos.medusa.trader.Trader;
 
 
@@ -23,7 +24,12 @@ public class DBDAOTraderTest extends TestCase {
 
 	public DBDAOTraderTest() {
 		this.dbdao = DBDAO.getInstance();
-		this.trader = new Trader(NAME, SIGGEN, SYM);
+		this.trader = new Trader(NAME, SIGGEN, SYM) {
+
+			@Override
+			public void decisionChange(DecisionEvent event) {
+			}
+		};
 		this.trader.setPosition(POSITION);
 	}
 

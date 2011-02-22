@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-
 /**
  * This class is used to check if given day is a free day.
  * 
@@ -24,26 +23,25 @@ import java.util.List;
 public class Calendarium {
 
 	/**
-	 * This class is used only inside {@link Calendarium} class
-	 * code. 
+	 * This class is used only inside {@link Calendarium} class code.
 	 * 
 	 * @author Bartosz Firyn (SarXos)
 	 */
 	protected static class FreeDaysUpdater extends Thread {
 
-		private long modified = 0; 
-		
+		private long modified = 0;
+
 		public FreeDaysUpdater() {
 			setDaemon(true);
 		}
-		
+
 		@Override
 		public void run() {
 			long modified = 0;
 			while (true) {
 				try {
-					// 1 minute delay
-					Thread.sleep(1000 * 60);
+					// 10 minute delay
+					Thread.sleep(1000 * 60 * 10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -55,17 +53,17 @@ public class Calendarium {
 			}
 		}
 	}
-	
+
 	/**
 	 * Date format used to store free day dates.
 	 */
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	
+
 	/**
 	 * Free days file location.
 	 */
 	public static final String FILE_LOCATION = "data/free.days";
-	
+
 	/**
 	 * List of free dates.
 	 */
@@ -74,19 +72,18 @@ public class Calendarium {
 	/**
 	 * Calendar object used to compare dates.
 	 */
-	private Calendar calendar = Calendar.getInstance(); 
-	
+	private Calendar calendar = Calendar.getInstance();
+
 	/**
 	 * Singleton instance.
 	 */
 	private static Calendarium instance = new Calendarium();
-	
+
 	/**
 	 * Free days file updater.
 	 */
 	private FreeDaysUpdater updater = new FreeDaysUpdater();
-	
-	
+
 	/**
 	 * Private constructor.
 	 */
@@ -98,11 +95,12 @@ public class Calendarium {
 	/**
 	 * Update file with free dates.
 	 * 
-	 * @throws RuntimeException when data format in file is incorrect or cannot read file
+	 * @throws RuntimeException when data format in file is incorrect or cannot
+	 *             read file
 	 */
 	protected void updateFileDefinition() {
 		FileInputStream fis = null;
-		
+
 		try {
 			fis = new FileInputStream("data/free.days");
 		} catch (FileNotFoundException e) {
@@ -111,11 +109,11 @@ public class Calendarium {
 
 		InputStreamReader isr = new InputStreamReader(fis);
 		BufferedReader br = new BufferedReader(isr);
-		
+
 		String line = null;
 
 		List<Date> tmp = new LinkedList<Date>();
-		
+
 		try {
 			while (br.ready()) {
 				line = br.readLine();
@@ -136,20 +134,20 @@ public class Calendarium {
 			throw new RuntimeException("Cannot read file " + FILE_LOCATION, e);
 		}
 	}
-	
+
 	/**
 	 * @return Singleton instance.
 	 */
 	public static Calendarium getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * Check whether or not given date string is free day.
-	 *   
+	 * 
 	 * @param date - date string to check (yyyy-MM-dd)
 	 * @return true if days is free, false otherwise
-	 * @throws RuntimeException if data format is incorrect 
+	 * @throws RuntimeException if data format is incorrect
 	 */
 	public boolean isFreeDay(String date) {
 		try {
@@ -159,38 +157,37 @@ public class Calendarium {
 		}
 	}
 
-	
 	/**
-	 * Check whether or not given day is a working day (simply
-	 * check if given day is not a free day).
+	 * Check whether or not given day is a working day (simply check if given
+	 * day is not a free day).
 	 * 
 	 * @param date - date to check (format yyyy-MM-dd)
 	 * @return true if day is working, false otherwise
-	 * @throws RuntimeException if data format is incorrect 
+	 * @throws RuntimeException if data format is incorrect
 	 */
 	public boolean isWorkingDay(String date) {
 		return !isFreeDay(date);
 	}
-	
+
 	/**
 	 * Check whether or not given date string is free day.
-	 *   
+	 * 
 	 * @param date - date to check
 	 * @return true if days is free, false otherwise
 	 */
 	public synchronized boolean isFreeDay(Date date) {
-		
+
 		calendar.setTime(date);
-		
+
 		int dow = calendar.get(Calendar.DAY_OF_WEEK);
 		switch (dow) {
 			case Calendar.SUNDAY:
 			case Calendar.SATURDAY:
 				return true;
 		}
-		
-		int ad, am, ay, bd, bm, by; 
-		
+
+		int ad, am, ay, bd, bm, by;
+
 		ad = calendar.get(Calendar.DAY_OF_MONTH);
 		am = calendar.get(Calendar.MONTH);
 		ay = calendar.get(Calendar.YEAR);
@@ -200,18 +197,18 @@ public class Calendarium {
 			bd = calendar.get(Calendar.DAY_OF_MONTH);
 			bm = calendar.get(Calendar.MONTH);
 			by = calendar.get(Calendar.YEAR);
-			
+
 			if (ad == bd && am == bm && ay == by) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
 	/**
-	 * Check whether or not given day is a working day (simply
-	 * check if given day is not a free day).
+	 * Check whether or not given day is a working day (simply check if given
+	 * day is not a free day).
 	 * 
 	 * @param date - date to check
 	 * @return true if day is working, false otherwise
@@ -219,28 +216,29 @@ public class Calendarium {
 	public boolean isWorkingDay(Date date) {
 		return !isFreeDay(date);
 	}
-	
+
 	/**
 	 * Return session phase in the given time.
+	 * 
 	 * @param date - time to check
 	 * @param paper - paper to check phase
 	 * @return Phase of the session.
 	 */
 	public SessionPhase getSessionPhase(Date date, Paper paper) {
-		
+
 		if (date == null) {
 			throw new IllegalArgumentException("date cannot be null");
 		}
 		if (paper == null) {
 			throw new IllegalArgumentException("Paper cannot be null");
 		}
-		
+
 		SecuritiesGroup group = paper.getGroup();
 
 		synchronized (this) {
 
 			calendar.setTime(date);
-			
+
 			Date before_open = null;
 			Date open = null;
 			Date fixing = null;
@@ -253,7 +251,7 @@ public class Calendarium {
 			calendar.set(Calendar.MINUTE, 0);
 
 			before_open = calendar.getTime();
-			
+
 			switch (group) {
 				case FUTURES_INDEXES:
 				case FUTURES_QUOTES:
@@ -263,7 +261,7 @@ public class Calendarium {
 					calendar.set(Calendar.MINUTE, 30);
 					open = calendar.getTime();
 					break;
-					
+
 				default:
 					calendar.set(Calendar.HOUR_OF_DAY, 9);
 					open = calendar.getTime();
@@ -271,26 +269,26 @@ public class Calendarium {
 			}
 
 			calendar.set(Calendar.HOUR_OF_DAY, 16);
-			
+
 			switch (group) {
 				case TREASURY_BONDS:
 					calendar.set(Calendar.MINUTE, 20);
 					fixing = calendar.getTime();
 					break;
-					
+
 				default:
 					calendar.set(Calendar.MINUTE, 10);
 					fixing = calendar.getTime();
 					break;
 			}
-			
+
 			switch (group) {
 				case TREASURY_BONDS:
 					calendar.set(Calendar.MINUTE, 30);
 					play_off = calendar.getTime();
 					close = calendar.getTime();
 					break;
-					
+
 				default:
 					calendar.set(Calendar.MINUTE, 20);
 					play_off = calendar.getTime();
@@ -301,17 +299,17 @@ public class Calendarium {
 				case TREASURY_BONDS:
 					// treasury bonds session is already closed
 					break;
-					
+
 				default:
 					calendar.set(Calendar.MINUTE, 30);
 					close = calendar.getTime();
 					break;
 			}
-			
+
 			calendar.setTime(date);
 
 			long now = calendar.getTimeInMillis();
-			
+
 			if (now < before_open.getTime()) {
 				return SessionPhase.CLOSED;
 			} else if (before_open.getTime() < now && now < open.getTime()) {
@@ -323,13 +321,13 @@ public class Calendarium {
 			} else if (play_off.getTime() < 0 && now < close.getTime()) {
 				return SessionPhase.PLAY_OFF;
 			} else if (now > close.getTime()) {
-				return SessionPhase.CLOSED; 
+				return SessionPhase.CLOSED;
 			}
 		}
-		
+
 		return SessionPhase.CLOSED;
 	}
-	
+
 	/**
 	 * Tells whether or not session is in progress.
 	 * 
@@ -344,14 +342,14 @@ public class Calendarium {
 			case SESSION:
 			case PLAY_OFF:
 				return true;
-				
+
 			case FIXING:
 			case CLOSED:
 			default:
 				return false;
 		}
 	}
-	
+
 	/**
 	 * Return next working day date.
 	 * 
@@ -364,7 +362,7 @@ public class Calendarium {
 			calendar.add(Calendar.DATE, +1);
 			date = calendar.getTime();
 		} while (!isWorkingDay(date));
-		
+
 		return date;
 	}
 }

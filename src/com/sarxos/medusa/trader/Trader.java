@@ -1,11 +1,11 @@
 package com.sarxos.medusa.trader;
 
-import static com.sarxos.medusa.market.Position.LONG;
-import static com.sarxos.medusa.market.Position.SHORT;
 import static com.sarxos.medusa.market.SignalType.BUY;
 import static com.sarxos.medusa.market.SignalType.SELL;
 
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Set;
 
 import com.sarxos.medusa.comm.Broker;
 import com.sarxos.medusa.comm.MessagingException;
@@ -30,7 +30,12 @@ import com.sarxos.medusa.market.Symbol;
  * @author Bartosz Firyn (SarXos)
  */
 @Persistent("trader")
-public class Trader implements DecisionListener, Runnable, Persisteable {
+public abstract class Trader implements DecisionListener, Runnable, Persisteable {
+
+	/**
+	 * Set of signal types to be acknowledged by player.
+	 */
+	public static final Set<SignalType> NOTIFICATIONS = Collections.unmodifiableSet(EnumSet.of(BUY, SELL));
 
 	/**
 	 * Decision maker (encapsulate decision logic).
@@ -70,11 +75,6 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 	 * Messaging broker.
 	 */
 	private Broker broker = null;
-
-	/**
-	 * Set of signal types to be acknowledged by player.
-	 */
-	private EnumSet<SignalType> notification = EnumSet.of(BUY, SELL);
 
 	/**
 	 * Trader constructor.
@@ -122,39 +122,6 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 			broker = new Broker();
 		} catch (MessagingException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public void decisionChange(DecisionEvent de) {
-
-		System.out.println(de);
-
-		SignalType signal = de.getSignalType();
-
-		boolean acknowledge = false;
-
-		if (notification.contains(signal)) {
-			try {
-				acknowledge = broker.acknowledge(de.getPaper(), signal);
-			} catch (MessagingException e) {
-				e.printStackTrace();
-			}
-		}
-
-		if (acknowledge) {
-			switch (signal) {
-				case BUY:
-					// TODO buy mechanism - future - need QuickFixJ endpoint
-					// for Bossa or Alior DAO (preferred)
-					setPosition(LONG);
-					break;
-				case SELL:
-					// TODO sell mechanism - future - need QuickFixJ endpoint
-					// for Bossa or Alior DAO (preferred)
-					setPosition(SHORT);
-					break;
-			}
 		}
 	}
 
@@ -307,5 +274,47 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 		} catch (DBDAOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * @return Messages broker
+	 */
+	public Broker getBroker() {
+		return broker;
+	}
+
+	/**
+	 * Set new messages broker.
+	 * 
+	 * @param broker - new messages broker to set
+	 */
+	public void setBroker(Broker broker) {
+		if (broker == null) {
+			throw new IllegalArgumentException("Messages broker cannot be null");
+		}
+		this.broker = broker;
+	}
+
+	/**
+	 * Acknowledge player about decision maker's market decision. This method is
+	 * blocking - it won't return any value till user acknowledgment response.
+	 * 
+	 * @param de - decision event
+	 * @return true if user acknowledged, false otherwise
+	 */
+	public boolean acknowledge(DecisionEvent de) {
+
+		SignalType signal = de.getSignalType();
+		Paper paper = de.getPaper();
+
+		if (NOTIFICATIONS.contains(signal)) {
+			try {
+				return getBroker().acknowledge(paper, signal);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return false;
 	}
 }
