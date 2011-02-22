@@ -14,6 +14,7 @@ import com.sarxos.medusa.data.DBDAOException;
 import com.sarxos.medusa.data.Persisteable;
 import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.RealTimeDataProvider;
+import com.sarxos.medusa.data.persistence.Persistent;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
@@ -28,6 +29,7 @@ import com.sarxos.medusa.market.Symbol;
  * 
  * @author Bartosz Firyn (SarXos)
  */
+@Persistent("trader")
 public class Trader implements DecisionListener, Runnable, Persisteable {
 
 	/**
@@ -38,6 +40,7 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 	/**
 	 * Signal generator to use.
 	 */
+	@Persistent
 	private SignalGenerator<Quote> siggen = null;
 
 	/**
@@ -48,13 +51,19 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 	/**
 	 * Observed symbol.
 	 */
+	@Persistent
 	private Symbol symbol = null;
 
 	/**
 	 * Trader name.
 	 */
-	private String name = null;
+	@Persistent
+	private final String name;
 
+	/**
+	 * Current position (long, short).
+	 */
+	@Persistent
 	private Position position = null;
 
 	/**
@@ -78,6 +87,7 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 		this(name, siggen, symbol, null);
 	}
 
+	@Persistent
 	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol, RealTimeDataProvider provider) {
 		if (name == null) {
 			throw new IllegalArgumentException("Trader name cannot be null");
@@ -150,7 +160,10 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 
 	@Override
 	public void positionChange(PositionEvent pe) {
-		this.position = pe.getNewPosition();
+		Position p = pe.getNewPosition();
+		if (position != p) {
+			position = p;
+		}
 	}
 
 	/**
@@ -162,7 +175,9 @@ public class Trader implements DecisionListener, Runnable, Persisteable {
 		if (p == null) {
 			throw new IllegalArgumentException("Position cannot be null");
 		}
-		this.position = p;
+		if (position != p) {
+			position = p;
+		}
 		getDecisionMaker().setCurrentPosition(p);
 	}
 

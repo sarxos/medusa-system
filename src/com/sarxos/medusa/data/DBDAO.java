@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.sarxos.medusa.data.persistence.PersistenceException;
+import com.sarxos.medusa.data.persistence.PersistenceProvider;
 import com.sarxos.medusa.data.stoq.StoqReader;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
@@ -24,7 +26,7 @@ import com.sarxos.medusa.trader.Trader;
 import com.sarxos.medusa.util.Configuration;
 
 
-public class DBDAO {
+public class DBDAO implements PersistenceProvider {
 
 	static {
 		try {
@@ -331,7 +333,7 @@ public class DBDAO {
 			add.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
 			add.setInt(3, trader.getPosition() == Position.SHORT ? 0 : 1);
 			add.setString(4, trader.getGeneratorClassName());
-			add.setString(5, PersistenceProvider.marshalGenParams(trader.getGenerator()));
+			add.setString(5, Marshaller.marshalGenParams(trader.getGenerator()));
 			add.execute();
 
 			return true;
@@ -458,7 +460,7 @@ public class DBDAO {
 			String name = rs.getString("name");
 			Symbol symbol = Symbol.valueOf(rs.getString("symbol"));
 			Class<?> clazz = Class.forName(rs.getString("siggen"));
-			Map<String, String> params = PersistenceProvider.unmarshalGenParams(rs.getString("params"));
+			Map<String, String> params = Marshaller.unmarshalGenParams(rs.getString("params"));
 			SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
 			siggen.setParameters(params);
 
@@ -490,4 +492,16 @@ public class DBDAO {
 
 		return true;
 	}
+
+	// ////////////// NEW API /////////////////
+
+	@Override
+	public boolean saveTrader(Trader trader) throws PersistenceException {
+		try {
+			return addTrader(trader);
+		} catch (DBDAOException e) {
+			throw new PersistenceException(e);
+		}
+	}
+
 }

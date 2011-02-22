@@ -13,9 +13,9 @@ import org.apache.http.client.methods.HttpGet;
 
 import com.sarxos.medusa.data.DataProviderException;
 import com.sarxos.medusa.data.RealTimeDataProvider;
-import com.sarxos.medusa.http.HTTPClient;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.smesx.http.NaiveSSLClient;
 
 
 public class InteriaRTDProvider implements RealTimeDataProvider {
@@ -45,7 +45,7 @@ public class InteriaRTDProvider implements RealTimeDataProvider {
 			throw new DataProviderException(name + " cannot serve data for symbol " + symbol);
 		}
 		
-		HTTPClient client = HTTPClient.getInstance();
+		NaiveSSLClient client = NaiveSSLClient.getInstance();
 		
 		String html = null;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

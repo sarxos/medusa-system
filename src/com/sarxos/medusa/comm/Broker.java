@@ -125,7 +125,7 @@ public class Broker {
 
 			message = driver.receive(code);
 
-		} while (message != null);
+		} while (message == null);
 
 		return getDecision(message);
 	}

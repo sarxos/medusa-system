@@ -20,10 +20,10 @@ import org.apache.http.client.methods.HttpGet;
 
 import com.sarxos.medusa.data.DataProviderException;
 import com.sarxos.medusa.data.HistoricalDataProvider;
-import com.sarxos.medusa.http.HTTPClient;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.util.DateUtils;
+import com.sarxos.smesx.http.NaiveSSLClient;
 
 
 public class BossaHDProvider implements HistoricalDataProvider {
@@ -46,7 +46,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 		
 		if (download) {
 			try {
-				HTTPClient client = HTTPClient.getInstance();
+				NaiveSSLClient client = NaiveSSLClient.getInstance();
 				HttpGet get = new HttpGet("http://bossa.pl/pub/metastock/mstock/sesjaall/few_last.zip");
 				
 				synchronized (client) {
@@ -186,7 +186,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 		
 		if (download) {
 			try {
-				HTTPClient client = HTTPClient.getInstance();
+				NaiveSSLClient client = NaiveSSLClient.getInstance();
 				HttpGet get = new HttpGet("http://bossa.pl/pub/metastock/cgl/mstcgl.zip");
 				synchronized (client) {
 					HttpResponse response = client.execute(get);
