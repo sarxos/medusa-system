@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/sarxos/gpwnotifier/examples/EMA3SMA10Example.java|com/sarxos/gpwnotifier/examples/RejczakAExample.java|com/sarxos/gpwnotifier/examples/RejczakAExample2.java|com/sarxos/gpwnotifier/examples/RejczakBExample.java|com/sarxos/gpwnotifier/examples/WilliamsOscillatorExample.java" kind="src" path="examples"/>
-	<classpathentry excluding="com/sarxos/medusa/generator/BFG.java|com/sarxos/medusa/generator/EMA3SMA10.java|com/sarxos/medusa/generator/RejczakB.java|com/sarxos/medusa/generator/WilliamsOscillator.java|com/sarxos/medusa/provider/realtime/BizzoneProvider.java|org.douglascrockford.json/" kind="src" path="src"/>
+	<classpathentry excluding="com/sarxos/medusa/generator/BFG.java|com/sarxos/medusa/generator/EMA3SMA10.java|com/sarxos/medusa/generator/RejczakB.java|com/sarxos/medusa/generator/WilliamsOscillator.java|com/sarxos/medusa/provider/realtime/BizzoneProvider.java|org.douglascrockford.json/|com/sarxos/medusa/examples/EMA3SMA10Example.java|com/sarxos/medusa/examples/RejczakAExample.java|com/sarxos/medusa/examples/RejczakAExample2.java|com/sarxos/medusa/examples/RejczakBExample.java|com/sarxos/medusa/examples/WilliamsOscillatorExample.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="bin"/>
-	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/servlet.jar"/>
