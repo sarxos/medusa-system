@@ -264,7 +264,7 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "[" + getSymbol() + "]["
-			+ getGeneratorClassName() + "]";
+			+ getGenerator().getClass().getSimpleName() + "]";
 	}
 
 	@Override

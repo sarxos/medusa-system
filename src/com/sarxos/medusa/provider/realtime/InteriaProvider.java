@@ -58,10 +58,11 @@ public class InteriaProvider implements RealTimeProvider {
 				HttpResponse response = client.execute(get);
 				HttpEntity entity = response.getEntity();
 				entity.writeTo(baos);
-				html = new String(baos.toByteArray());
-				entity.consumeContent();
-				baos.reset();
+				entity.getContent().close();
 			}
+
+			html = baos.toString();
+			baos.reset();
 
 		} catch (Exception e) {
 			throw new ProviderException(e);

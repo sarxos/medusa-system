@@ -227,7 +227,7 @@ public class Calendarium {
 	public SessionPhase getSessionPhase(Date date, Paper paper) {
 
 		if (date == null) {
-			throw new IllegalArgumentException("date cannot be null");
+			throw new IllegalArgumentException("Date cannot be null");
 		}
 		if (paper == null) {
 			throw new IllegalArgumentException("Paper cannot be null");
@@ -246,9 +246,9 @@ public class Calendarium {
 			Date close = null;
 
 			calendar.set(Calendar.HOUR_OF_DAY, 8);
+			calendar.set(Calendar.MINUTE, 0);
 			calendar.set(Calendar.SECOND, 0);
 			calendar.set(Calendar.MILLISECOND, 0);
-			calendar.set(Calendar.MINUTE, 0);
 
 			before_open = calendar.getTime();
 
@@ -268,43 +268,16 @@ public class Calendarium {
 					break;
 			}
 
-			calendar.set(Calendar.HOUR_OF_DAY, 16);
+			calendar.set(Calendar.HOUR_OF_DAY, 17);
+			calendar.set(Calendar.MINUTE, 20);
 
-			switch (group) {
-				case TREASURY_BONDS:
-					calendar.set(Calendar.MINUTE, 20);
-					fixing = calendar.getTime();
-					break;
+			fixing = calendar.getTime();
 
-				default:
-					calendar.set(Calendar.MINUTE, 10);
-					fixing = calendar.getTime();
-					break;
-			}
+			calendar.set(Calendar.MINUTE, 30);
+			play_off = calendar.getTime();
 
-			switch (group) {
-				case TREASURY_BONDS:
-					calendar.set(Calendar.MINUTE, 30);
-					play_off = calendar.getTime();
-					close = calendar.getTime();
-					break;
-
-				default:
-					calendar.set(Calendar.MINUTE, 20);
-					play_off = calendar.getTime();
-					break;
-			}
-
-			switch (group) {
-				case TREASURY_BONDS:
-					// treasury bonds session is already closed
-					break;
-
-				default:
-					calendar.set(Calendar.MINUTE, 30);
-					close = calendar.getTime();
-					break;
-			}
+			calendar.set(Calendar.MINUTE, 35);
+			close = calendar.getTime();
 
 			calendar.setTime(date);
 
@@ -326,6 +299,65 @@ public class Calendarium {
 		}
 
 		return SessionPhase.CLOSED;
+	}
+
+	/**
+	 * Check on the base of current date if market is open
+	 * 
+	 * @return true if market is open, false otherwise
+	 */
+	public boolean isMarketOpen() {
+		return isMarketOpen(new Date());
+	}
+
+	/**
+	 * Check on the base of given date if market is open
+	 * 
+	 * @param date date to check
+	 * @return true if market is open, false otherwise
+	 */
+	public boolean isMarketOpen(Date date) {
+
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
+		}
+
+		long open = 0;
+		long close = 0;
+		long now = 0;
+
+		Date orig = null;
+
+		synchronized (this) {
+
+			orig = calendar.getTime();
+
+			calendar.setTime(date);
+
+			calendar.set(Calendar.HOUR_OF_DAY, 8);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
+
+			open = calendar.getTimeInMillis();
+
+			calendar.set(Calendar.HOUR_OF_DAY, 17);
+			calendar.set(Calendar.MINUTE, 35);
+
+			close = calendar.getTimeInMillis();
+
+			calendar.setTime(date);
+
+			now = calendar.getTimeInMillis();
+
+			calendar.setTime(orig);
+		}
+
+		if (open < now && now < close) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

@@ -43,6 +43,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.sarxos.medusa.market.BidAsk;
+import com.sarxos.medusa.market.Calendarium;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
@@ -89,6 +90,12 @@ public class ParkietProvider implements RealTimeProvider {
 		 * @throws ProviderException
 		 */
 		private void update() throws ProviderException {
+
+			Calendarium c = Calendarium.getInstance();
+			if (!c.isMarketOpen()) {
+				System.out.println("omit update");
+				return;
+			}
 
 			String date = TIME_FORMAT.format(last);
 			String update = String.format(UPDATE_URL, topicID, componentID, date);
@@ -402,7 +409,7 @@ public class ParkietProvider implements RealTimeProvider {
 			Date d = new Date();
 			Calendar c = new GregorianCalendar();
 			c.setTime(d);
-			c.add(Calendar.HOUR_OF_DAY, -24);
+			c.add(Calendar.HOUR_OF_DAY, -12);
 
 			String date = TIME_FORMAT.format(c.getTime());
 			String update = String.format(UPDATE_URL, topicID, componentID, date);
@@ -448,6 +455,7 @@ public class ParkietProvider implements RealTimeProvider {
 				name = o.optString("nazwa");
 
 				if (name == null || name.length() == 0) {
+					// ignore - wrong JSON object
 					continue;
 				}
 
