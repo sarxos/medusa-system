@@ -7,13 +7,13 @@ import java.util.List;
 
 import com.sarxos.medusa.data.QuotesReader;
 import com.sarxos.medusa.data.QuotesReaderException;
-import com.sarxos.medusa.data.stoq.StoqReader;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Index;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.SignalType;
+import com.sarxos.medusa.util.StoqReader;
 
 
 public class MAVDExample {

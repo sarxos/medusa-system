@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.sarxos.medusa.data.QuotesReader;
 import com.sarxos.medusa.data.QuotesReaderException;
-import com.sarxos.medusa.data.stoq.StoqReader;
 import com.sarxos.medusa.market.Index;
 import com.sarxos.medusa.math.MA;
+import com.sarxos.medusa.util.StoqReader;
 
 
 public class MAExample {

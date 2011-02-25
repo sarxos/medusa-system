@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.sarxos.medusa.data.persistence.PersistenceException;
 import com.sarxos.medusa.data.persistence.PersistenceProvider;
-import com.sarxos.medusa.data.stoq.StoqReader;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
@@ -25,6 +24,7 @@ import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.trader.Trader;
 import com.sarxos.medusa.util.Configuration;
+import com.sarxos.medusa.util.StoqReader;
 
 
 public class DBDAO implements PersistenceProvider {

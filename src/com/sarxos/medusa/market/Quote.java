@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.sarxos.medusa.data.stoq.StoqColumn;
+import com.sarxos.medusa.util.StoqColumn;
 
 
 /**

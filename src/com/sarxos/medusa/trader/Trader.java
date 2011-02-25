@@ -7,13 +7,12 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.sarxos.medusa.comm.Broker;
+import com.sarxos.medusa.comm.MessagesBroker;
 import com.sarxos.medusa.comm.MessagingException;
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.data.DBDAOException;
 import com.sarxos.medusa.data.Persisteable;
 import com.sarxos.medusa.data.Providers;
-import com.sarxos.medusa.data.RealTimeDataProvider;
 import com.sarxos.medusa.data.persistence.Persistent;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
@@ -21,6 +20,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.provider.RealTimeProvider;
 
 
 /**
@@ -51,7 +51,7 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 	/**
 	 * Real time data provider.
 	 */
-	private RealTimeDataProvider provider = null;
+	private RealTimeProvider provider = null;
 
 	/**
 	 * Observed symbol.
@@ -74,7 +74,7 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 	/**
 	 * Messaging broker.
 	 */
-	private Broker broker = null;
+	private MessagesBroker broker = null;
 
 	/**
 	 * Trader constructor.
@@ -88,7 +88,7 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 	}
 
 	@Persistent
-	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol, RealTimeDataProvider provider) {
+	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol, RealTimeProvider provider) {
 		if (name == null) {
 			throw new IllegalArgumentException("Trader name cannot be null");
 		}
@@ -119,7 +119,7 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 		setDecisionMaker(dm);
 
 		try {
-			broker = new Broker();
+			broker = new MessagesBroker();
 		} catch (MessagingException e) {
 			throw new RuntimeException(e);
 		}
@@ -279,7 +279,7 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 	/**
 	 * @return Messages broker
 	 */
-	public Broker getBroker() {
+	public MessagesBroker getBroker() {
 		return broker;
 	}
 
@@ -288,7 +288,7 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 	 * 
 	 * @param broker - new messages broker to set
 	 */
-	public void setBroker(Broker broker) {
+	public void setBroker(MessagesBroker broker) {
 		if (broker == null) {
 			throw new IllegalArgumentException("Messages broker cannot be null");
 		}

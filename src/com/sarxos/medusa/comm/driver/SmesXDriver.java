@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sarxos.medusa.comm.Driver;
+import com.sarxos.medusa.comm.MessagesDriver;
 import com.sarxos.medusa.comm.Message;
 import com.sarxos.medusa.comm.MessagingException;
 import com.sarxos.medusa.util.Configuration;
@@ -27,7 +27,7 @@ import com.sarxos.smesx.v22.SmesXSMSSend;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class SmesXDriver implements Driver {
+public class SmesXDriver implements MessagesDriver {
 
 	/**
 	 * SemsX messaging provider.

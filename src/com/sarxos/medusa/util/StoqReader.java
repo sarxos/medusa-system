@@ -1,4 +1,4 @@
-package com.sarxos.medusa.data.stoq;
+package com.sarxos.medusa.util;
 
 import java.io.File;
 import java.io.IOException;

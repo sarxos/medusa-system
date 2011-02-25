@@ -12,12 +12,12 @@ import com.sarxos.medusa.util.Configuration;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class Broker {
+public class MessagesBroker {
 
 	/**
 	 * Messages driver.
 	 */
-	private Driver driver = null;
+	private MessagesDriver driver = null;
 
 	/**
 	 * Medusa configuration instance.
@@ -39,7 +39,7 @@ public class Broker {
 	 * 
 	 * @throws MessagingException when initialization problem occur
 	 */
-	public Broker() throws MessagingException {
+	public MessagesBroker() throws MessagingException {
 		try {
 			init();
 		} catch (Exception e) {
@@ -58,13 +58,13 @@ public class Broker {
 		String name = configuration.getProperty("messaging", "driver");
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		Class<?> clazz = loader.loadClass(name);
-		driver = (Driver) clazz.newInstance();
+		driver = (MessagesDriver) clazz.newInstance();
 	}
 
 	/**
 	 * @return Messages driver.
 	 */
-	public Driver getDriver() {
+	public MessagesDriver getDriver() {
 		return driver;
 	}
 
@@ -73,7 +73,7 @@ public class Broker {
 	 * 
 	 * @param driver - new driver to set
 	 */
-	public void setDriver(Driver driver) {
+	public void setDriver(MessagesDriver driver) {
 		this.driver = driver;
 	}
 

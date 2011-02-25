@@ -4,12 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.sarxos.medusa.data.DataProviderException;
 import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.QuotesRegistry;
-import com.sarxos.medusa.data.RealTimeDataProvider;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.provider.ProviderException;
+import com.sarxos.medusa.provider.RealTimeProvider;
 
 
 /**
@@ -43,7 +43,7 @@ public class Observer implements Runnable {
 	/**
 	 * Stock data provider.
 	 */
-	private RealTimeDataProvider provider = null;
+	private RealTimeProvider provider = null;
 
 	/**
 	 * Runner for each observer;
@@ -92,7 +92,7 @@ public class Observer implements Runnable {
 	 * @param provider - real time data provider
 	 * @param symbol - observed symbol
 	 */
-	public Observer(RealTimeDataProvider provider, Symbol symbol) {
+	public Observer(RealTimeProvider provider, Symbol symbol) {
 		if (provider == null) {
 			provider = Providers.getDefaultRealTimeDataProvider();
 		}
@@ -198,7 +198,7 @@ public class Observer implements Runnable {
 	/**
 	 * @return Return real time data provider.
 	 */
-	public RealTimeDataProvider getProvider() {
+	public RealTimeProvider getProvider() {
 		return provider;
 	}
 
@@ -207,7 +207,7 @@ public class Observer implements Runnable {
 	 * 
 	 * @param provider - data provider to set
 	 */
-	public void setProvider(RealTimeDataProvider provider) {
+	public void setProvider(RealTimeProvider provider) {
 		this.provider = provider;
 	}
 
@@ -219,7 +219,7 @@ public class Observer implements Runnable {
 			} else {
 				try {
 					runOnce();
-				} catch (DataProviderException e) {
+				} catch (ProviderException e) {
 					e.printStackTrace();
 				}
 				try {
@@ -231,7 +231,7 @@ public class Observer implements Runnable {
 		} while (true);
 	}
 
-	protected void runOnce() throws DataProviderException {
+	protected void runOnce() throws ProviderException {
 
 		Quote q = null;
 		q = provider.getQuote(symbol);

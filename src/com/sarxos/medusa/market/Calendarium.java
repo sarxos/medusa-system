@@ -365,4 +365,20 @@ public class Calendarium {
 
 		return date;
 	}
+
+	/**
+	 * Return previous working day date.
+	 * 
+	 * @param date - date to from find previous working day
+	 * @return Previous working day date
+	 */
+	public synchronized Date getPreviousWorkingDay(Date date) {
+		do {
+			calendar.setTime(date);
+			calendar.add(Calendar.DATE, -1);
+			date = calendar.getTime();
+		} while (!isWorkingDay(date));
+
+		return date;
+	}
 }

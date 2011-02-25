@@ -1,4 +1,4 @@
-package com.sarxos.medusa.data.bizzone;
+package com.sarxos.medusa.data.rtdp;
 
 import java.io.ByteArrayOutputStream;
 import java.util.regex.Matcher;
@@ -24,7 +24,7 @@ import com.sarxos.gpwnotifier.market.Symbol;
  */
 public class BizzoneDataProvider implements RealTimeDataProvider {
 
-	@Override
+	@Override 
 	public double getQuote(Symbol symbol) throws DataProviderException {
 
 		if (!canServe(symbol)) {

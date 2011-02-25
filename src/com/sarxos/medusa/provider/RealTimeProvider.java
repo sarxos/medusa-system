@@ -1,18 +1,18 @@
-package com.sarxos.medusa.data;
+package com.sarxos.medusa.provider;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 
 
-public interface RealTimeDataProvider {
+public interface RealTimeProvider {
 
 	/**
 	 * @param symbol
 	 * @return Quote for given symbol.
-	 * @throws DataProviderException
+	 * @throws ProviderException
 	 */
-	public Quote getQuote(Symbol symbol) throws DataProviderException;
-	
+	public Quote getQuote(Symbol symbol) throws ProviderException;
+
 	/**
 	 * @param symbol - market symbol to check
 	 * @return true if provider can serve data for symbol, false otherwise

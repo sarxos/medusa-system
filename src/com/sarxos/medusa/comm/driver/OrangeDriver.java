@@ -19,7 +19,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.sarxos.medusa.comm.Message;
-import com.sarxos.medusa.comm.Driver;
+import com.sarxos.medusa.comm.MessagesDriver;
 import com.sarxos.medusa.comm.MessagingException;
 import com.sarxos.medusa.util.Configuration;
 
@@ -30,7 +30,7 @@ import com.sarxos.medusa.util.Configuration;
  * @see http://www.orange.pl/zaloguj.phtml
  * @author Bartosz Firyn (SarXos)
  */
-public final class OrangeDriver implements Driver {
+public final class OrangeDriver implements MessagesDriver {
 
 	/**
 	 * User's TN.
@@ -132,8 +132,8 @@ public final class OrangeDriver implements Driver {
 			response = client.execute(get);
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);
@@ -145,8 +145,8 @@ public final class OrangeDriver implements Driver {
 			response = client.execute(get);
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);
@@ -181,8 +181,8 @@ public final class OrangeDriver implements Driver {
 			location = response.getHeaders("Location")[0];
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);
@@ -194,8 +194,8 @@ public final class OrangeDriver implements Driver {
 			response = client.execute(get);
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);
@@ -207,8 +207,8 @@ public final class OrangeDriver implements Driver {
 			response = client.execute(get);
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);
@@ -236,8 +236,8 @@ public final class OrangeDriver implements Driver {
 			response = client.execute(get);
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);
@@ -305,8 +305,8 @@ public final class OrangeDriver implements Driver {
 			location = response.getHeaders("Location")[0];
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);
@@ -318,8 +318,8 @@ public final class OrangeDriver implements Driver {
 			response = client.execute(get);
 			entity = response.getEntity();
 			entity.writeTo(baos);
+			entity.getContent().close();
 			html = new String(baos.toByteArray());
-			entity.consumeContent();
 			baos.reset();
 		} catch (Exception e) {
 			throw new MessagingException(e);

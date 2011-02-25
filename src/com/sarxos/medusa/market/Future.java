@@ -1,6 +1,6 @@
 package com.sarxos.medusa.market;
 
-import com.sarxos.medusa.data.stoq.StoqColumn;
+import com.sarxos.medusa.util.StoqColumn;
 
 
 /**

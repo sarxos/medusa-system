@@ -1,4 +1,4 @@
-package com.sarxos.medusa.data.bossa;
+package com.sarxos.medusa.provider.history;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,20 +18,20 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 
-import com.sarxos.medusa.data.DataProviderException;
-import com.sarxos.medusa.data.HistoricalDataProvider;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.provider.ProviderException;
+import com.sarxos.medusa.provider.HistoricalProvider;
 import com.sarxos.medusa.util.DateUtils;
 import com.sarxos.smesx.http.NaiveSSLClient;
 
 
-public class BossaHDProvider implements HistoricalDataProvider {
+public class BossaProvider implements HistoricalProvider {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
 	
 	@Override
-	public List<Quote> getLastQuotes(Symbol symbol) throws DataProviderException {
+	public List<Quote> getLastQuotes(Symbol symbol) throws ProviderException {
 
 		boolean download = true;
 		
@@ -55,7 +55,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 					entity.writeTo(new FileOutputStream(f));
 				}
 			} catch (Exception e) {
-				throw new DataProviderException(e);
+				throw new ProviderException(e);
 			}
 		}
 
@@ -89,7 +89,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 				f = new File("data/" + name);
 				if (!f.exists()) {
 					if (!f.createNewFile()) {
-						throw new DataProviderException("Cannot create file " + f.getName());
+						throw new ProviderException("Cannot create file " + f.getName());
 					}
 				}
 				
@@ -102,7 +102,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 				files.add(f);
 			}
 		} catch (Exception e) {
-			throw new DataProviderException(e);
+			throw new ProviderException(e);
 		}
 
 		FileInputStream fis = null;
@@ -139,13 +139,13 @@ public class BossaHDProvider implements HistoricalDataProvider {
 				// KGHM,20101220,156.70,158.20,155.00,157.90,394584
 				
 				if (parts.length < 7) {
-					throw new DataProviderException(
+					throw new ProviderException(
 							"Something is wrong with data - should be 7 elements, " +
 							"found " + parts.length + " instead!" 
 					);
 				}
 				if (!parts[0].equals(symbol.getName())) {
-					throw new DataProviderException(
+					throw new ProviderException(
 							"Something is wrong with read method - tried to read " + symbol + " " + 
 							"but read " + parts[0] + " instead!"
 					);
@@ -161,7 +161,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 				quotes.add(new Quote(date, open, high, low, close, volume));
 				
 			} catch (Throwable e) {
-				throw new DataProviderException(e);
+				throw new ProviderException(e);
 			}
 			
 		}
@@ -171,7 +171,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 	
 
 	@Override
-	public List<Quote> getAllQuotes(Symbol symbol) throws DataProviderException {
+	public List<Quote> getAllQuotes(Symbol symbol) throws ProviderException {
 
 		boolean download = true;
 		
@@ -194,7 +194,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 					entity.writeTo(new FileOutputStream(f));
 				}
 			} catch (Exception e) {
-				throw new DataProviderException(e);
+				throw new ProviderException(e);
 			}
 		}
 		
@@ -214,7 +214,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 			File sessall = new File("data/mstcgl");
 			if (!sessall.exists()) {
 				if (!sessall.mkdirs()) {
-					throw new DataProviderException("Cannot create directory " + f.getName());
+					throw new ProviderException("Cannot create directory " + f.getName());
 				}
 			}
 			
@@ -235,7 +235,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 				f = new File("data/mstcgl/" + name);
 				if (!f.exists()) {
 					if (!f.createNewFile()) {
-						throw new DataProviderException("Cannot create file " + f.getName());
+						throw new ProviderException("Cannot create file " + f.getName());
 					}
 				}
 				
@@ -249,7 +249,7 @@ public class BossaHDProvider implements HistoricalDataProvider {
 				break;
 			}
 		} catch (Exception e) {
-			throw new DataProviderException(e);
+			throw new ProviderException(e);
 		}
 		
 		FileInputStream fis = null;
@@ -287,13 +287,13 @@ public class BossaHDProvider implements HistoricalDataProvider {
 				}
 				
 				if (parts.length < 7) {
-					throw new DataProviderException(
+					throw new ProviderException(
 							"Something is wrong with data - should be 7 elements, " +
 							"found " + parts.length + " instead!" 
 					);
 				}
 				if (!parts[0].equals(symbol.getName())) {
-					throw new DataProviderException(
+					throw new ProviderException(
 							"Something is wrong with read method - tried to read " + symbol + " " + 
 							"but read " + parts[0] + " instead!"
 					);
@@ -310,14 +310,14 @@ public class BossaHDProvider implements HistoricalDataProvider {
 			}
 			
 		} catch (Throwable e) {
-			throw new DataProviderException(e);
+			throw new ProviderException(e);
 		}
 		
 		return quotes;
 	}
 	
-	public static void main(String[] args) throws DataProviderException {
-		BossaHDProvider b = new BossaHDProvider();
+	public static void main(String[] args) throws ProviderException {
+		BossaProvider b = new BossaProvider();
 		List<Quote> quotes = b.getAllQuotes(Symbol.KGH);
 		for (int i = 0; i < quotes.size(); i++) {
 			System.out.println(quotes.get(i));

@@ -6,7 +6,7 @@ package com.sarxos.medusa.comm;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public interface Driver {
+public interface MessagesDriver {
 
 	/**
 	 * Send given message via the message broker.
