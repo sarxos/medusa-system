@@ -445,7 +445,13 @@ public class ParkietProvider implements RealTimeProvider {
 			for (int i = 0; i < n; i++) {
 
 				o = (JSONObject) array.get(i);
-				name = o.getString("nazwa").trim();
+				name = o.optString("nazwa");
+
+				if (name == null || name.length() == 0) {
+					continue;
+				}
+
+				name = name.trim();
 
 				if (symbol.getName().equals(name)) {
 					return jsonToQuote(o);
