@@ -82,7 +82,7 @@ public enum Symbol {
 	 * name.
 	 * 
 	 * @param name - Symbol name to search
-	 * @return
+	 * @return Symbol or null if symbol for given name has not been found
 	 */
 	public static final Symbol valueOfName(String name) {
 
@@ -112,6 +112,6 @@ public enum Symbol {
 			return sym;
 		}
 
-		throw new IllegalArgumentException("Symbol for name '" + name + "' cannot be found");
+		return null;
 	}
 }

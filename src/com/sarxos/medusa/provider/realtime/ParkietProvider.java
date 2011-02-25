@@ -34,12 +34,15 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.cyberneko.html.parsers.DOMParser;
+import org.douglascrockford.json.JSONArray;
+import org.douglascrockford.json.JSONException;
+import org.douglascrockford.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.sarxos.medusa.market.Calendarium;
+import com.sarxos.medusa.market.BidAsk;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
@@ -57,14 +60,114 @@ import com.sarxos.medusa.util.Configuration;
 public class ParkietProvider implements RealTimeProvider {
 
 	/**
+	 * Quotes updater. Once obtained quote will be stored in the quotation map
+	 * and will be updated periodically with the 15s interval.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
+	private class QuotesUpdater implements Runnable {
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(15000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				try {
+					update();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		/**
+		 * Update quotes in the quotation map.
+		 * 
+		 * @throws ProviderException
+		 */
+		private void update() throws ProviderException {
+
+			String date = TIME_FORMAT.format(last);
+			String update = String.format(UPDATE_URL, topicID, componentID, date);
+
+			last = new Date();
+
+			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+			pairs.add(new BasicNameValuePair("topicId", topicID));
+			pairs.add(new BasicNameValuePair("componentId", componentID));
+			pairs.add(new BasicNameValuePair("czas", date));
+
+			HttpUriRequest post = affectFirefox(new HttpPost(update));
+			try {
+				((HttpPost) post).setEntity(new UrlEncodedFormEntity(pairs));
+			} catch (UnsupportedEncodingException e) {
+				throw new ProviderException(e);
+			}
+
+			JSONArray array = null;
+			try {
+				array = new JSONArray(execute(post));
+			} catch (JSONException e) {
+				throw new ProviderException(e);
+			}
+
+			JSONObject o = null;
+			String name = null;
+			int n = array.length();
+
+			try {
+
+				for (int i = 0; i < n; i++) {
+
+					o = (JSONObject) array.get(i);
+
+					name = o.optString("nazwa");
+					if (name == null || name.length() == 0) {
+						// different kind of JSON object
+						continue;
+					}
+
+					name = name.trim();
+
+					Symbol symbol = Symbol.valueOfName(name);
+					if (symbol != null && quotations.containsKey(symbol)) {
+						Quote q = jsonToQuote(o);
+						quotations.get(symbol).copyFrom(q);
+					}
+				}
+			} catch (JSONException e) {
+				throw new ProviderException(e);
+			}
+		}
+	}
+
+	/**
 	 * Parkiet.com service URL.
 	 */
 	public static final String PARKIET_URL = "http://www.parkiet.com";
 
 	/**
+	 * Single quote bid/ask main address.
+	 */
+	public static final String BID_ASK_URL = "http://www.parkiet.com/OknoOfert.html?wykres=false&opoz=false&refresh=60&isin=";
+
+	/**
+	 * Cyclic update URL.
+	 */
+	public static final String UPDATE_URL = "http://www.parkiet.com/Quotations?topicId=%s&componentId=%s&czas=%s";
+
+	/**
 	 * Time format in service quotes.
 	 */
 	private static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("kk:mm:ss");
+
+	/**
+	 * Date format in service quotes.
+	 */
+	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
 
 	/**
 	 * Configuration instance.
@@ -107,7 +210,7 @@ public class ParkietProvider implements RealTimeProvider {
 	private final Map<String, XPathExpression> expressions = new HashMap<String, XPathExpression>();
 
 	/**
-	 * Quotes address.
+	 * Quotes list main address.
 	 */
 	private String address = null;
 
@@ -122,6 +225,33 @@ public class ParkietProvider implements RealTimeProvider {
 	private Document dom = null;
 
 	/**
+	 * Quotes cache.
+	 */
+	private Map<Symbol, Quote> quotations = new HashMap<Symbol, Quote>();
+
+	/**
+	 * Last update date.
+	 */
+	private Date last = null;
+
+	/**
+	 * Topic ID obtained from service (internal logic). This field is critical
+	 * for receiving and updating quotes.
+	 */
+	private String topicID = null;
+
+	/**
+	 * Component ID obtained from service (internal logic). This field is
+	 * critical for receiving and updating quotes.
+	 */
+	private String componentID = null;
+
+	/**
+	 * Quotes updater.
+	 */
+	private QuotesUpdater updater = new QuotesUpdater();
+
+	/**
 	 * Constructor.
 	 */
 	public ParkietProvider() {
@@ -132,6 +262,11 @@ public class ParkietProvider implements RealTimeProvider {
 
 		String phost = (String) System.getProperties().get("http.proxyHost");
 		String pport = (String) System.getProperties().get("http.proxyPort");
+
+		if (phost == null && pport == null) {
+			phost = CFG.getProperty("core", "proxy_host");
+			pport = CFG.getProperty("core", "proxy_port");
+		}
 
 		if (phost != null && pport != null) {
 
@@ -145,6 +280,34 @@ public class ParkietProvider implements RealTimeProvider {
 			HttpHost proxy = new HttpHost(phost, port, "http");
 			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}
+
+		// parser features
+
+		try {
+			parser.setFeature("http://cyberneko.org/html/features/balance-tags/ignore-outside-content", true);
+			parser.setFeature("http://cyberneko.org/html/features/scanner/script/strip-comment-delims", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// date settings
+
+		last = new Date();
+
+		Calendar c = new GregorianCalendar();
+		c.setTime(last);
+		c.set(Calendar.HOUR_OF_DAY, 8);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+
+		last = c.getTime();
+
+		// quotes updater
+
+		Thread runner = new Thread(updater);
+		runner.setDaemon(true);
+		runner.start();
 	}
 
 	/**
@@ -233,88 +396,117 @@ public class ParkietProvider implements RealTimeProvider {
 			purgeDOM();
 		}
 
-		HttpUriRequest get = affectFirefox(new HttpGet(address));
+		Quote q = quotations.get(symbol);
+		if (q == null) {
 
-		return getQuoteFromHTML(symbol, execute(get));
+			Date d = new Date();
+			Calendar c = new GregorianCalendar();
+			c.setTime(d);
+			c.add(Calendar.HOUR_OF_DAY, -24);
+
+			String date = TIME_FORMAT.format(c.getTime());
+			String update = String.format(UPDATE_URL, topicID, componentID, date);
+
+			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+			pairs.add(new BasicNameValuePair("topicId", topicID));
+			pairs.add(new BasicNameValuePair("componentId", componentID));
+			pairs.add(new BasicNameValuePair("czas", date));
+
+			HttpUriRequest post = affectFirefox(new HttpPost(update));
+			try {
+				((HttpPost) post).setEntity(new UrlEncodedFormEntity(pairs));
+			} catch (UnsupportedEncodingException e) {
+				throw new ProviderException(e);
+			}
+
+			q = getQuote0(symbol, execute(post));
+
+			quotations.put(symbol, q);
+		}
+
+		return q;
+	}
+
+	private Quote getQuote0(Symbol symbol, String json) throws ProviderException {
+
+		JSONArray array = null;
+		try {
+			array = new JSONArray(json);
+		} catch (JSONException e) {
+			throw new ProviderException(e);
+		}
+
+		JSONObject o = null;
+		String name = null;
+		int n = array.length();
+
+		try {
+
+			for (int i = 0; i < n; i++) {
+
+				o = (JSONObject) array.get(i);
+				name = o.getString("nazwa").trim();
+
+				if (symbol.getName().equals(name)) {
+					return jsonToQuote(o);
+				}
+			}
+		} catch (JSONException e) {
+			throw new ProviderException(e);
+		}
+
+		return null;
+	}
+
+	protected Quote jsonToQuote(JSONObject o) throws ProviderException, JSONException {
+
+		String name = o.getString("nazwa");
+		String date = o.getString("data_sesji");
+		String time = o.getString("czas");
+		time = time.substring(time.indexOf('>') + 1, time.lastIndexOf('<'));
+		date = date + " " + time;
+
+		Date ndate = null;
+		try {
+			ndate = DATE_FORMAT.parse(date);
+		} catch (ParseException e) {
+			throw new ProviderException(e);
+		}
+
+		String open = o.getString("o").replaceAll(",", ".");
+		String high = o.getString("h").replaceAll(",", ".");
+		String low = o.getString("l").replaceAll(",", ".");
+		String close = o.getString("c").replaceAll(",", ".");
+		String volume = o.getString("v").replaceAll(" ", "");
+		String bid = o.getString("bid").replaceAll(",", ".");
+		String ask = o.getString("ask").replaceAll(",", ".");
+
+		String[] check = new String[] { open, high, low, close, volume };
+		for (int j = 0; j < check.length; j++) {
+			if ("--".equals(check[j])) {
+				throw new ProviderException("No updates for symbol " + name);
+			}
+		}
+
+		BidAsk ba = new BidAsk();
+		ba.setBid(Double.parseDouble(bid));
+		ba.setAsk(Double.parseDouble(ask));
+
+		Quote q = new Quote();
+		q.setDate(ndate);
+		q.setOpen(Double.parseDouble(open));
+		q.setHigh(Double.parseDouble(high));
+		q.setLow(Double.parseDouble(low));
+		q.setClose(Double.parseDouble(close));
+		q.setVolume(Long.parseLong(volume));
+		q.setBidAsk(ba);
+
+		return q;
 	}
 
 	@Override
 	public boolean canServe(Symbol symbol) {
 		return true;
-	}
-
-	/**
-	 * Read HTML, parse it and find symbol data inside.
-	 * 
-	 * @param symbol - symbol to find
-	 * @param html - input HTML
-	 * @return Return new quote
-	 * @throws ProviderException
-	 */
-	protected Quote getQuoteFromHTML(Symbol symbol, String html) throws ProviderException {
-
-		Document dom = parseHTML(html);
-		String xpath = "//DIV[@class='quotations']/TABLE[@title='Dane rzeczywiste']/TBODY";
-		XPathExpression expression = getExpression(xpath);
-		NodeList nodes = getNodeList(dom, expression);
-		Node node = null;
-
-		if (nodes.getLength() > 0) {
-
-			node = nodes.item(0);
-			expression = getExpression("TR/TD[@class='nazwa']/A[text()='" + symbol.getName() + "']");
-			nodes = getNodeList(node, expression);
-
-			if (nodes.getLength() > 0) {
-				node = nodes.item(0).getParentNode().getParentNode();
-			} else {
-				throw new ProviderException("Cannot find symbol " + symbol.getName());
-			}
-
-			String time = getNodeValue(node, getExpression("TD[@class='czas']/SPAN/text()"));
-			String price = getNodeValue(node, getExpression("TD[@class='c']/text()"));
-			String open = getNodeValue(node, getExpression("TD[@class='o']/text()"));
-			String high = getNodeValue(node, getExpression("TD[@class='h']/text()"));
-			String low = getNodeValue(node, getExpression("TD[@class='l']/text()"));
-			String volume = getNodeValue(node, getExpression("TD[@class='v']/text()"));
-
-			Date now = new Date();
-			Date date = null;
-			try {
-				date = TIME_FORMAT.parse(time);
-			} catch (ParseException e) {
-				throw new ProviderException(e);
-			}
-
-			Calendar tmp = new GregorianCalendar();
-			tmp.setTime(date);
-
-			Calendar calendar = new GregorianCalendar();
-
-			Calendarium c = Calendarium.getInstance();
-			while (c.isFreeDay(now)) {
-				now = c.getPreviousWorkingDay(now);
-			}
-
-			calendar.setTime(now);
-			calendar.set(Calendar.HOUR_OF_DAY, tmp.get(Calendar.HOUR_OF_DAY));
-			calendar.set(Calendar.MINUTE, tmp.get(Calendar.MINUTE));
-			calendar.set(Calendar.SECOND, tmp.get(Calendar.SECOND));
-			calendar.set(Calendar.MILLISECOND, 0);
-
-			now = calendar.getTime();
-
-			double dopen = Double.parseDouble(open.replaceAll(",", "."));
-			double dhigh = Double.parseDouble(high.replaceAll(",", "."));
-			double dlow = Double.parseDouble(low.replaceAll(",", "."));
-			double close = Double.parseDouble(price.replaceAll(",", "."));
-			long dvolume = Long.parseLong(volume.replaceAll(" ", ""));
-
-			return new Quote(now, dopen, dhigh, dlow, close, dvolume);
-
-		} else {
-			throw new ProviderException("Cannot match elements for XPath " + xpath);
-		}
 	}
 
 	/**
@@ -327,15 +519,10 @@ public class ParkietProvider implements RealTimeProvider {
 	 */
 	protected String getNodeValue(Node node, XPathExpression expression) throws ProviderException {
 		try {
-			NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-			if (nodes.getLength() > 0) {
-				Node n = nodes.item(0);
-				return n.getNodeValue();
-			}
+			return (String) expression.evaluate(node, XPathConstants.STRING);
 		} catch (XPathExpressionException e) {
 			throw new ProviderException(e);
 		}
-		return null;
 	}
 
 	private HttpUriRequest affectFirefox(HttpUriRequest req) {
@@ -505,10 +692,31 @@ public class ParkietProvider implements RealTimeProvider {
 		}
 
 		address = getQuotesHref(html);
+		topicID = findTopicID(address);
 
 		if (address == null) {
 			throw new ProviderException("Quotes href has not been found!");
 		}
+
+		html = execute(affectFirefox(new HttpGet(address)));
+		componentID = findConmponentID(html);
+
+		if (html == null || html.length() == 0) {
+			throw new ProviderException("Cannot read HTML from request");
+		}
+	}
+
+	private String findTopicID(String address) {
+		int p = address.lastIndexOf('/') + 1;
+		int k = address.lastIndexOf('.');
+		return address.substring(p, k);
+	}
+
+	private String findConmponentID(String html) {
+		String marker = "<table id=\"tab";
+		int p = html.indexOf(marker) + marker.length();
+		int k = html.indexOf("\"", p);
+		return html.substring(p, k);
 	}
 
 	/**
@@ -550,11 +758,7 @@ public class ParkietProvider implements RealTimeProvider {
 			usr = CFG.getProperty("parkiet.com", "username");
 		}
 
-		Document dom = parseHTML(html);
-		XPathExpression expression = getExpression("//A[@href][text()='" + usr + "']");
-		NodeList nodes = getNodeList(dom, expression);
-
-		return nodes != null && nodes.getLength() > 0;
+		return html.indexOf(">" + usr + "<") != -1;
 	}
 
 	/**
@@ -605,18 +809,29 @@ public class ParkietProvider implements RealTimeProvider {
 		dom = null;
 	}
 
-	public static void main(String[] args) throws ProviderException {
+	public static void main(String[] args) throws ProviderException, InterruptedException {
 		ParkietProvider pp = new ParkietProvider();
-		// pp.login();
+
 		long to = System.currentTimeMillis();
-		System.out.println(pp.getQuote(Symbol.KGH));
+		pp.login();
 		System.out.println(System.currentTimeMillis() - to);
+
 		to = System.currentTimeMillis();
 		System.out.println(pp.getQuote(Symbol.KGH));
 		System.out.println(System.currentTimeMillis() - to);
+
+		Thread.sleep(60000);
+
 		to = System.currentTimeMillis();
 		System.out.println(pp.getQuote(Symbol.KGH));
 		System.out.println(System.currentTimeMillis() - to);
+
+		Thread.sleep(60000);
+
+		to = System.currentTimeMillis();
+		System.out.println(pp.getQuote(Symbol.KGH));
+		System.out.println(System.currentTimeMillis() - to);
+
 		to = System.currentTimeMillis();
 	}
 }

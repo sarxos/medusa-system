@@ -15,30 +15,32 @@ import com.sarxos.medusa.util.StoqColumn;
 public class Quote {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	
+
 	private Date date = null;
-	
+
 	@StoqColumn("Date")
 	private String datestring = null;
 
 	@StoqColumn("Open")
 	private double open = -1;
-	
+
 	@StoqColumn("High")
 	private double high = -1;
-	
+
 	@StoqColumn("Low")
 	private double low = -1;
-	
+
 	@StoqColumn("Close")
 	private double close = -1;
-	
+
 	@StoqColumn("Volume")
 	private long volume = -1;
 
 	private Quote next = null;
 	private Quote prev = null;
-	
+
+	private BidAsk bidAsk = null;
+
 	public Quote next() {
 		return next;
 	}
@@ -56,15 +58,16 @@ public class Quote {
 	}
 
 	/**
-	 * This constructor exists only for reflection purpose. 
+	 * This constructor exists only for reflection purpose.
 	 */
 	public Quote() {
 	}
-	
+
 	/**
-	 * Create quote instance with all necessary parameters. 
+	 * Create quote instance with all necessary parameters.
 	 * 
-	 * @param datestring - quote date as {@link String} object (format is yyyy-mm-dd)
+	 * @param datestring - quote date as {@link String} object (format is
+	 *            yyyy-mm-dd)
 	 * @param open - opening price
 	 * @param high - highest price
 	 * @param low - lowest price
@@ -82,9 +85,10 @@ public class Quote {
 	}
 
 	/**
-	 * Create quote instance with all necessary parameters. 
+	 * Create quote instance with all necessary parameters.
 	 * 
-	 * @param datestring - quote date as {@link String} object (format is yyyy-mm-dd)
+	 * @param datestring - quote date as {@link String} object (format is
+	 *            yyyy-mm-dd)
 	 * @param open - opening price
 	 * @param high - highest price
 	 * @param low - lowest price
@@ -94,7 +98,7 @@ public class Quote {
 	public Quote(Date date, double open, double high, double low, double close, long volume) {
 		this(DATE_FORMAT.format(date), open, high, low, close, volume);
 	}
-	
+
 	/**
 	 * @return Quote date as {@link String} instance.
 	 */
@@ -129,6 +133,7 @@ public class Quote {
 
 	/**
 	 * Set quote date from {@link Date} object.
+	 * 
 	 * @param date
 	 */
 	public void setDate(Date date) {
@@ -137,7 +142,7 @@ public class Quote {
 			datestring = DATE_FORMAT.format(date);
 		}
 	}
-	
+
 	/**
 	 * @return Opening price.
 	 */
@@ -187,7 +192,7 @@ public class Quote {
 	}
 
 	/**
-	 * @return Closing price for particular date. 
+	 * @return Closing price for particular date.
 	 */
 	public double getClose() {
 		return close;
@@ -217,20 +222,49 @@ public class Quote {
 	public void setVolume(long volume) {
 		this.volume = volume;
 	}
-	
+
 	@Override
 	public String toString() {
-		return
-			"---- " + datestring + " ----" + 
-			"\n   open: " + open + 
-			"\n  close: " + close + 
-			"\n    low: " + low + 
-			"\n   high: " + high + 
-			"\n volume: " + volume + 
+		return "---- " + datestring + " ----" +
+			"\n   open: " + open +
+			"\n  close: " + close +
+			"\n    low: " + low +
+			"\n   high: " + high +
+			"\n volume: " + volume +
+			(bidAsk != null ? "\n bidask: " + bidAsk.getBid() + " / " + bidAsk.getAsk() : "") +
 			"\n--------------------";
 	}
 
 	public static void main(String[] args) throws ParseException {
 		System.out.println(DATE_FORMAT.parse("2010-11-10"));
+	}
+
+	/**
+	 * @return the bidAsk
+	 */
+	public BidAsk getBidAsk() {
+		return bidAsk;
+	}
+
+	/**
+	 * @param bidAsk the bidAsk to set
+	 */
+	public void setBidAsk(BidAsk bidAsk) {
+		this.bidAsk = bidAsk;
+	}
+
+	/**
+	 * Copy quote attributes. Do not copy previous and next quote references.
+	 * 
+	 * @param q - quote to copy attributes from
+	 */
+	public void copyFrom(Quote q) {
+		this.setBidAsk(q.getBidAsk());
+		this.setDate(q.getDate());
+		this.setOpen(q.getOpen());
+		this.setHigh(q.getHigh());
+		this.setLow(q.getLow());
+		this.setClose(q.getClose());
+		this.setVolume(q.getVolume());
 	}
 }
