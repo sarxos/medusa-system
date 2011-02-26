@@ -52,7 +52,8 @@ public enum Symbol {
 	 */
 	KGH("KGHM"),
 	BRE("BRE"),
-	BZW("BZWBK");
+	BZW("BZWBK"),
+	CPS("CYFRPLSAT");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)

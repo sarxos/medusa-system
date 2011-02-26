@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sarxos.medusa.data.QuotesReader;
+import com.sarxos.medusa.data.QuotesRemoteReader;
 import com.sarxos.medusa.data.QuotesReaderException;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Index;
@@ -22,7 +22,7 @@ public class MAVDExample {
 		
 		int days = 1500;
 		
-		QuotesReader<Index> reader = new StoqReader<Index>(Index.class);
+		QuotesRemoteReader<Index> reader = new StoqReader<Index>(Index.class);
 		List<Index> data = reader.read(new File("data/bre_d.csv").toURI());
 		
 		SignalGenerator<Quote> gen = new MAVD(3, 14, 30);

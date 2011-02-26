@@ -4,11 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.market.Symbol;
 
 
 /**
@@ -38,9 +40,28 @@ public class DecisionMaker implements PriceListener {
 	 */
 	private Position position = Position.SHORT;
 
+	/**
+	 * Quotes registry used to bind single quote with corresponding historical
+	 * data for particular symbol. This objects store lists of quotes for
+	 * various symbols.
+	 */
+	private QuotesRegistry registry = QuotesRegistry.getInstance();
+
+	/**
+	 * Protected constructor - used somewhere?
+	 */
 	protected DecisionMaker() {
 	}
 
+	/**
+	 * Create Decision maker with given observer and signal generator. After
+	 * price notification from observer, generator will calculate signal and on
+	 * its base decision maker will decide if given paper shall be bought or
+	 * sell.
+	 * 
+	 * @param observer
+	 * @param generator
+	 */
 	public DecisionMaker(Observer observer, SignalGenerator<Quote> generator) {
 		this.observer = observer;
 		this.observer.addPriceListener(this);
@@ -54,10 +75,27 @@ public class DecisionMaker implements PriceListener {
 		Paper paper = wallet.getPaper(observer.getSymbol());
 		Quote quote = pe.getQuote();
 
+		quote = bind(quote, paper.getSymbol());
+
 		Signal signal = generator.generate(quote);
 		DecisionEvent de = new DecisionEvent(this, paper, signal.getType());
 
 		notifyListeners(de);
+	}
+
+	/**
+	 * Bind quote with historical data.
+	 * 
+	 * @param q - quote to bind
+	 * @param symbol - symbol to lookup in the quotes registry
+	 * @return Quote
+	 */
+	private Quote bind(Quote q, Symbol symbol) {
+		List<Quote> quotes = registry.getQuotes(symbol);
+		Quote p = quotes.get(quotes.size() - 1);
+		q.setPrev(p);
+		p.setNext(q);
+		return q;
 	}
 
 	/**
@@ -193,5 +231,25 @@ public class DecisionMaker implements PriceListener {
 		if (pe != null) {
 			notifyListeners(pe);
 		}
+	}
+
+	/**
+	 * @return Quotes registry used to bind single quote with historical data
+	 */
+	protected QuotesRegistry getRegistry() {
+		return registry;
+	}
+
+	/**
+	 * Set new quotes registry used to bind single quote with corresponding
+	 * historical data.
+	 * 
+	 * @param registry - new quotes registry to set
+	 */
+	protected void setRegistry(QuotesRegistry registry) {
+		if (registry == null) {
+			throw new IllegalArgumentException("Quotes registry cannot be null");
+		}
+		this.registry = registry;
 	}
 }

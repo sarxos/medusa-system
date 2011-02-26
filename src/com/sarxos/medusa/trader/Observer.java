@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.sarxos.medusa.data.Providers;
-import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
@@ -128,8 +127,8 @@ public class Observer implements Runnable {
 	 * @param interval
 	 */
 	public void setInterval(int interval) {
-		if (interval < 1) {
-			throw new IllegalArgumentException("Check interval in seconds must be positive");
+		if (interval < 0) {
+			throw new IllegalArgumentException("Check interval in seconds must be non-negative");
 		}
 		this.interval = interval * 1000;
 	}
@@ -178,21 +177,14 @@ public class Observer implements Runnable {
 			throw new IllegalStateException("Cannot start observer when symbol is not set");
 		}
 		if (runner == null) {
-			runner = createRunner();
-		} else {
+			runner = getRunner();
+		}
+		if (state == State.RUNNIG) {
 			throw new IllegalStateException("Observer is already started - cannot start it again");
 		}
+
 		state = State.RUNNIG;
 		runner.start();
-	}
-
-	/**
-	 * @return Runner thread for this observer.
-	 */
-	protected Thread createRunner() {
-		Thread thread = new Thread(group, this, symbol.toString() + " Observer");
-		thread.setDaemon(true);
-		return thread;
 	}
 
 	/**
@@ -231,11 +223,23 @@ public class Observer implements Runnable {
 		} while (true);
 	}
 
+	/**
+	 * Run once per observer tick. If price is different in comparison previous
+	 * one, notify price listeners.
+	 * 
+	 * @throws ProviderException
+	 */
 	protected void runOnce() throws ProviderException {
 
-		Quote q = null;
-		q = provider.getQuote(symbol);
-		q = bind(q, symbol);
+		Quote q = provider.getQuote(symbol);
+
+		if (q == null) {
+			stop();
+			System.out.println(
+				"No quotes available - shutting down " + getSymbol() + " " +
+				"observer");
+			return;
+		}
 
 		double tmp = q.getClose();
 		if (tmp != price && price != -1) {
@@ -243,21 +247,6 @@ public class Observer implements Runnable {
 		}
 
 		price = tmp;
-	}
-
-	/**
-	 * Bind quote with historical data.
-	 * 
-	 * @param q - quote to bind
-	 * @param symbol - symbol to lookup in the quotes registry
-	 * @return Quote
-	 */
-	private Quote bind(Quote q, Symbol symbol) {
-		List<Quote> quotes = QuotesRegistry.getInstance().getQuotes(symbol);
-		Quote p = quotes.get(quotes.size() - 1);
-		q.setPrev(p);
-		p.setNext(q);
-		return q;
 	}
 
 	/**
@@ -328,6 +317,10 @@ public class Observer implements Runnable {
 	 * @return Runnable runner.
 	 */
 	public Thread getRunner() {
+		if (runner == null) {
+			runner = new Thread(group, this, symbol.toString() + "Observer");
+			runner.setDaemon(true);
+		}
 		return runner;
 	}
 

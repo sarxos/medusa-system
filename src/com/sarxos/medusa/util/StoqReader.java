@@ -17,13 +17,13 @@ import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
-import com.sarxos.medusa.data.QuotesReader;
+import com.sarxos.medusa.data.QuotesRemoteReader;
 import com.sarxos.medusa.data.QuotesReaderException;
 import com.sarxos.medusa.market.Future;
 import com.sarxos.medusa.market.Quote;
 
 
-public class StoqReader<T extends Quote> implements QuotesReader<T> {
+public class StoqReader<T extends Quote> implements QuotesRemoteReader<T> {
 	
 	private Class<T> clazz = null;  
 	

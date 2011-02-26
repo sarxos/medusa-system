@@ -16,6 +16,10 @@ public class Quote {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
+	public static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+
+	private Symbol symbol = null;
+
 	private Date date = null;
 
 	@StoqColumn("Date")
@@ -36,26 +40,20 @@ public class Quote {
 	@StoqColumn("Volume")
 	private long volume = -1;
 
+	/**
+	 * Next quote - can be null.
+	 */
 	private Quote next = null;
+
+	/**
+	 * Previous quote - can be null.
+	 */
 	private Quote prev = null;
 
+	/**
+	 * Bid / ask pair.
+	 */
 	private BidAsk bidAsk = null;
-
-	public Quote next() {
-		return next;
-	}
-
-	public void setNext(Quote next) {
-		this.next = next;
-	}
-
-	public Quote prev() {
-		return prev;
-	}
-
-	public void setPrev(Quote prev) {
-		this.prev = prev;
-	}
 
 	/**
 	 * This constructor exists only for reflection purpose.
@@ -66,29 +64,21 @@ public class Quote {
 	/**
 	 * Create quote instance with all necessary parameters.
 	 * 
-	 * @param datestring - quote date as {@link String} object (format is
-	 *            yyyy-mm-dd)
+	 * @param date - quote date (format is yyyy-mm-dd)
 	 * @param open - opening price
 	 * @param high - highest price
 	 * @param low - lowest price
 	 * @param close - closing price
 	 * @param volume - whole day volume
 	 */
-	public Quote(String datestring, double open, double high, double low, double close, long volume) {
-		super();
-		this.setDateString(datestring);
-		this.setOpen(open);
-		this.setHigh(high);
-		this.setLow(low);
-		this.setClose(close);
-		this.setVolume(volume);
+	public Quote(String date, double open, double high, double low, double close, long volume) {
+		this(null, date, open, high, low, close, volume);
 	}
 
 	/**
 	 * Create quote instance with all necessary parameters.
 	 * 
-	 * @param datestring - quote date as {@link String} object (format is
-	 *            yyyy-mm-dd)
+	 * @param datestring - quote date (format is yyyy-mm-dd)
 	 * @param open - opening price
 	 * @param high - highest price
 	 * @param low - lowest price
@@ -96,7 +86,51 @@ public class Quote {
 	 * @param volume - whole day volume
 	 */
 	public Quote(Date date, double open, double high, double low, double close, long volume) {
-		this(DATE_FORMAT.format(date), open, high, low, close, volume);
+		this(null, DATE_FORMAT.format(date), open, high, low, close, volume);
+	}
+
+	/**
+	 * Create quote instance with all necessary parameters.
+	 * 
+	 * @param symbol - quote symbol
+	 * @param date - quote date (format is yyyy-mm-dd)
+	 * @param open - opening price
+	 * @param high - highest price
+	 * @param low - lowest price
+	 * @param close - closing price
+	 * @param volume - whole day volume
+	 */
+	public Quote(Symbol symbol, String date, double open, double high, double low, double close, long volume) {
+		super();
+		this.setDateString(date);
+		this.setOpen(open);
+		this.setHigh(high);
+		this.setLow(low);
+		this.setClose(close);
+		this.setVolume(volume);
+		this.symbol = symbol;
+	}
+
+	/**
+	 * Create quote instance with all necessary parameters.
+	 * 
+	 * @param symbol - quote symbol
+	 * @param date - quote date (format is yyyy-mm-dd)
+	 * @param open - opening price
+	 * @param high - highest price
+	 * @param low - lowest price
+	 * @param close - closing price
+	 * @param volume - whole day volume
+	 */
+	public Quote(Symbol symbol, Date date, double open, double high, double low, double close, long volume) {
+		super();
+		this.setDate(date);
+		this.setOpen(open);
+		this.setHigh(high);
+		this.setLow(low);
+		this.setClose(close);
+		this.setVolume(volume);
+		this.symbol = symbol;
 	}
 
 	/**
@@ -113,14 +147,16 @@ public class Quote {
 	 */
 	public void setDateString(String datestring) {
 		this.datestring = datestring;
-		try {
-			this.date = DATE_FORMAT.parse(datestring);
-			String format = DATE_FORMAT.format(this.date);
-			if (!format.equals(datestring)) {
-				System.err.println("sth wrong");
+		if (datestring != null) {
+			try {
+				this.date = DATE_FORMAT.parse(datestring);
+				String format = DATE_FORMAT.format(this.date);
+				if (!format.equals(datestring)) {
+					System.err.println("sth wrong");
+				}
+			} catch (ParseException e) {
+				throw new RuntimeException("Cannot parse date '" + datestring + "'", e);
 			}
-		} catch (ParseException e) {
-			throw new RuntimeException("Cannot parse date '" + datestring + "'", e);
 		}
 	}
 
@@ -225,14 +261,14 @@ public class Quote {
 
 	@Override
 	public String toString() {
-		return "---- " + datestring + " ----" +
+		return "- " + datestring + " " + TIME_FORMAT.format(date) + " -" +
 			"\n   open: " + open +
 			"\n  close: " + close +
 			"\n    low: " + low +
 			"\n   high: " + high +
 			"\n volume: " + volume +
 			(bidAsk != null ? "\n bidask: " + bidAsk.getBid() + " / " + bidAsk.getAsk() : "") +
-			"\n--------------------";
+			"\n-----------------------";
 	}
 
 	public static void main(String[] args) throws ParseException {
@@ -266,5 +302,35 @@ public class Quote {
 		this.setLow(q.getLow());
 		this.setClose(q.getClose());
 		this.setVolume(q.getVolume());
+	}
+
+	public Quote next() {
+		return next;
+	}
+
+	public void setNext(Quote next) {
+		this.next = next;
+	}
+
+	public Quote prev() {
+		return prev;
+	}
+
+	public void setPrev(Quote prev) {
+		this.prev = prev;
+	}
+
+	/**
+	 * @return the symbol
+	 */
+	public Symbol getSymbol() {
+		return symbol;
+	}
+
+	/**
+	 * @param symbol the symbol to set
+	 */
+	public void setSymbol(Symbol symbol) {
+		this.symbol = symbol;
 	}
 }

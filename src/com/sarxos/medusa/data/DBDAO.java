@@ -500,7 +500,7 @@ public class DBDAO implements PersistenceProvider {
 
 		switch (format) {
 			case STOOQ:
-				QuotesReader<Quote> reader = new StoqReader<Quote>(Quote.class);
+				QuotesRemoteReader<Quote> reader = new StoqReader<Quote>(Quote.class);
 				data = reader.read(f.toURI());
 				break;
 		}
