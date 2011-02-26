@@ -9,9 +9,6 @@ import java.util.Set;
 
 import com.sarxos.medusa.comm.MessagesBroker;
 import com.sarxos.medusa.comm.MessagingException;
-import com.sarxos.medusa.data.DBDAO;
-import com.sarxos.medusa.data.DBDAOException;
-import com.sarxos.medusa.data.Persisteable;
 import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.persistence.Persistent;
 import com.sarxos.medusa.market.Paper;
@@ -30,7 +27,7 @@ import com.sarxos.medusa.provider.RealTimeProvider;
  * @author Bartosz Firyn (SarXos)
  */
 @Persistent("trader")
-public abstract class Trader implements DecisionListener, Runnable, Persisteable {
+public abstract class Trader implements DecisionListener, Runnable {
 
 	/**
 	 * Set of signal types to be acknowledged by player.
@@ -265,15 +262,6 @@ public abstract class Trader implements DecisionListener, Runnable, Persisteable
 	public String toString() {
 		return getClass().getSimpleName() + "[" + getSymbol() + "]["
 			+ getGenerator().getClass().getSimpleName() + "]";
-	}
-
-	@Override
-	public void persist() {
-		try {
-			DBDAO.getInstance().updateTrader(this);
-		} catch (DBDAOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
