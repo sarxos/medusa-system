@@ -2,7 +2,6 @@ package com.sarxos.medusa.data;
 
 import java.util.List;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
@@ -25,27 +24,26 @@ public class QuotesRegistry {
 	/**
 	 * Database DAO instance.
 	 */
-	private DBDAO dbdao = DBDAO.getInstance();
+	private DBDAO dbdao = null;
 
 	/**
 	 * Quotes registry singleton instance.
 	 */
-	private static AtomicReference<QuotesRegistry> instance = new AtomicReference<QuotesRegistry>();
+	private static QuotesRegistry instance = new QuotesRegistry();
 
 	/**
 	 * Private constructor - this class is a singleton.
 	 */
 	private QuotesRegistry() {
+		MySQLRunner.getInstance().runMySQL();
+		dbdao = DBDAO.getInstance();
 	}
 
 	/**
 	 * @return Return quotes registry instance.
 	 */
 	public static QuotesRegistry getInstance() {
-		if (instance.get() == null) {
-			instance.compareAndSet(null, new QuotesRegistry());
-		}
-		return instance.get();
+		return instance;
 	}
 
 	/**

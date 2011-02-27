@@ -173,7 +173,7 @@ public class BossaProvider implements HistoricalProvider {
 
 		boolean download = true;
 
-		File f = new File("data/mstcgl.zip");
+		File f = new File("data/tmp/mstcgl.zip");
 
 		if (f.exists()) {
 			Date modified = new Date(f.lastModified());
@@ -209,7 +209,7 @@ public class BossaProvider implements HistoricalProvider {
 
 		try {
 
-			File sessall = new File("data/mstcgl");
+			File sessall = new File("data/tmp/mstcgl");
 			if (!sessall.exists()) {
 				if (!sessall.mkdirs()) {
 					throw new ProviderException("Cannot create directory " + f.getName());
@@ -230,7 +230,7 @@ public class BossaProvider implements HistoricalProvider {
 
 				is = zip.getInputStream(entry);
 
-				f = new File("data/mstcgl/" + name);
+				f = new File("data/tmp/mstcgl/" + name);
 				if (!f.exists()) {
 					if (!f.createNewFile()) {
 						throw new ProviderException("Cannot create file " + f.getName());
