@@ -4,12 +4,14 @@ import static com.sarxos.medusa.market.SignalType.BUY;
 import static com.sarxos.medusa.market.SignalType.SELL;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.math.TA;
 
 
 /**
@@ -34,7 +36,7 @@ import com.sarxos.medusa.market.SignalGenerator;
  * <br>
  * 
  * @author Bartosz Firyn (SarXos)
- * @see com.sarxos.medusa.math.SAR
+ * @see com.sarxos.medusa.math.TA
  */
 public class SAR implements SignalGenerator<Quote> {
 
@@ -61,19 +63,28 @@ public class SAR implements SignalGenerator<Quote> {
 	}
 
 	@Override
-	public List<Signal> generate(Quote[] quotes, int range) {
+	public List<Signal> generate(Quote[] quotes, int R) {
 
-		if (range > quotes.length) {
-			throw new IllegalArgumentException("Range exceeds quotes length");
+		if (R > quotes.length) {
+			throw new IllegalArgumentException("Range exceeds quotes array length");
 		}
 
-		return null;
+		int N = quotes.length;
+		int S = quotes.length - 1 - R;
+
+		List<Signal> signals = new LinkedList<Signal>();
+
+		for (int i = S; i < N; i++) {
+			signals.add(generate(quotes[i]));
+		}
+
+		return signals;
 	}
 
 	@Override
 	public Signal generate(Quote q) {
 
-		double s = com.sarxos.medusa.math.SAR.sar(q, 1, a, m)[0]; // SAR value
+		double s = TA.sar(q, 1, a, m)[0]; // SAR value
 		double c = q.getClose(); // close price for given quote
 
 		if (s < c) {

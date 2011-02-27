@@ -1,27 +1,9 @@
 package com.sarxos.medusa.math;
 
 import com.sarxos.medusa.market.Quote;
-import com.tictactec.ta.lib.Core;
 
 
 public class SX {
-
-	/**
-	 * TA-lib core wrapper.
-	 * 
-	 * @author Bartosz Firyn (SarXos)
-	 */
-	public static class TA {
-
-		private static Core core = new Core();
-
-		/**
-		 * @return Return TA library core.
-		 */
-		public static Core getCore() {
-			return core;
-		}
-	}
 
 	/**
 	 * Return Q diff for given quote.
