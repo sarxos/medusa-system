@@ -131,4 +131,9 @@ public class BidAsk {
 	public double getSpread() {
 		return Math.abs(ask - bid);
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%.2f|%.2f", bid, ask).replaceAll(",", ".");
+	}
 }

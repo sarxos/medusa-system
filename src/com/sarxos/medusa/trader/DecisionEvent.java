@@ -3,6 +3,7 @@ package com.sarxos.medusa.trader;
 import java.util.EventObject;
 
 import com.sarxos.medusa.market.Paper;
+import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalType;
 
 
@@ -25,6 +26,8 @@ public class DecisionEvent extends EventObject {
 	 */
 	private SignalType signal = null;
 
+	private Quote quote = null;
+
 	/**
 	 * Create price event.
 	 * 
@@ -32,9 +35,10 @@ public class DecisionEvent extends EventObject {
 	 * @param previous - previous price
 	 * @param current 0- current price
 	 */
-	public DecisionEvent(DecisionMaker judge, Paper paper, SignalType signal) {
+	public DecisionEvent(DecisionMaker judge, Paper paper, Quote quote, SignalType signal) {
 		super(judge);
 		this.paper = paper;
+		this.quote = quote;
 		this.signal = signal;
 	}
 
@@ -59,7 +63,21 @@ public class DecisionEvent extends EventObject {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() +
-			"[" + getSignalType() + " " + getPaper() + "]";
+		StringBuffer sb = new StringBuffer(getClass().getSimpleName());
+		sb.append("[");
+		sb.append(getSignalType().toString().substring(0, 1));
+		sb.append(" ");
+		sb.append(getPaper());
+		sb.append(" ");
+		sb.append(getQuote());
+		sb.append("]");
+		return sb.toString();
+	}
+
+	/**
+	 * @return the quote
+	 */
+	protected Quote getQuote() {
+		return quote;
 	}
 }

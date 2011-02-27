@@ -19,6 +19,20 @@ import com.sarxos.medusa.provider.RealTimeProvider;
 public class Observer implements Runnable {
 
 	/**
+	 * Simple class to notify about occurring null quotes events.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
+	public static class NullEvent extends PriceEvent {
+
+		private static final long serialVersionUID = -9214937855786805177L;
+
+		public NullEvent(Observer observer, double previous, double current, Quote quote) {
+			super(observer, previous, current, quote);
+		}
+	}
+
+	/**
 	 * Possible observer states. Possible transitions are:
 	 * <ul>
 	 * <li>STOPPED =&gt; RUNNING</li>
@@ -176,15 +190,13 @@ public class Observer implements Runnable {
 		if (symbol == null) {
 			throw new IllegalStateException("Cannot start observer when symbol is not set");
 		}
-		if (runner == null) {
-			runner = getRunner();
+		if (state != State.STOPPED) {
+			throw new IllegalStateException(
+				"This observer has been already started - cannot start it " +
+				"again");
 		}
-		if (state == State.RUNNIG) {
-			throw new IllegalStateException("Observer is already started - cannot start it again");
-		}
-
 		state = State.RUNNIG;
-		runner.start();
+		getRunner().start();
 	}
 
 	/**
@@ -234,19 +246,14 @@ public class Observer implements Runnable {
 		Quote q = provider.getQuote(symbol);
 
 		if (q == null) {
-			stop();
-			System.out.println(
-				"No quotes available - shutting down " + getSymbol() + " " +
-				"observer");
-			return;
+			notifyListeners(new NullEvent(this, price, price, null));
+		} else {
+			double tmp = q.getClose();
+			if (tmp != price && price != -1) {
+				notifyListeners(new PriceEvent(this, price, tmp, q));
+			}
+			price = tmp;
 		}
-
-		double tmp = q.getClose();
-		if (tmp != price && price != -1) {
-			notifyListeners(new PriceEvent(this, price, tmp, q));
-		}
-
-		price = tmp;
 	}
 
 	/**

@@ -18,6 +18,13 @@ public class TA {
 	private static Core ta = new Core();
 
 	/**
+	 * @return Return TA core.
+	 */
+	public static Core getCore() {
+		return ta;
+	}
+
+	/**
 	 * Calculate SAR for N-days period. Use acceleration and max step size given
 	 * as the arguments.<br>
 	 * <br>

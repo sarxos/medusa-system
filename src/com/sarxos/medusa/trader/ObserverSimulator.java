@@ -3,10 +3,22 @@ package com.sarxos.medusa.trader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import com.sarxos.medusa.data.QuotesIterator;
+import com.sarxos.medusa.data.QuotesRegistry;
+import com.sarxos.medusa.generator.SAR;
+import com.sarxos.medusa.market.Paper;
+import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
+import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.RealTimeProvider;
@@ -49,6 +61,8 @@ public class ObserverSimulator extends Observer {
 		 */
 		private QuotesIterator<Quote> qi = null;
 
+		private QuotesRegistrySimulator registry = null;
+
 		public SimulationProvider(Symbol symbol, long from, long to) {
 			if (from > to) {
 				throw new IllegalArgumentException(
@@ -62,6 +76,8 @@ public class ObserverSimulator extends Observer {
 			}
 			this.from = from;
 			this.to = to;
+
+			this.registry = (QuotesRegistrySimulator) QuotesRegistrySimulator.getInstance();
 		}
 
 		@Override
@@ -78,6 +94,7 @@ public class ObserverSimulator extends Observer {
 				if ((q = qi.next()) == null) {
 					return null;
 				}
+				putInRegistry(symbol, q);
 				d = q.getDate();
 			} while (d.getTime() < from);
 
@@ -85,7 +102,58 @@ public class ObserverSimulator extends Observer {
 				reached = true;
 			}
 
+			if (last != null) {
+				q.setOpen(open);
+				q.setHigh(high);
+				q.setLow(low);
+				q.setVolume(volume);
+			}
+
 			return q;
+		}
+
+		double open = 0;
+		double high = Double.MIN_VALUE;
+		double low = Double.MAX_VALUE;
+		long volume = 0;
+
+		private Quote last = null;
+		private Calendar calendar = new GregorianCalendar();
+
+		protected void putInRegistry(Symbol s, Quote q) {
+
+			if (last == null) {
+				last = q;
+				open = q.getOpen();
+				high = q.getHigh();
+				low = q.getLow();
+			}
+
+			double h = q.getHigh();
+			double l = q.getLow();
+
+			high = h > high ? h : high;
+			low = l < low ? l : low;
+			volume += q.getVolume();
+
+			int a = getDay(q);
+			int b = getDay(last);
+
+			if (a > b) {
+				Quote qq = new Quote(s, last.getDate(), open, high, low, last.getClose(), volume);
+				registry.addQuote(s, qq);
+				open = q.getOpen();
+				high = q.getHigh();
+				low = q.getLow();
+				volume = q.getVolume();
+			}
+
+			last = q;
+		}
+
+		private int getDay(Quote q) {
+			calendar.setTime(q.getDate());
+			return calendar.get(Calendar.DAY_OF_YEAR);
 		}
 
 		@Override
@@ -115,6 +183,40 @@ public class ObserverSimulator extends Observer {
 		}
 	}
 
+	/**
+	 * Class used to simulate original quotes registry.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
+	public static class QuotesRegistrySimulator extends QuotesRegistry {
+
+		private Map<Symbol, List<Quote>> quotes = new HashMap<Symbol, List<Quote>>();
+
+		public QuotesRegistrySimulator() {
+			setInstance(this);
+		}
+
+		@Override
+		public List<Quote> getQuotes(Symbol symbol) {
+			return quotes.get(symbol);
+		}
+
+		public void addQuote(Symbol symbol, Quote q) {
+			List<Quote> qs = quotes.get(symbol);
+			if (qs == null) {
+				qs = new LinkedList<Quote>();
+				quotes.put(symbol, qs);
+			}
+			int n = qs.size();
+			if (n > 0) {
+				Quote t = qs.get(n - 1);
+				t.setNext(q);
+				q.setPrev(t);
+			}
+			qs.add(q);
+		}
+	}
+
 	public ObserverSimulator(Symbol symbol, Date from, Date to) {
 		super(new SimulationProvider(symbol, from.getTime(), to.getTime()), symbol);
 		setInterval(0);
@@ -138,23 +240,54 @@ public class ObserverSimulator extends Observer {
 
 	public static void main(String[] args) throws ParseException {
 
-		PriceListener pl = new PriceListener() {
+		Symbol sym = Symbol.KGH;
+		String from = "2010-08-26 08:00:00";
+		String to = "2011-02-26 08:00:00";
+		SignalGenerator<Quote> siggen = new SAR(0.02, 0.2);
+
+		Wallet.getInstance().addPaper(new Paper(sym, 100));
+
+		final QuotesRegistrySimulator registry = new QuotesRegistrySimulator();
+
+		final ObserverSimulator observer = new ObserverSimulator(sym, DATE_FORMAT.parse(from), DATE_FORMAT.parse(to));
+		observer.getRunner().setDaemon(false);
+
+		final DecisionMaker dmaker = new DecisionMaker(observer, siggen) {
 
 			@Override
-			public void priceChange(PriceEvent pe) {
-				System.out.println(pe);
+			protected void handleNull(NullEvent ne) {
+				getObserver().stop();
+			}
+		};
+		dmaker.setRegistry(registry);
+
+		DecisionListener dl = new DecisionListener() {
+
+			Map<String, Object> dates = new HashMap<String, Object>();
+
+			@Override
+			public void positionChange(PositionEvent pe) {
+				// System.out.println(pe);
+			}
+
+			@Override
+			public void decisionChange(DecisionEvent de) {
+				String date = de.getQuote().getDateString();
+				if (dates.get(date) == null) {
+					System.out.println(de);
+					if (de.getSignalType() == SignalType.BUY) {
+						dmaker.setCurrentPosition(Position.LONG);
+					} else {
+						dmaker.setCurrentPosition(Position.SHORT);
+					}
+				} else {
+					return;
+				}
+				dates.put(date, true);
 			}
 		};
 
-		String from = "2011-01-01 08:00:00";
-		String to = "2011-02-26 08:00:00";
-
-		ObserverSimulator simula = new ObserverSimulator(
-			Symbol.CPS,
-			DATE_FORMAT.parse(from),
-			DATE_FORMAT.parse(to));
-		simula.addPriceListener(pl);
-		simula.getRunner().setDaemon(false);
-		simula.start();
+		dmaker.addDecisionListener(dl);
+		dmaker.start();
 	}
 }

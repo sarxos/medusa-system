@@ -12,7 +12,7 @@ import com.sarxos.medusa.util.StoqColumn;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class Quote {
+public class Quote implements Cloneable {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -261,18 +261,23 @@ public class Quote {
 
 	@Override
 	public String toString() {
-		return "- " + datestring + " " + TIME_FORMAT.format(date) + " -" +
-			"\n   open: " + open +
-			"\n  close: " + close +
-			"\n    low: " + low +
-			"\n   high: " + high +
-			"\n volume: " + volume +
-			(bidAsk != null ? "\n bidask: " + bidAsk.getBid() + " / " + bidAsk.getAsk() : "") +
-			"\n-----------------------";
-	}
 
-	public static void main(String[] args) throws ParseException {
-		System.out.println(DATE_FORMAT.parse("2010-11-10"));
+		StringBuffer sb = new StringBuffer(256);
+		sb.append(getClass().getSimpleName());
+		sb.append("[").append(getDateString()).append("]");
+		sb.append('[');
+		sb.append("O:").append(String.format("%.2f", open).replaceAll(",", "."));
+		sb.append(" H:").append(String.format("%.2f", high).replaceAll(",", "."));
+		sb.append(" L:").append(String.format("%.2f", low).replaceAll(",", "."));
+		sb.append(" C:").append(String.format("%.2f", close).replaceAll(",", "."));
+
+		if (bidAsk != null) {
+			sb.append(" B|A:").append(bidAsk);
+		}
+
+		sb.append("]");
+
+		return sb.toString();
 	}
 
 	/**
@@ -332,5 +337,10 @@ public class Quote {
 	 */
 	public void setSymbol(Symbol symbol) {
 		this.symbol = symbol;
+	}
+
+	@Override
+	public Quote clone() throws CloneNotSupportedException {
+		return (Quote) super.clone();
 	}
 }

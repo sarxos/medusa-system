@@ -34,7 +34,7 @@ public class QuotesRegistry {
 	/**
 	 * Private constructor - this class is a singleton.
 	 */
-	private QuotesRegistry() {
+	protected QuotesRegistry() {
 		MySQLRunner.getInstance().runMySQL();
 		dbdao = DBDAO.getInstance();
 	}
@@ -44,6 +44,13 @@ public class QuotesRegistry {
 	 */
 	public static QuotesRegistry getInstance() {
 		return instance;
+	}
+
+	protected void setInstance(QuotesRegistry qr) {
+		if (qr == null) {
+			throw new IllegalArgumentException("Quotes registry instance cannot be null");
+		}
+		instance = qr;
 	}
 
 	/**

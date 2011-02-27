@@ -1,5 +1,10 @@
 package com.sarxos.medusa.trader;
 
+import static com.sarxos.medusa.market.Position.LONG;
+import static com.sarxos.medusa.market.Position.SHORT;
+import static com.sarxos.medusa.market.SignalType.BUY;
+import static com.sarxos.medusa.market.SignalType.SELL;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -10,7 +15,9 @@ import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.trader.Observer.NullEvent;
 
 
 /**
@@ -71,16 +78,38 @@ public class DecisionMaker implements PriceListener {
 	@Override
 	public void priceChange(PriceEvent pe) {
 
+		if (pe instanceof NullEvent) {
+			handleNull((NullEvent) pe);
+			return;
+		}
+
 		Wallet wallet = Wallet.getInstance();
 		Paper paper = wallet.getPaper(observer.getSymbol());
 		Quote quote = pe.getQuote();
+		Symbol symbol = observer.getSymbol();
 
-		quote = bind(quote, paper.getSymbol());
+		quote = bind(quote, symbol);
 
 		Signal signal = generator.generate(quote);
-		DecisionEvent de = new DecisionEvent(this, paper, signal.getType());
+		SignalType type = signal.getType();
 
-		notifyListeners(de);
+		boolean buy = position == SHORT && type == BUY;
+		boolean sell = position == LONG && type == SELL;
+
+		if (buy || sell) {
+			notifyListeners(new DecisionEvent(this, paper, quote, type));
+		} else {
+			unbind(quote, symbol);
+		}
+	}
+
+	/**
+	 * This method is used only by simulators.
+	 * 
+	 * @param ne
+	 */
+	protected void handleNull(NullEvent ne) {
+		// do nothing - used only by simulator
 	}
 
 	/**
@@ -95,6 +124,21 @@ public class DecisionMaker implements PriceListener {
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(p);
 		p.setNext(q);
+		return q;
+	}
+
+	/**
+	 * Unbind quote from historical data.
+	 * 
+	 * @param q - quote to unbind
+	 * @param symbol - symbol to lookup in the quotes registry
+	 * @return Quote
+	 */
+	private Quote unbind(Quote q, Symbol symbol) {
+		List<Quote> quotes = registry.getQuotes(symbol);
+		Quote p = quotes.get(quotes.size() - 1);
+		q.setPrev(null);
+		p.setNext(null);
 		return q;
 	}
 
@@ -251,5 +295,27 @@ public class DecisionMaker implements PriceListener {
 			throw new IllegalArgumentException("Quotes registry cannot be null");
 		}
 		this.registry = registry;
+	}
+
+	/**
+	 * Start underlying observer.
+	 */
+	public void start() {
+		if (observer != null) {
+			observer.start();
+		} else {
+			throw new IllegalStateException("Observer is null, cannot start");
+		}
+	}
+
+	/**
+	 * Start underlying observer.
+	 */
+	public void stop() {
+		if (observer != null) {
+			observer.stop();
+		} else {
+			throw new IllegalStateException("Observer is null, cannot stop");
+		}
 	}
 }

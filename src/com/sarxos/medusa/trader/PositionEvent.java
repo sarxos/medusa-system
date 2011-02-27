@@ -53,4 +53,15 @@ public class PositionEvent extends EventObject {
 	public Position getOldPosition() {
 		return oldPosition;
 	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(getClass().getSimpleName());
+		sb.append("[ ");
+		sb.append(getOldPosition());
+		sb.append(" -> ");
+		sb.append(getNewPosition());
+		sb.append(" ]");
+		return sb.toString();
+	}
 }
