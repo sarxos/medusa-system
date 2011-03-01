@@ -2,15 +2,20 @@ package com.sarxos.medusa.comm;
 
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.SignalType;
+import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.util.CodeGenerator;
 import com.sarxos.medusa.util.Configuration;
 
 
 /**
- * Messages broker class. It utilizes messages driver created in the runtime by
- * reflection, and use it to send and/or receive messages.
+ * Messages broker class. It utilizes {@link MessagesDriver} created in the
+ * runtime by reflection, and use it to send and/or receive messages. This class
+ * uses {@link MessagingPolicy} object to decide if message for given symbol can
+ * be, or cannot be send.
  * 
  * @author Bartosz Firyn (SarXos)
+ * @see MessagesDriver#send(Message)
+ * @see MessagingPolicy#allows(Symbol)
  */
 public class MessagesBroker {
 
@@ -89,15 +94,25 @@ public class MessagesBroker {
 	 */
 	public boolean acknowledge(Paper paper, SignalType type) throws MessagingException {
 
+		MessagingPolicy policy = MessagingPolicy.getPolicy();
+		Symbol symbol = paper.getSymbol();
+
+		// check if message for given symbol can be send
+		if (!policy.allows(symbol)) {
+			return false;
+		}
+
 		String recipient = configuration.getProperty("player", "mobile");
 		String body = buildMessageString(paper, type);
 		String code = codegen.generate();
 
+		// create message object
 		Message message = new Message();
 		message.setCode(code);
 		message.setBody(body);
 		message.setRecipient(recipient);
 
+		// send message via messages driver
 		boolean sent = false;
 		try {
 			sent = driver.send(message);
@@ -105,10 +120,14 @@ public class MessagesBroker {
 			throw new MessagingException(e);
 		}
 
+		// tell policy object that we have sent message
+		policy.sent(symbol);
+
 		if (!sent) {
 			throw new MessagingException("Message cannot be sent");
 		}
 
+		// loop until message response is being received
 		int i = 0;
 		do {
 
@@ -116,17 +135,19 @@ public class MessagesBroker {
 			if (i < intervals.length - 1) {
 				i++;
 			}
-
 			try {
 				Thread.sleep(sleep * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
+			// receive message for given code - will return null if no message
+			// is available
 			message = driver.receive(code);
 
 		} while (message == null);
 
+		// return player's decision
 		return getDecision(message);
 	}
 
