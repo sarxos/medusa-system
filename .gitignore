@@ -7,4 +7,4 @@ data/*.prn
 ispag
 .settings
 wrapper.exe
-
+data/service.conf
