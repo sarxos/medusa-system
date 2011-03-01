@@ -20,6 +20,7 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.1.jar" sourcepath="D:/usr/sarxos/libraries/httpcomponents-core-4.1-bin/httpcomponents-core-4.1/httpcore/src/main/java"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/wrapper.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SmesX"/>

@@ -6,4 +6,5 @@ data/mstcgl
 data/*.prn
 ispag
 .settings
+wrapper.exe
 

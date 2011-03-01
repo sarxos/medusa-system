@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>time</type>
+        <start_time>2011-02-19 20:24:57</start_time>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <contain_sms>false</contain_sms>
+  <has_more>false</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>time</type>
+        <start_time>2011-02-19 20:24:57</start_time>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <contain_sms>false</contain_sms>
+  <has_more>false</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>time</type>
+        <start_time>2011-02-19 20:20:57</start_time>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <contain_sms>false</contain_sms>
+  <has_more>false</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>unread</type>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <sms>
+    <body>123456: No</body>
+    <inserted_at>2011-02-19 20:35:15</inserted_at>
+    <id>265259</id>
+    <msisdn>+48509934614</msisdn>
+    <marked_at></marked_at>
+    <received_at>2011-02-19 20:35:07</received_at>
+  </sms>
+  <contain_sms>true</contain_sms>
+  <has_more>false</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>time</type>
+        <start_time>2011-02-19 20:20:57</start_time>
+        <stop_time>2011-02-20 23:43:11</stop_time>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <sms>
+    <body>123456: Ok</body>
+    <inserted_at>2011-02-19 20:26:01</inserted_at>
+    <id>265258</id>
+    <msisdn>+48509934614</msisdn>
+    <marked_at>2011-02-19 23:47:45</marked_at>
+    <received_at>2011-02-19 20:25:48</received_at>
+  </sms>
+  <contain_sms>true</contain_sms>
+  <has_more>true</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>time</type>
+        <start_time>2011-02-19 20:20:57</start_time>
+        <stop_time>2011-02-20 23:43:45</stop_time>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <sms>
+    <body>123456: Ok</body>
+    <inserted_at>2011-02-19 20:26:01</inserted_at>
+    <id>265258</id>
+    <msisdn>+48509934614</msisdn>
+    <marked_at>2011-02-19 23:47:45</marked_at>
+    <received_at>2011-02-19 20:25:48</received_at>
+  </sms>
+  <contain_sms>true</contain_sms>
+  <has_more>true</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <send_sms>
+        <msisdn>+48509934614</msisdn>
+        <body>117480: SELL KGHM 10</body>
+        <expire_at>2011-02-25 13:10:27</expire_at>
+    </send_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<send_sms>
+  <id>6969852</id>
+  <expire_at>2011-02-25 13:10:27</expire_at>
+</send_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>unread</type>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <sms>
+    <body>123456: No</body>
+    <inserted_at>2011-02-19 20:35:15</inserted_at>
+    <id>265259</id>
+    <msisdn>+48509934614</msisdn>
+    <marked_at></marked_at>
+    <received_at>2011-02-19 20:35:07</received_at>
+  </sms>
+  <contain_sms>true</contain_sms>
+  <has_more>false</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <send_sms>
+        <msisdn>+48509934614</msisdn>
+        <body>267487: SELL KGHM 10</body>
+        <expire_at>2011-02-25 13:11:24</expire_at>
+    </send_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<send_sms>
+  <id>6969923</id>
+  <expire_at>2011-02-25 13:11:24</expire_at>
+</send_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>unread</type>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <sms>
+    <body>123456: No</body>
+    <inserted_at>2011-02-19 20:35:15</inserted_at>
+    <id>265259</id>
+    <msisdn>+48509934614</msisdn>
+    <marked_at></marked_at>
+    <received_at>2011-02-19 20:35:07</received_at>
+  </sms>
+  <contain_sms>true</contain_sms>
+  <has_more>false</has_more>
+</receive_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <send_sms>
+        <msisdn>+48509934614</msisdn>
+        <body>745252: SELL KGHM 10</body>
+        <expire_at>2011-02-25 13:12:39</expire_at>
+    </send_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<send_sms>
+  <id>6969954</id>
+  <expire_at>2011-02-25 13:12:39</expire_at>
+</send_sms>
+</response>
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request password="PQZ5VnBq" user="htguser2647" protocol="SmesX" version="2.2">
+    <receive_sms>
+        <type>unread</type>
+        <mark>false</mark>
+    </receive_sms>
+</request>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="SmesX" version="2.2">
+<execution_status>success</execution_status>
+<receive_sms>
+  <sms>
+    <body>123456: No</body>
+    <inserted_at>2011-02-19 20:35:15</inserted_at>
+    <id>265259</id>
+    <msisdn>+48509934614</msisdn>
+    <marked_at></marked_at>
+    <received_at>2011-02-19 20:35:07</received_at>
+  </sms>
+  <contain_sms>true</contain_sms>
+  <has_more>false</has_more>
+</receive_sms>
+</response>
+
