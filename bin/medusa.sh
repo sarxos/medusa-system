@@ -1,34 +1,110 @@
 #!/bin/ksh
 
-#. /etc/profile.d/javaenv.sh
 
-PWD=$(pwd)
+# Medusa environment variables
+# TODO: move to separate file, but first need some instalator
+export MEDUSA_HOME="D:\usr\sarxos\workspace\Eclipse\Medusa"
 
-MEDUSA_CLASSPATH=$CLASSPATH
-MEDUSA_HOME="d:/usr/sarxos/workspace/Eclipse/Medusa"
-#MEDUSA_LIB=$MEDUSA_HOME/lib
-MEDUSA_LIB=lib
 
-cd $MEDUSA_HOME
+###############################################################################
+
+
+if [[ $OS != "Windows_NT" ]];
+then
+	echo "For now Medusa can be run only on WinNT w. Cygwin installed"
+	exit 1
+fi
+
+# directories
+
+BIN_DIR="bin"
+LOG_DIR="log"
+LIB_DIR="lib"
+
+EXECUTABLE="wrapper.exe"
+
+MEDUSA_BIN="$MEDUSA_HOME\\$BIN_DIR"
+MEDUSA_LIB="$MEDUSA_HOME\\$LIB_DIR"
+MEDUSA_DAT="$MEDUSA_HOME\data"
+NT_WRAPPER_BIN="$MEDUSA_BIN\\$EXECUTABLE"
+NT_WRAPPER_CFG="$MEDUSA_HOME\data\service-def.conf"
+NT_WRAPPER_TMP="$MEDUSA_DAT\service.conf"
 
 # check if Medusa lib directory exists
+
 if [ ! -d $MEDUSA_LIB ]
 then
 	echo "Medusa lib directory '$MEDUSA_LIB' is missing!"
 	exit 1
 fi
 
-# create classpath for Medusa
+# create service configuration
+
+touch "$NT_WRAPPER_TMP"
+cat "$NT_WRAPPER_CFG" > "$NT_WRAPPER_TMP"
+
+# create classpath config content
+
+echo >> "$NT_WRAPPER_TMP"
+echo "#### MEDUSA GENERATED CONTENT #### BEGIN" >> "$NT_WRAPPER_TMP"
+echo "wrapper.logfile=$LOG_DIR/service.log" >> "$NT_WRAPPER_TMP"
+echo "wrapper.java.library.path.1=$LIB_DIR" >> "$NT_WRAPPER_TMP"
+echo "wrapper.java.classpath.1=target" >> "$NT_WRAPPER_TMP"
+
+typeset -i num=2
+
 for f in $(ls $MEDUSA_LIB)
 do
-	MEDUSA_CLASSPATH="$MEDUSA_CLASSPATH;$MEDUSA_LIB/$f"
+	echo "wrapper.java.classpath.$num=$LIB_DIR/$f" >> "$NT_WRAPPER_TMP"
+	num=num+1
 done
 
-# execute Medusa CLI
-${JAVA_HOME}/bin/java \
-	-classpath "$MEDUSA_CLASSPATH" \
-	com.sarxos.medusa.cli.CLI "$@"
+echo "#### MEDUSA GENERATED CONTENT #### END" >> "$NT_WRAPPER_TMP"
+echo >> "$NT_WRAPPER_TMP"
 
-cd $PWD
+# copy wrapper binary
+
+cd "$MEDUSA_HOME"
+
+if [ ! -f "$NT_WRAPPER_BIN" ]
+then
+	cp "$NT_WRAPPER_BIN" .
+fi
+
+ACTION=""
+
+case $1 in
+	install)
+		ACTION="-i"
+		;;
+	remove)
+		ACTION="-r"
+		;;
+	start)
+		ACTION="-t"
+		;;
+	stop)
+		ACTION="-p"
+		;;
+	status)
+		ACTION="-q"
+		;;
+	*)
+		# create classpath for Medusa
+		MEDUSA_CLASSPATH=$CLASSPATH
+		
+		for f in $(ls $MEDUSA_LIB)
+		do
+			MEDUSA_CLASSPATH="$MEDUSA_CLASSPATH;$MEDUSA_LIB/$f"
+		done
+		
+		# execute Medusa CLI
+		${JAVA_HOME}/bin/java -classpath "$MEDUSA_CLASSPATH" com.sarxos.medusa.cli.CLI "$@"
+		
+		exit $?
+		;;
+esac
+
+./$EXECUTABLE $ACTION "$NT_WRAPPER_TMP"
 
 exit $?

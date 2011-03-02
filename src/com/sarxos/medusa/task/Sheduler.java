@@ -1,13 +1,9 @@
-package com.sarxos.medusa.trader;
+package com.sarxos.medusa.task;
 
 import java.util.Date;
 import java.util.Timer;
 
-import com.sarxos.medusa.task.ReconcileQuotesDataTask;
-import com.sarxos.medusa.task.StockPauseObservers;
-import com.sarxos.medusa.task.StockPauseObservers2;
-import com.sarxos.medusa.task.StockResumeObservers;
-import com.sarxos.medusa.task.StockResumeObservers2;
+import com.sarxos.medusa.trader.PlannedTask;
 
 
 public class Sheduler extends Timer {

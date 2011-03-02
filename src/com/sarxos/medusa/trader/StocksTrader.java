@@ -17,8 +17,6 @@ public class StocksTrader extends Trader {
 	@Override
 	public void decisionChange(DecisionEvent de) {
 
-		System.out.println("stocks trader \n" + de);
-
 		switch (de.getSignalType()) {
 			case BUY:
 				if (acknowledge(de)) {

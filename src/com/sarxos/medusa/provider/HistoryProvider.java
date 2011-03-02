@@ -6,7 +6,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 
 
-public interface HistoricalProvider {
+public interface HistoryProvider {
 
 	/**
 	 * Download and return 6 last quotes.

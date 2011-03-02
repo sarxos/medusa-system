@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.sarxos.medusa.comm.MessagesBroker;
 import com.sarxos.medusa.comm.MessagingException;
-import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.data.persistence.Persistent;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
@@ -17,6 +16,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
@@ -106,7 +106,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	protected void init() {
 
 		if (provider == null) {
-			provider = Providers.getDefaultRealTimeDataProvider();
+			provider = Providers.getRealTimeProvider();
 		}
 
 		Observer observer = new Observer(provider, symbol);

@@ -20,13 +20,13 @@ import org.apache.http.client.methods.HttpGet;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.provider.HistoricalProvider;
+import com.sarxos.medusa.provider.HistoryProvider;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.util.DateUtils;
 import com.sarxos.smesx.http.NaiveSSLClient;
 
 
-public class BossaProvider implements HistoricalProvider {
+public class BossaProvider implements HistoryProvider {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
 

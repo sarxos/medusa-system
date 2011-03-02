@@ -39,12 +39,4 @@ public class ThrottlingPolicy extends MessagingPolicy {
 	public void sent(Symbol symbol) {
 		symbols.add(symbol);
 	}
-
-	public static void main(String[] args) {
-		MessagingPolicy p = MessagingPolicy.getPolicy();
-		System.out.println(p.allows(Symbol.KGH));
-		p.sent(Symbol.KGH);
-		System.out.println(p.allows(Symbol.KGH));
-
-	}
 }

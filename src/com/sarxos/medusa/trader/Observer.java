@@ -4,10 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.sarxos.medusa.data.Providers;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
+import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
@@ -107,7 +107,7 @@ public class Observer implements Runnable {
 	 */
 	public Observer(RealTimeProvider provider, Symbol symbol) {
 		if (provider == null) {
-			provider = Providers.getDefaultRealTimeDataProvider();
+			provider = Providers.getRealTimeProvider();
 		}
 		this.provider = provider;
 		this.observe(symbol);

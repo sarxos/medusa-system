@@ -129,13 +129,6 @@ public class ObserverSimulator extends Observer {
 				low = q.getLow();
 			}
 
-			double h = q.getHigh();
-			double l = q.getLow();
-
-			high = h > high ? h : high;
-			low = l < low ? l : low;
-			volume += q.getVolume();
-
 			int a = getDay(q);
 			int b = getDay(last);
 
@@ -145,8 +138,15 @@ public class ObserverSimulator extends Observer {
 				open = q.getOpen();
 				high = q.getHigh();
 				low = q.getLow();
-				volume = q.getVolume();
+				volume = 0;
 			}
+
+			double h = q.getHigh();
+			double l = q.getLow();
+
+			high = h > high ? h : high;
+			low = l < low ? l : low;
+			volume += q.getVolume();
 
 			last = q;
 		}

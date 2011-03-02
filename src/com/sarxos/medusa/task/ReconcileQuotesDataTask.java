@@ -12,7 +12,7 @@ import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
-import com.sarxos.medusa.provider.HistoricalProvider;
+import com.sarxos.medusa.provider.HistoryProvider;
 import com.sarxos.medusa.provider.history.BossaProvider;
 import com.sarxos.medusa.trader.PlannedTask;
 import com.sarxos.medusa.trader.Wallet;
@@ -33,7 +33,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	
 	private DBDAO qdao = DBDAO.getInstance();
 
-	private HistoricalProvider bdp = new BossaProvider();
+	private HistoryProvider bdp = new BossaProvider();
 
 	
 	public ReconcileQuotesDataTask() {

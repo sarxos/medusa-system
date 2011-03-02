@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Simple expire set implementation.
  * 
- * @param <T>
+ * @param <T> - generic type argument for expire set
  * @author Bartosz Firyn (SarXos)
  */
 public class ExpireSet<T> extends LinkedHashSet<T> {
