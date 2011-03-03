@@ -65,10 +65,11 @@ public class DBDAO implements PersistenceProvider {
 			// TODO iterate via directory and install all
 			installProcedure("GetQuotes");
 			installProcedure("AddPaper");
+			installProcedure("AddTrader");
+			installProcedure("CreatePaper");
 			installProcedure("UpdatePaper");
 			installProcedure("GetPapers");
 			installProcedure("RemovePaper");
-			installProcedure("AddTrader");
 			installProcedure("GetTrader");
 			installProcedure("RemoveTrader");
 			installProcedure("GetTraders");

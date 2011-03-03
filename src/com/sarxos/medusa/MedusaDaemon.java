@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.data.MySQLRunner;
+import com.sarxos.medusa.task.ReconcileQuotesDataTask;
 import com.sarxos.medusa.trader.Trader;
 
 
@@ -84,6 +85,9 @@ public class MedusaDaemon extends Thread {
 			);
 			return;
 		}
+
+		// initially reconcile quotes data
+		new ReconcileQuotesDataTask().run();
 
 		while (running.get()) {
 			try {

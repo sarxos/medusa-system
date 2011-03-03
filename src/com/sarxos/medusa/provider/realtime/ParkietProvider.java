@@ -260,6 +260,8 @@ public class ParkietProvider implements RealTimeProvider {
 	 */
 	private QuotesUpdater updater = new QuotesUpdater();
 
+	private boolean isProxied = false;
+
 	/**
 	 * Constructor.
 	 */
@@ -288,6 +290,8 @@ public class ParkietProvider implements RealTimeProvider {
 
 			HttpHost proxy = new HttpHost(phost, port, "http");
 			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+
+			isProxied = true;
 		}
 
 		// parser features
@@ -413,8 +417,11 @@ public class ParkietProvider implements RealTimeProvider {
 
 			Date d = new Date();
 			Calendar c = new GregorianCalendar();
+
 			c.setTime(d);
-			c.add(Calendar.HOUR_OF_DAY, -12);
+			c.set(Calendar.HOUR_OF_DAY, 8);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
 
 			String date = TIME_FORMAT.format(c.getTime());
 			String update = String.format(UPDATE_URL, topicID, componentID, date);
@@ -431,9 +438,14 @@ public class ParkietProvider implements RealTimeProvider {
 				throw new ProviderException(e);
 			}
 
-			q = getQuote0(symbol, execute(post));
+			String json = execute(post);
+			q = getQuote0(symbol, json);
 
-			quotations.put(symbol, q);
+			if (q != null) {
+				quotations.put(symbol, q);
+			} else {
+				throw new ProviderException("Read quote is null!");
+			}
 		}
 
 		return q;
@@ -545,6 +557,7 @@ public class ParkietProvider implements RealTimeProvider {
 	}
 
 	private HttpUriRequest affectFirefox(HttpUriRequest req) {
+
 		req.setHeader("Host", "www.parkiet.com");
 		req.setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; pl; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8");
 		req.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
@@ -552,9 +565,15 @@ public class ParkietProvider implements RealTimeProvider {
 		req.setHeader("Accept-Charset", "ISO-8859-2,utf-8;q=0.7,*;q=0.7");
 		req.setHeader("Keep-Alive", "115");
 		req.setHeader("Accept-Encoding", "gzip,deflate");
-		req.setHeader("Proxy-Connection", "keep-alive");
 		req.setHeader("Connection", "keep-alive");
-		req.getParams().setBooleanParameter("http.protocol.expect-continue", false);
+
+		if (req instanceof HttpPost) {
+			req.getParams().setBooleanParameter("http.protocol.expect-continue", false);
+		}
+		if (isProxied) {
+			req.setHeader("Proxy-Connection", "keep-alive");
+		}
+
 		return req;
 	}
 

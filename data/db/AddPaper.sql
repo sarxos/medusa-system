@@ -9,18 +9,7 @@ COMMENT 'Add paper to the wallet'
 
 BEGIN
 
-	SET @s = CONCAT(
-		"CREATE TABLE IF NOT EXISTS ", sym, " ( ",
-		"    time DATE NOT NULL PRIMARY KEY, ",
-		"    open FLOAT NOT NULL, ",
-		"    high FLOAT NOT NULL, ",
-		"    low FLOAT NOT NULL, ",
-		"    close FLOAT NOT NULL, ",
-		"    volume BIGINT NOT NULL ",
-		")"
-	);
-	PREPARE stmt FROM @s;
-	EXECUTE stmt;
+	CALL CreatePaper(sym);
 
 	INSERT INTO 
 		wallet
@@ -30,6 +19,3 @@ BEGIN
 		desired = des, 
 		quantity = quan;
 END
-
-
-

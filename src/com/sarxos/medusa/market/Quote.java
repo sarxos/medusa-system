@@ -146,18 +146,23 @@ public class Quote implements Cloneable {
 	 * @param datestring - new date to set.
 	 */
 	public void setDateString(String datestring) {
-		this.datestring = datestring;
 		if (datestring != null) {
+			if (datestring.length() == 0) {
+				throw new IllegalArgumentException("Date string for quote cannot be empty");
+			}
 			try {
 				this.date = DATE_FORMAT.parse(datestring);
 				String format = DATE_FORMAT.format(this.date);
 				if (!format.equals(datestring)) {
-					System.err.println("sth wrong");
+					throw new RuntimeException(
+						"Date re-conversion does not match correct format: " +
+						"'" + format + "' != '" + datestring + "'");
 				}
 			} catch (ParseException e) {
 				throw new RuntimeException("Cannot parse date '" + datestring + "'", e);
 			}
 		}
+		this.datestring = datestring;
 	}
 
 	/**
