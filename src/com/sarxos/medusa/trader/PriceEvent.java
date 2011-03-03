@@ -72,6 +72,14 @@ public class PriceEvent extends EventObject {
 
 	@Override
 	public String toString() {
-		return "---- PriceEvent ----\n" + quote.toString();
+		StringBuffer sb = new StringBuffer(getClass().getSimpleName());
+		sb.append("[").append(Quote.class.getSimpleName()).append("[");
+		sb.append(quote.getSymbol());
+		sb.append("] ");
+		sb.append(String.format("%.2f", getPreviousPrice()).replaceAll(",", "."));
+		sb.append(" -> ");
+		sb.append(String.format("%.2f", getCurrentPrice()).replaceAll(",", "."));
+		sb.append("]");
+		return sb.toString();
 	}
 }

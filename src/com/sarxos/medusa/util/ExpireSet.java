@@ -10,6 +10,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Simple expire set implementation.
@@ -20,6 +23,11 @@ import java.util.concurrent.TimeUnit;
 public class ExpireSet<T> extends LinkedHashSet<T> {
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(ExpireSet.class);
 
 	/**
 	 * Set cleaner. This runnable find expired elements and remove them from the
@@ -69,6 +77,7 @@ public class ExpireSet<T> extends LinkedHashSet<T> {
 						if (entry.getValue().longValue() < diff) {
 							ei.remove();
 							remove.add(entry.getKey());
+							LOG.info("Expired element '" + entry.getKey() + "' has been removed");
 						}
 					}
 				}

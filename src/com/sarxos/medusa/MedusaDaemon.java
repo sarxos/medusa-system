@@ -9,6 +9,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.data.MySQLRunner;
 import com.sarxos.medusa.task.ReconcileQuotesDataTask;
@@ -23,6 +30,11 @@ import com.sarxos.medusa.trader.Trader;
 public class MedusaDaemon extends Thread {
 
 	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(MedusaDaemon.class.getSimpleName());
+
+	/**
 	 * VM shutdown handler. The goal of this class is to remove lock after
 	 * graceful exit.
 	 * 
@@ -32,6 +44,8 @@ public class MedusaDaemon extends Thread {
 
 		@Override
 		public void run() {
+			// TODO remoe this class - this is only w/a
+			LOG.info("Removing lock");
 			File lock = new File(lockPath);
 			if (lock.exists() && !lock.delete()) {
 				lock.deleteOnExit();
@@ -67,8 +81,11 @@ public class MedusaDaemon extends Thread {
 
 		super.start();
 
+		LOG.info("Executing Medusa daemon");
+
 		Runtime.getRuntime().addShutdownHook(new ShutdownHandler());
 
+		LOG.info("Checking MySQL");
 		MySQLRunner.getInstance().runMySQL();
 
 		DBDAO dao = null;
@@ -79,7 +96,7 @@ public class MedusaDaemon extends Thread {
 		boolean found;
 
 		if (!createLock()) {
-			System.out.println(
+			LOG.error(
 				"Lock already exists. In case of problems please " +
 				"try to remove " + lockPath + " file"
 			);
@@ -121,17 +138,19 @@ public class MedusaDaemon extends Thread {
 						continue;
 					}
 
-					System.out.println("Starting trader " + trader);
+					LOG.info("Starting trader " + trader);
 					try {
 						executor.execute(trader);
 						traders.add(trader);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+
+					Thread.sleep(1000);
 				}
 
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(60000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -177,7 +196,28 @@ public class MedusaDaemon extends Thread {
 		return running.get();
 	}
 
+	protected static void configureLoggers() {
+
+		// assume SLF4J is bound to logback in the current environment
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+		try {
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(lc);
+
+			// the context was probably already configured by default
+			// configuration rules, so it needs to be reset
+			lc.reset();
+			configurator.doConfigure(new File("data/logback.xml"));
+		} catch (JoranException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
+
+		// configureLoggers();
+
 		MedusaDaemon r = new MedusaDaemon();
 		r.startTraders();
 		try {

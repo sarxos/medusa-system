@@ -9,6 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
@@ -26,6 +29,11 @@ import com.sarxos.medusa.trader.Observer.NullEvent;
  * @author Bartosz Firyn (SarXos)
  */
 public class DecisionMaker implements PriceListener {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(Observer.class.getSimpleName());
 
 	/**
 	 * Price observer.
@@ -83,6 +91,8 @@ public class DecisionMaker implements PriceListener {
 			return;
 		}
 
+		LOG.info("Price change notification " + pe);
+
 		Wallet wallet = Wallet.getInstance();
 		Paper paper = wallet.getPaper(observer.getSymbol());
 		Quote quote = pe.getQuote();
@@ -109,7 +119,7 @@ public class DecisionMaker implements PriceListener {
 	 * @param ne
 	 */
 	protected void handleNull(NullEvent ne) {
-		// do nothing - used only by simulator
+		LOG.warn("Null event detected");
 	}
 
 	/**

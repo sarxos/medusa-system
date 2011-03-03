@@ -3,6 +3,8 @@ package com.sarxos.medusa.util;
 import java.io.File;
 import java.io.FileInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xinotes.iniparser.INIProperties;
 
 
@@ -12,6 +14,11 @@ import org.xinotes.iniparser.INIProperties;
  * @author Bartosz Firyn (SarXos)
  */
 public class Configuration extends INIProperties {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(Configuration.class.getSimpleName());
 
 	/**
 	 * Configuration updater class.
@@ -30,8 +37,13 @@ public class Configuration extends INIProperties {
 		public void run() {
 			File ini = new File(path);
 			long tmp = 0;
+
 			while (true) {
+
+				LOG.debug("Checking configuration changes");
+
 				tmp = ini.lastModified();
+
 				if (tmp != timestamp) {
 					try {
 						load(new FileInputStream(ini));
@@ -93,7 +105,7 @@ public class Configuration extends INIProperties {
 		runner.setDaemon(true);
 		runner.start();
 
-		System.out.println("Starting configuration updater");
+		LOG.info("Starting configuration updater");
 
 	}
 
@@ -108,6 +120,7 @@ public class Configuration extends INIProperties {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		LOG.info("Configuration loaded from " + ini.getPath());
 	}
 
 	/**

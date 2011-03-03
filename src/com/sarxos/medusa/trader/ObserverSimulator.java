@@ -1,5 +1,6 @@
 package com.sarxos.medusa.trader;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +11,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.data.QuotesRegistry;
@@ -238,9 +247,33 @@ public class ObserverSimulator extends Observer {
 		return new Date(time);
 	}
 
+	protected static void configureLoggers() {
+
+		// assume SLF4J is bound to logback in the current environment
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+		try {
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(lc);
+
+			// the context was probably already configured by default
+			// configuration rules, so it needs to be reset
+			lc.reset();
+			configurator.doConfigure(new File("data/logback.xml"));
+		} catch (JoranException e) {
+			e.printStackTrace();
+		}
+
+		Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		root.setLevel(Level.WARN);
+
+	}
+
 	public static void main(String[] args) throws ParseException {
 
-		Symbol sym = Symbol.BRE;
+		configureLoggers();
+
+		Symbol sym = Symbol.PEO;
 		String from = "2010-02-26 08:00:00";
 		String to = "2011-02-26 08:00:00";
 		SignalGenerator<Quote> siggen = new MAVD(3, 13, 30);

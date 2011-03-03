@@ -6,6 +6,9 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.data.QuotesAudit;
 import com.sarxos.medusa.market.Paper;
@@ -25,6 +28,11 @@ import com.sarxos.medusa.trader.Wallet;
  * @author Bartosz Firyn (SarXos)
  */
 public class ReconcileQuotesDataTask extends PlannedTask {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(ReconcileQuotesDataTask.class.getSimpleName());
 
 	private GregorianCalendar calendar = new GregorianCalendar();
 
@@ -63,6 +71,8 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	@Override
 	public void run() {
 
+		LOG.info("Performing quotes data reconciliation");
+
 		List<Paper> papers = wallet.getPapers();
 
 		int i, ad, am, ay, bd, bm, by;
@@ -80,9 +90,9 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 
 			if (missing.length > 0) {
 
-				System.out.println(
+				LOG.info(
 					"Missing " + missing.length + " quotes from " +
-					paper.getSymbol());
+					paper.getSymbol() + " symbol");
 
 				List<Quote> add = null;
 
@@ -139,6 +149,9 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	}
 
 	public void download(Symbol symbol) {
+
+		LOG.info("Downloading quotes for symbol " + symbol);
+
 		HistoryProvider hp = Providers.getHistoryProvider();
 		try {
 			List<Quote> quotes = hp.getAllQuotes(symbol);

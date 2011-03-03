@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
@@ -17,6 +20,11 @@ import com.sarxos.medusa.provider.RealTimeProvider;
  * @author Bartosz Firyn (SarXos)
  */
 public class Observer implements Runnable {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(Observer.class.getSimpleName());
 
 	/**
 	 * Simple class to notify about occurring null quotes events.
@@ -76,7 +84,7 @@ public class Observer implements Runnable {
 	/**
 	 * Default check interval (30s).
 	 */
-	private long interval = 1000;
+	private long interval = 20000;
 
 	/**
 	 * Last observed symbol price.
@@ -156,6 +164,7 @@ public class Observer implements Runnable {
 			throw new IllegalStateException("Cannot stop not running or paused observer");
 		}
 		this.state = State.STOPPED;
+		LOG.info(getSymbol() + " observer has been stopped");
 	}
 
 	/**
@@ -171,6 +180,7 @@ public class Observer implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		LOG.info(getSymbol() + " observer has been paused");
 	}
 
 	/**
@@ -181,6 +191,7 @@ public class Observer implements Runnable {
 			throw new IllegalStateException("Cannot resume not paused observer");
 		}
 		this.state = State.RUNNIG;
+		LOG.info(getSymbol() + " observer has been resumed");
 	}
 
 	/**
@@ -197,6 +208,7 @@ public class Observer implements Runnable {
 		}
 		state = State.RUNNIG;
 		getRunner().start();
+		LOG.info(getSymbol() + " observer has been started");
 	}
 
 	/**
@@ -254,6 +266,8 @@ public class Observer implements Runnable {
 			}
 			price = tmp;
 		}
+
+		LOG.info(getSymbol() + " observer read quote " + q);
 	}
 
 	/**
