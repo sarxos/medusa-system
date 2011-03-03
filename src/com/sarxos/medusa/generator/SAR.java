@@ -1,6 +1,7 @@
 package com.sarxos.medusa.generator;
 
 import static com.sarxos.medusa.market.SignalType.BUY;
+import static com.sarxos.medusa.market.SignalType.DELAY;
 import static com.sarxos.medusa.market.SignalType.SELL;
 
 import java.util.HashMap;
@@ -37,7 +38,9 @@ import com.sarxos.medusa.math.TA;
  * 
  * @author Bartosz Firyn (SarXos)
  * @see com.sarxos.medusa.math.TA
+ * @deprecated It's something wrong with SAR generator, <b>do not use it</b>!
  */
+@Deprecated
 public class SAR implements SignalGenerator<Quote> {
 
 	/**
@@ -84,13 +87,21 @@ public class SAR implements SignalGenerator<Quote> {
 	@Override
 	public Signal generate(Quote q) {
 
-		double s = TA.sar(q, 1, a, m)[0]; // SAR value
-		double c = q.getClose(); // close price for given quote
+		double s1 = TA.sar(q, 1, a, m)[0]; // SAR value
+		double c1 = q.getClose(); // close price for given quote
 
-		if (s < c) {
+		double s2 = TA.sar(q.prev(), 1, a, m)[0]; // SAR value
+		double c2 = q.prev().getClose(); // close price for given quote
+
+		boolean up = s1 < c1 && s2 < c2;
+		boolean dn = s1 > c1 && s2 > c2;
+
+		if (up) {
 			return new Signal(q, BUY);
-		} else {
+		} else if (dn) {
 			return new Signal(q, SELL);
+		} else {
+			return new Signal(q, DELAY);
 		}
 	}
 

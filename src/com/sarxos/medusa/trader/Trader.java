@@ -296,11 +296,15 @@ public abstract class Trader implements DecisionListener, Runnable {
 		Paper paper = de.getPaper();
 
 		if (NOTIFICATIONS.contains(signal)) {
+
+			boolean ok = false;
 			try {
-				return getBroker().acknowledge(paper, signal);
+				ok = getBroker().acknowledge(paper, signal);
 			} catch (MessagingException e) {
 				e.printStackTrace();
 			}
+
+			return ok;
 		}
 
 		return false;

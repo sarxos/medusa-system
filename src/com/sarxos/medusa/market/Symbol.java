@@ -54,7 +54,17 @@ public enum Symbol {
 	BRE("BRE"),
 	BZW("BZWBK"),
 	CPS("CYFRPLSAT"),
-	KER("KERNEL");
+	KER("KERNEL"),
+	MCI("MCI"),
+	PBG("PBG"),
+	/**
+	 * Astarta.
+	 */
+	AST("ASTARTA"),
+	IPE("IPOPEMA"),
+	GTN("GETIN"),
+	EUR("EUROCASH"),
+	PEO("PEKAO");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)

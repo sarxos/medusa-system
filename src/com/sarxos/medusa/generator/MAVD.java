@@ -127,14 +127,24 @@ public class MAVD implements SignalGenerator<Quote> {
 	@Override
 	public Signal generate(Quote q) {
 
-		double ema = MA.ema(q, A);
-		double sma = MA.sma(q, B);
-		double emad = MA.emad(q, C);
+		// do not treat trading price seriously - close price really matters,
+		// take it from previous day
+		q = q.prev();
 
+		// calculate necessary coefficients
+		double e2 = MA.ema(q, A);
+		double s2 = MA.sma(q, B);
+		double d2 = MA.emad(q, C);
+
+		// required to find optimal position opening moment
+		// double e1 = MA.ema(q.prev(), A);
+		// double s1 = MA.sma(q.prev(), B);
+
+		// initially just wait
 		Signal signal = new Signal(q, WAIT);
 
-		if (ema - sma > 0) {
-			if (emad > 0) {
+		if (e2 - s2 > 0) {
+			if (d2 > 0 /* && e1 - s1 < 0 */) {
 				signal = new Signal(q, BUY);
 			} else {
 				signal = new Signal(q, DELAY);

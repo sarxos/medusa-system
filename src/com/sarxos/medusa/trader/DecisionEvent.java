@@ -77,7 +77,7 @@ public class DecisionEvent extends EventObject {
 	/**
 	 * @return the quote
 	 */
-	protected Quote getQuote() {
+	public Quote getQuote() {
 		return quote;
 	}
 }

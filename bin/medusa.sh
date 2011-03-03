@@ -90,14 +90,15 @@ case $1 in
 		ACTION="-q"
 		;;
 	*)
+
 		# create classpath for Medusa
-		MEDUSA_CLASSPATH=$CLASSPATH
-		
 		for f in $(ls $MEDUSA_LIB)
 		do
-			MEDUSA_CLASSPATH="$MEDUSA_CLASSPATH;$MEDUSA_LIB/$f"
+			MEDUSA_CLASSPATH="$MEDUSA_CLASSPATH;$LIB_DIR\\$f"
 		done
-		
+
+		MEDUSA_CLASSPATH="$MEDUSA_CLASSPATH;target"
+
 		# execute Medusa CLI
 		${JAVA_HOME}/bin/java -classpath "$MEDUSA_CLASSPATH" com.sarxos.medusa.cli.CLI "$@"
 		

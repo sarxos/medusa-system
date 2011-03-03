@@ -153,8 +153,8 @@ public class DecisionMaker implements PriceListener {
 		ListIterator<DecisionListener> i = listeners.listIterator();
 
 		while (i.hasNext()) {
+			listener = i.next();
 			try {
-				listener = i.next();
 				listener.decisionChange(de);
 			} catch (Exception e) {
 				e.printStackTrace();

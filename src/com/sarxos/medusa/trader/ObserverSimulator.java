@@ -13,7 +13,7 @@ import java.util.Map;
 
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.data.QuotesRegistry;
-import com.sarxos.medusa.generator.SAR;
+import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
@@ -240,10 +240,10 @@ public class ObserverSimulator extends Observer {
 
 	public static void main(String[] args) throws ParseException {
 
-		Symbol sym = Symbol.KGH;
-		String from = "2010-08-26 08:00:00";
+		Symbol sym = Symbol.BRE;
+		String from = "2010-02-26 08:00:00";
 		String to = "2011-02-26 08:00:00";
-		SignalGenerator<Quote> siggen = new SAR(0.02, 0.2);
+		SignalGenerator<Quote> siggen = new MAVD(3, 13, 30);
 
 		Wallet.getInstance().addPaper(new Paper(sym, 100));
 
@@ -265,6 +265,10 @@ public class ObserverSimulator extends Observer {
 
 			Map<String, Object> dates = new HashMap<String, Object>();
 
+			double start = 3000;
+			double cash = start;
+			int number = 0;
+
 			@Override
 			public void positionChange(PositionEvent pe) {
 				// System.out.println(pe);
@@ -272,13 +276,50 @@ public class ObserverSimulator extends Observer {
 
 			@Override
 			public void decisionChange(DecisionEvent de) {
-				String date = de.getQuote().getDateString();
+				Quote q = de.getQuote();
+				String date = q.getDateString();
 				if (dates.get(date) == null) {
-					System.out.println(de);
+					// System.out.println(de);
 					if (de.getSignalType() == SignalType.BUY) {
 						dmaker.setCurrentPosition(Position.LONG);
+
+						int n = (int) Math.ceil(cash / q.getClose());
+						double fund = n * q.getClose();
+						double tax = fund * 0.0028;
+						double spread = n * 0.01;
+
+						cash = cash - fund - tax - spread;
+						number = n;
+
+						double assets = n * q.getClose() + cash;
+
+						System.out.println(
+							q.getDateString() + " " +
+							"B " + n + " stocks for " + q.getClose() +
+							" PLN/q - assets = " + String.format("%.2f", assets) + " " +
+							"tax = " + String.format("%.2f", tax) + " spread = " +
+							String.format("%.2f", spread));
+
 					} else {
 						dmaker.setCurrentPosition(Position.SHORT);
+
+						double fund = number * q.getClose();
+						double tax = fund * 0.0028;
+						double spread = number * 0.01;
+
+						int n = number;
+
+						cash = cash + fund - tax - spread;
+						number = 0;
+
+						double assets = cash;
+
+						System.out.println(
+							q.getDateString() + " " +
+							"S " + n + " stocks for " + q.getClose() +
+							" PLN/q - assets = " + String.format("%.2f", assets) + " " +
+							"tax = " + String.format("%.2f", tax) + " spread = " +
+							String.format("%.2f", spread));
 					}
 				} else {
 					return;

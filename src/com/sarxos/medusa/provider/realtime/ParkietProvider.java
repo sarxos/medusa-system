@@ -93,7 +93,6 @@ public class ParkietProvider implements RealTimeProvider {
 
 			Calendarium c = Calendarium.getInstance();
 			if (!c.isMarketOpen()) {
-				System.out.println("omit update");
 				return;
 			}
 
@@ -335,14 +334,17 @@ public class ParkietProvider implements RealTimeProvider {
 			ByteArrayInputStream bais = new ByteArrayInputStream(html.getBytes());
 			InputSource is = new InputSource(bais);
 
-			try {
-				parser.parse(is);
-			} catch (Exception e) {
-				throw new ProviderException("Cannot parse HTML", e);
+			synchronized (parser) {
+				try {
+					parser.parse(is);
+				} catch (Exception e) {
+					throw new ProviderException("Cannot parse HTML", e);
+				}
+
+				dom = parser.getDocument();
 			}
 
 			length = html.length();
-			dom = parser.getDocument();
 		}
 
 		return dom;
@@ -588,7 +590,7 @@ public class ParkietProvider implements RealTimeProvider {
 	 * @return Response HTML
 	 * @throws ProviderException
 	 */
-	protected String execute(HttpUriRequest req) throws ProviderException {
+	protected synchronized String execute(HttpUriRequest req) throws ProviderException {
 
 		ByteArrayOutputStream baos = null;
 		try {

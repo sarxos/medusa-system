@@ -139,6 +139,12 @@ public class MA {
 		return MA.emad(quotes, N)[0];
 	}
 
+	public static double smad(Quote data, int N) {
+		Quote[] quotes = new Quote[] { data.prev(), data };
+		double[] sma = MA.sma(quotes, N);
+		return M.diff(sma)[0];
+	}
+
 	/**
 	 * EMA diff.
 	 * 
