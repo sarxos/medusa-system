@@ -141,7 +141,10 @@ public class ParkietProvider implements RealTimeProvider {
 					Symbol symbol = Symbol.valueOfName(name);
 					if (symbol != null && quotations.containsKey(symbol)) {
 						Quote q = jsonToQuote(o);
-						quotations.get(symbol).copyFrom(q);
+						Quote t = quotations.get(symbol);
+						if (t != null) {
+							t.copyFrom(q);
+						}
 					}
 				}
 			} catch (JSONException e) {
@@ -397,7 +400,7 @@ public class ParkietProvider implements RealTimeProvider {
 	}
 
 	@Override
-	public Quote getQuote(Symbol symbol) throws ProviderException {
+	public synchronized Quote getQuote(Symbol symbol) throws ProviderException {
 
 		if (!isLoggedIn()) {
 			login();
