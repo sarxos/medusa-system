@@ -1,5 +1,9 @@
 package com.sarxos.medusa.data.persistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.trader.Trader;
 
 
@@ -11,8 +15,20 @@ import com.sarxos.medusa.trader.Trader;
  */
 public aspect Persistence {
 
+	/**
+	 * Logger instance.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(Persistence.class.getSimpleName());
+	
+	/**
+	 * Persistence writer runnable.
+	 */
 	private PersistenceWriter writer = new PersistenceWriter();
-
+	
+	pointcut dbdao():
+		execution(* DBDAO.*(..)) &&
+		within(DBDAO);
+	
 	/**
 	 * Persistent creation.
 	 * 
@@ -21,7 +37,7 @@ public aspect Persistence {
 	pointcut pcreate(Trader t):
 		execution(@Persistent Trader.new(..)) &&
 		within(@Persistent Trader) &&
-		this(t);
+		this(t) && !cflowbelow(dbdao());
 	
 	/**
 	 * Persistent modification.
@@ -32,8 +48,8 @@ public aspect Persistence {
 		set(@Persistent * *) &&
 		withincode(* Trader.*(..)) &&
 		within(@Persistent Trader) &&
-		this(t);
-
+		this(t) && !cflowbelow(dbdao());
+	
 	/**
 	 * Constructor.
 	 */
@@ -41,14 +57,35 @@ public aspect Persistence {
 		Thread runner = new Thread(writer, PersistenceWriter.class.getSimpleName());
 		runner.setDaemon(true);
 		runner.start();
+		LOG.debug("Persistence writer has been started");
 	}
 
 	/**
-	 * Invoked after trader creation or modification.
+	 * Invoked after trader creation.
 	 * 
 	 * @param t - trader to be persisted
 	 */
-	after(Trader t): pcreate(t) || pmod(t) {
+	after(Trader t): pcreate(t) {
+		LOG.debug("Persistent creation advice");
+		persist(t);
+	}
+
+	/**
+	 * Invoked after trader modification.
+	 * 
+	 * @param t - trader to be persisted
+	 */
+	after(Trader t): pmod(t) {
+		LOG.debug("Persistent modification advice");
+		persist(t);
+	}
+	
+	/**
+	 * Persist given trader.
+	 * 
+	 * @param t - trader to persist
+	 */
+	private void persist(Trader t) {
 		try {
 			writer.write(t);
 		} catch (Exception e) {

@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.generator.MAVD;
+import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
@@ -15,7 +16,7 @@ import com.sarxos.medusa.trader.Trader;
 public class DBDAOTraderTest extends TestCase {
 
 	private static final String NAME = "Buka";
-	private static final Symbol SYM = Symbol.KGH;
+	private static final Paper PAPER = new Paper(Symbol.KGH, 100, 0);
 	private static final SignalGenerator<Quote> SIGGEN = new MAVD(3, 13, 30);
 	private static final Position POSITION = Position.SHORT;
 
@@ -24,7 +25,7 @@ public class DBDAOTraderTest extends TestCase {
 
 	public DBDAOTraderTest() {
 		this.dbdao = DBDAO.getInstance();
-		this.trader = new Trader(NAME, SIGGEN, SYM) {
+		this.trader = new Trader(NAME, SIGGEN, PAPER) {
 
 			@Override
 			public void decisionChange(DecisionEvent event) {
@@ -48,7 +49,7 @@ public class DBDAOTraderTest extends TestCase {
 		try {
 			t = dbdao.getTrader(NAME);
 			assertEquals(NAME, t.getName());
-			assertEquals(SYM, t.getSymbol());
+			assertEquals(PAPER.getSymbol(), t.getSymbol());
 			assertEquals(POSITION, t.getPosition());
 			assertEquals(SIGGEN.getClass(), t.getGenerator().getClass());
 		} catch (Exception e) {

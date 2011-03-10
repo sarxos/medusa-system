@@ -192,7 +192,7 @@ public class ExpireSet<T> extends LinkedHashSet<T> {
 	}
 
 	/**
-	 * @return Return expiration time (<b>always</b> in seconds)
+	 * @return Return expiration time (<b>always</b> in milliseconds)
 	 */
 	public long getExpiration() {
 		return expiration;
@@ -235,7 +235,7 @@ public class ExpireSet<T> extends LinkedHashSet<T> {
 	}
 
 	/**
-	 * @return Return cleaning period (<b>always</b> in seconds)
+	 * @return Return cleaning period (<b>always</b> in milliseconds)
 	 */
 	public long getCleaninigPeriod() {
 		return cleanPeriod;

@@ -65,7 +65,7 @@ public class DBDAO implements PersistenceProvider {
 			// TODO iterate via directory and install all
 			installProcedure("GetQuotes");
 			installProcedure("AddPaper");
-			installProcedure("AddTrader");
+			installProcedure("SaveTrader");
 			installProcedure("CreatePaper");
 			installProcedure("UpdatePaper");
 			installProcedure("GetPapers");
@@ -337,13 +337,15 @@ public class DBDAO implements PersistenceProvider {
 		PreparedStatement add = null;
 		try {
 
-			add = con.prepareStatement("CALL AddTrader(?, ?, ?, ?, ?, ?)");
+			add = con.prepareStatement("CALL SaveTrader(?, ?, ?, ?, ?, ?, ?, ?)");
 			add.setString(1, trader.getName());
 			add.setString(2, trader.getSymbol() == null ? null : trader.getSymbol().toString());
 			add.setInt(3, trader.getPosition() == Position.SHORT ? 0 : 1);
 			add.setString(4, trader.getGeneratorClassName());
 			add.setString(5, trader.getClass().getName());
 			add.setString(6, Marshaller.marshalGenParams(trader.getGenerator()));
+			add.setInt(7, trader.getPaperQuantity());
+			add.setInt(8, trader.getPaperDesiredQuantity());
 			add.execute();
 
 			return true;
@@ -435,35 +437,6 @@ public class DBDAO implements PersistenceProvider {
 		}
 	}
 
-	/**
-	 * Remove trader from the DB.
-	 * 
-	 * @param name - trader's name to remove
-	 * @return true in case of successful operation, false otherwise
-	 * @throws DBDAOException
-	 */
-	public boolean removeTrader(String name) throws DBDAOException {
-
-		PreparedStatement get = null;
-		try {
-			get = con.prepareStatement("CALL RemoveTrader(?)");
-			get.setString(1, name);
-			get.execute();
-
-			return true;
-		} catch (Exception e) {
-			throw new DBDAOException(e);
-		} finally {
-			if (get != null) {
-				try {
-					get.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	private List<Trader> resultSetToTraders(ResultSet rs) throws DBDAOException {
 
@@ -481,9 +454,13 @@ public class DBDAO implements PersistenceProvider {
 				SignalGenerator<Quote> siggen = (SignalGenerator<Quote>) clazz.newInstance();
 				siggen.setParameters(params);
 
+				int desired = rs.getInt("desired");
+				int quantity = rs.getInt("quantity");
+				Paper paper = new Paper(symbol, desired, quantity);
+
 				clazz = Class.forName(rs.getString("class"));
-				Constructor<?> cnstr = clazz.getConstructor(String.class, SignalGenerator.class, Symbol.class);
-				Trader t = (Trader) cnstr.newInstance(name, siggen, symbol);
+				Constructor<?> cnstr = clazz.getConstructor(String.class, SignalGenerator.class, Paper.class);
+				Trader t = (Trader) cnstr.newInstance(name, siggen, paper);
 
 				t.setPosition(rs.getInt("position") == 0 ? Position.SHORT : Position.LONG);
 
@@ -527,4 +504,32 @@ public class DBDAO implements PersistenceProvider {
 		}
 	}
 
+	/**
+	 * Remove trader from the DB.
+	 * 
+	 * @param name - trader's name to remove
+	 * @return true in case of successful operation, false otherwise
+	 * @throws DBDAOException
+	 */
+	public boolean removeTrader(String name) throws DBDAOException {
+
+		PreparedStatement get = null;
+		try {
+			get = con.prepareStatement("CALL RemoveTrader(?)");
+			get.setString(1, name);
+			get.execute();
+
+			return true;
+		} catch (Exception e) {
+			throw new DBDAOException(e);
+		} finally {
+			if (get != null) {
+				try {
+					get.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

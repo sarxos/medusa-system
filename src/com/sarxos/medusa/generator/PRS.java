@@ -9,10 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.sarxos.medusa.market.AbstractGenerator;
 import com.sarxos.medusa.market.Future;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
-import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.math.ATR;
 import com.sarxos.medusa.math.SX;
@@ -25,7 +25,7 @@ import com.sarxos.medusa.math.SX;
  * @author Bartosz Firyn (SarXos)
  * @see http://www.eurobankier.pl/futures/index.html
  */
-public class PRS implements SignalGenerator<Future> {
+public class PRS extends AbstractGenerator<Future> {
 
 	private double P = 0;
 
@@ -73,7 +73,7 @@ public class PRS implements SignalGenerator<Future> {
 	}
 
 	@Override
-	public Signal generate(Future f) {
+	public Signal generate(Quote f) {
 
 		double a = ATR.atr2(f) * P;
 		double d = SX.qdiff(f);

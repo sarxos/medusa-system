@@ -179,4 +179,17 @@ public class Paper implements Cloneable {
 	public String toString() {
 		return "Paper[" + getSymbol() + ":" + getQuantity() + "/" + getDesiredQuantity() + "]";
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Paper) {
+			Paper p = (Paper) obj;
+			boolean equals = true;
+			equals = equals && p.getDesiredQuantity() == getDesiredQuantity();
+			equals = equals && p.getQuantity() == getQuantity();
+			equals = equals && p.getSymbol() == getSymbol();
+			return equals;
+		}
+		return false;
+	}
 }

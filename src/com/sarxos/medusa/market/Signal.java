@@ -85,4 +85,16 @@ public class Signal {
 	public void setDate(Date date) {
 		this.date = date;
 	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(getClass().getSimpleName());
+		sb.append("[");
+		sb.append(Quote.DATE_FORMAT.format(getDate()));
+		sb.append(" ");
+		sb.append(getType());
+		sb.append("]");
+		return sb.toString();
+	}
 }

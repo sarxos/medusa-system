@@ -90,9 +90,11 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 
 			if (missing.length > 0) {
 
-				LOG.info(
-					"Missing " + missing.length + " quotes from " +
-					paper.getSymbol() + " symbol");
+				if (LOG.isInfoEnabled()) {
+					String k = Integer.toString(missing.length);
+					String s = paper.getSymbol().toString();
+					LOG.info("Missing %s quotes from %s symbol", k, s);
+				}
 
 				List<Quote> add = null;
 
@@ -144,6 +146,11 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 				}
 
 				qdao.addQuotes(symbol, add);
+
+				if (LOG.isInfoEnabled()) {
+					String s = paper.getSymbol().toString();
+					LOG.info(String.format("Reconsiliation for symbol %s finished", s));
+				}
 			}
 		}
 	}

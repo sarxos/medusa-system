@@ -2,6 +2,9 @@ package com.sarxos.medusa.comm.policy;
 
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sarxos.medusa.comm.MessagingPolicy;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.util.ExpireSet;
@@ -14,6 +17,11 @@ import com.sarxos.medusa.util.ExpireSet;
  * @author Bartosz Firyn (SarXos)
  */
 public class ThrottlingPolicy extends MessagingPolicy {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(ThrottlingPolicy.class.getSimpleName());
 
 	/**
 	 * Each symbol expires in 12 hours
@@ -38,5 +46,13 @@ public class ThrottlingPolicy extends MessagingPolicy {
 	@Override
 	public void sent(Symbol symbol) {
 		symbols.add(symbol);
+
+		if (LOG.isInfoEnabled()) {
+			long expire = symbols.getExpiration() / (1000 * 60 * 60);
+			LOG.info(
+				"Symbol " + symbol + " has been added to throttling policy " +
+				"messaging list. Throttling fo it will expire in next " +
+				expire + " hours.");
+		}
 	}
 }

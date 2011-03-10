@@ -10,9 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.sarxos.medusa.market.AbstractGenerator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
-import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.math.MA;
 
@@ -38,7 +38,7 @@ import com.sarxos.medusa.math.MA;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class MAVD implements SignalGenerator<Quote> {
+public class MAVD extends AbstractGenerator<Quote> {
 
 	private int A = 5;
 

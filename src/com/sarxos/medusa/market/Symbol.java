@@ -8,6 +8,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public enum Symbol {
 
+	/**
+	 * For tests.
+	 */
+	QQQ("QQQINC"),
+
 	// /**
 	// * PL
 	// */

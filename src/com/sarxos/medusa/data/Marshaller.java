@@ -12,7 +12,7 @@ import com.sarxos.medusa.market.SignalGenerator;
 
 public class Marshaller {
 
-	public static String marshalGenParams(SignalGenerator<Quote> siggen) {
+	public static String marshalGenParams(SignalGenerator<? extends Quote> siggen) {
 
 		Map<String, String> params = siggen.getParameters();
 

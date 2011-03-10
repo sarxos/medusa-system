@@ -8,7 +8,7 @@ public interface SignalGenerator<T extends Quote> {
 
 	public List<Signal> generate(T[] data, int range);
 
-	public Signal generate(T data);
+	public Signal generate(Quote quote);
 
 	public Map<String, String> getParameters();
 

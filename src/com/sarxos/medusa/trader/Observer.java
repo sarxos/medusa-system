@@ -267,7 +267,9 @@ public class Observer implements Runnable {
 			price = tmp;
 		}
 
-		LOG.info(getSymbol() + " observer read quote " + q);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(getSymbol() + " observer read quote " + q);
+		}
 	}
 
 	/**
@@ -278,8 +280,7 @@ public class Observer implements Runnable {
 	}
 
 	/**
-	 * @return Return last observed price or -1 if no price has been observed
-	 *         yet.
+	 * @return Return last observed price or -1 if no price has been observed.
 	 */
 	public double getPrice() {
 		return price;

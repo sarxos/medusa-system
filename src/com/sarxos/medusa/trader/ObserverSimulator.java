@@ -314,7 +314,7 @@ public class ObserverSimulator extends Observer {
 				if (dates.get(date) == null) {
 					// System.out.println(de);
 					if (de.getSignalType() == SignalType.BUY) {
-						dmaker.setCurrentPosition(Position.LONG);
+						dmaker.setPosition(Position.LONG);
 
 						int n = (int) Math.ceil(cash / q.getClose());
 						double fund = n * q.getClose();
@@ -334,7 +334,7 @@ public class ObserverSimulator extends Observer {
 							String.format("%.2f", spread));
 
 					} else {
-						dmaker.setCurrentPosition(Position.SHORT);
+						dmaker.setPosition(Position.SHORT);
 
 						double fund = number * q.getClose();
 						double tax = fund * 0.0028;

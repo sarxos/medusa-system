@@ -9,9 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.sarxos.medusa.market.AbstractGenerator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
-import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.math.TA;
 
 
@@ -41,7 +41,7 @@ import com.sarxos.medusa.math.TA;
  * @deprecated It's something wrong with SAR generator, <b>do not use it</b>!
  */
 @Deprecated
-public class SAR implements SignalGenerator<Quote> {
+public class SAR extends AbstractGenerator<Quote> {
 
 	/**
 	 * Acceleration factor.

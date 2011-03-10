@@ -43,7 +43,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * Signal generator to use.
 	 */
 	@Persistent
-	private SignalGenerator<Quote> siggen = null;
+	private SignalGenerator<? extends Quote> siggen = null;
 
 	/**
 	 * Real time data provider.
@@ -51,15 +51,8 @@ public abstract class Trader implements DecisionListener, Runnable {
 	private RealTimeProvider provider = null;
 
 	/**
-	 * Observed symbol.
-	 */
-	@Persistent
-	private Symbol symbol = null;
-
-	/**
 	 * Trader name.
 	 */
-	@Persistent
 	private final String name;
 
 	/**
@@ -69,34 +62,50 @@ public abstract class Trader implements DecisionListener, Runnable {
 	private Position position = null;
 
 	/**
+	 * Trader's paper quantity.
+	 */
+	@Persistent
+	private int paperQuantity = 0;
+
+	/**
+	 * Trader's paper desired quantity (how many papers I want buy)
+	 */
+	@Persistent
+	private int paperDesiredQuantity = 0;
+
+	/**
 	 * Messaging broker.
 	 */
 	private MessagesBroker broker = null;
+
+	private Paper paper = null;
 
 	/**
 	 * Trader constructor.
 	 * 
 	 * @param name - trader name
 	 * @param siggen - signal generator
-	 * @param symbol - symbol to trade (e.g. KGH, BRE)
+	 * @param paper - paper to observe
 	 */
-	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol) {
-		this(name, siggen, symbol, null);
+	public Trader(String name, SignalGenerator<? extends Quote> siggen, Paper paper) {
+		this(name, siggen, paper, null);
 	}
 
 	@Persistent
-	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol, RealTimeProvider provider) {
+	public Trader(String name, SignalGenerator<? extends Quote> siggen, Paper paper, RealTimeProvider provider) {
 		if (name == null) {
 			throw new IllegalArgumentException("Trader name cannot be null");
 		}
 		if (siggen == null) {
-			throw new IllegalArgumentException("Signal generator cannotbe null");
+			throw new IllegalArgumentException("Signal generator cannot be null");
+		}
+		if (paper == null) {
+			throw new IllegalArgumentException("Paper cannot be null");
 		}
 		this.name = name;
 		this.siggen = siggen;
-		this.symbol = symbol;
 		this.provider = provider;
-		this.symbol = symbol;
+		this.paper = paper;
 		this.init();
 	}
 
@@ -109,7 +118,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 			provider = Providers.getRealTimeProvider();
 		}
 
-		Observer observer = new Observer(provider, symbol);
+		Observer observer = new Observer(provider, paper.getSymbol());
 		DecisionMaker dm = new DecisionMaker(observer, siggen);
 		dm.addDecisionListener(this);
 
@@ -142,7 +151,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 		if (position != p) {
 			position = p;
 		}
-		getDecisionMaker().setCurrentPosition(p);
+		getDecisionMaker().setPosition(p);
 	}
 
 	/**
@@ -209,7 +218,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 		if (dm != null && (o = dm.getObserver()) != null) {
 			return o.getSymbol();
 		} else {
-			return symbol;
+			return paper.getSymbol();
 		}
 	}
 
@@ -223,7 +232,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	/**
 	 * @return Signal generator
 	 */
-	public SignalGenerator<Quote> getGenerator() {
+	public SignalGenerator<? extends Quote> getGenerator() {
 		return siggen;
 	}
 
@@ -245,9 +254,9 @@ public abstract class Trader implements DecisionListener, Runnable {
 		Paper paper = wallet.getPaper(getSymbol());
 		if (paper == null) {
 			throw new IllegalStateException(
-				"There is no '" + symbol + "' paper specified in the wallet. " +
-				"You have to add paper to the wallet first, and then start " +
-				"trading.");
+				"There is no '" + this.paper.getSymbol() + "' paper " +
+				"specified in the wallet. You have to add paper to the " +
+				"wallet first, and then start trading.");
 		}
 
 		getDecisionMaker().getObserver().start();
@@ -260,14 +269,19 @@ public abstract class Trader implements DecisionListener, Runnable {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[" + getSymbol() + "]["
-			+ getGenerator().getClass().getSimpleName() + "]";
+		StringBuffer sb = new StringBuffer();
+		sb.append(getClass().getSimpleName()).append('[');
+		sb.append(getSymbol()).append(' ');
+		sb.append(getPosition()).append(' ');
+		sb.append(paper.getQuantity()).append('/').append(paper.getDesiredQuantity()).append(']');
+		sb.append('[').append(getGenerator().getClass().getSimpleName()).append(']');
+		return sb.toString();
 	}
 
 	/**
 	 * @return Messages broker
 	 */
-	public MessagesBroker getBroker() {
+	public MessagesBroker getMessagesBroker() {
 		return broker;
 	}
 
@@ -276,7 +290,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * 
 	 * @param broker - new messages broker to set
 	 */
-	public void setBroker(MessagesBroker broker) {
+	public void setMessagesBroker(MessagesBroker broker) {
 		if (broker == null) {
 			throw new IllegalArgumentException("Messages broker cannot be null");
 		}
@@ -299,7 +313,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 
 			boolean ok = false;
 			try {
-				ok = getBroker().acknowledge(paper, signal);
+				ok = getMessagesBroker().acknowledge(paper, signal);
 			} catch (MessagingException e) {
 				e.printStackTrace();
 			}
@@ -309,4 +323,49 @@ public abstract class Trader implements DecisionListener, Runnable {
 
 		return false;
 	}
+
+	/**
+	 * @return the paperQuantity
+	 */
+	public int getPaperQuantity() {
+		int pq = paper.getQuantity();
+		if (pq != paperQuantity) {
+			setPaperQuantity(pq);
+		}
+		return pq;
+	}
+
+	/**
+	 * @param quantity - the paper quantity to set
+	 */
+	public void setPaperQuantity(int quantity) {
+		if (paper == null) {
+			throw new RuntimeException("Trader's paper cannot be null!");
+		}
+		paper.setQuantity(quantity);
+		paperQuantity = quantity;
+	}
+
+	/**
+	 * @return the paper desired quantity
+	 */
+	public int getPaperDesiredQuantity() {
+		int pdq = paper.getDesiredQuantity();
+		if (pdq != paperDesiredQuantity) {
+			setPaperDesiredQuantity(pdq);
+		}
+		return pdq;
+	}
+
+	/**
+	 * @param desired - desired paper quantity
+	 */
+	public void setPaperDesiredQuantity(int desired) {
+		if (paper == null) {
+			throw new RuntimeException("Trader's paper cannot be null!");
+		}
+		paper.setDesiredQuantity(desired);
+		paperDesiredQuantity = desired;
+	}
+
 }

@@ -1,5 +1,9 @@
 package com.sarxos.medusa.comm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sarxos.medusa.comm.policy.DefaultPolicy;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.util.Configuration;
 
@@ -9,14 +13,21 @@ import com.sarxos.medusa.util.Configuration;
  * player. Lets take a look on the example when Medusa discovers few BUY/SELL
  * signals few minutes after another. In this case it will send few acknowledge
  * messages what is undesirable (or desirable - it depends on the messaging
- * policy class implementation -everyone can create his own). For example
+ * policy class implementation - everyone can create his own). For example
  * throttling policy will disallow to send new message if one message for given
- * paper has been already sent (per day quota).
+ * paper has been already sent (per day quota). Default policy will be used in
+ * case of any problems in policy instantiation process.
  * 
  * @author Bartosz Firyn (SarXos)
  * @see MessagingPolicy#allows(Symbol)
+ * @see DefaultPolicy
  */
 public abstract class MessagingPolicy {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(MessagingPolicy.class.getSimpleName());
 
 	/**
 	 * Static configuration instance.
@@ -47,31 +58,54 @@ public abstract class MessagingPolicy {
 
 		String tmp = CFG.getProperty("messaging", "policy");
 
-		if (name == null || !name.equals(tmp)) {
+		if (name == null || !name.equals(tmp) || policy == null) {
 
 			name = tmp;
 			Class<?> clazz = null;
+
+			if (LOG.isInfoEnabled()) {
+				LOG.info("New messaging polisy - " + name);
+			}
+
 			try {
+
 				clazz = Class.forName(name);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+				if (!validClass(clazz)) {
+					throw new MessagingException(
+						"Messaging policy has to be a subclass of " +
+						MessagingPolicy.class.getSimpleName());
+				}
 
-			if (!MessagingPolicy.class.isAssignableFrom(clazz)) {
-				throw new RuntimeException(
-					"Messaging policy have to be a subclass of " +
-					MessagingPolicy.class.getSimpleName());
-			}
-
-			Class<? extends MessagingPolicy> pclazz = clazz.asSubclass(MessagingPolicy.class);
-			try {
+				Class<? extends MessagingPolicy> pclazz = clazz.asSubclass(MessagingPolicy.class);
 				policy = pclazz.newInstance();
+
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				name = null;
+				LOG.error(e.getMessage(), e);
 			}
 		}
 
+		if (policy == null) {
+			LOG.warn(
+				"Due to messaging policy construction problems default " +
+				"policy will be used, which means " +
+				DefaultPolicy.class.getName() + " instance");
+			return new DefaultPolicy();
+		}
+
 		return policy;
+	}
+
+	/**
+	 * Check if given class can be used as a messaging policy (messaging policy
+	 * object have to be a subclass of abstract class {@link MessagingPolicy}.
+	 * 
+	 * @param clazz - class object to check
+	 * @return true if given class is a subclass of {@link MessagingPolicy},
+	 *         false otherwise
+	 */
+	private static boolean validClass(Class<?> clazz) {
+		return MessagingPolicy.class.isAssignableFrom(clazz);
 	}
 
 	/**

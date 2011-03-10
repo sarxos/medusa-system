@@ -33,7 +33,7 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * Logger.
 	 */
-	private static final Logger LOG = LoggerFactory.getLogger(Observer.class.getSimpleName());
+	private static final Logger LOG = LoggerFactory.getLogger(DecisionMaker.class.getSimpleName());
 
 	/**
 	 * Price observer.
@@ -43,7 +43,7 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * Signals generator.
 	 */
-	private SignalGenerator<Quote> generator = null;
+	private SignalGenerator<? extends Quote> generator = null;
 
 	/**
 	 * Decision listeners (traders).
@@ -77,7 +77,7 @@ public class DecisionMaker implements PriceListener {
 	 * @param observer
 	 * @param generator
 	 */
-	public DecisionMaker(Observer observer, SignalGenerator<Quote> generator) {
+	public DecisionMaker(Observer observer, SignalGenerator<? extends Quote> generator) {
 		this.observer = observer;
 		this.observer.addPriceListener(this);
 		this.generator = generator;
@@ -91,8 +91,6 @@ public class DecisionMaker implements PriceListener {
 			return;
 		}
 
-		LOG.info("Price change notification " + pe);
-
 		Wallet wallet = Wallet.getInstance();
 		Paper paper = wallet.getPaper(observer.getSymbol());
 		Quote quote = pe.getQuote();
@@ -105,6 +103,11 @@ public class DecisionMaker implements PriceListener {
 
 		boolean buy = position == SHORT && type == BUY;
 		boolean sell = position == LONG && type == SELL;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("Price change notification " + pe);
+			LOG.info("Decision signal is " + signal);
+		}
 
 		if (buy || sell) {
 			notifyListeners(new DecisionEvent(this, paper, quote, type));
@@ -158,6 +161,12 @@ public class DecisionMaker implements PriceListener {
 	 * @param de - decision event (buy or sell paper)
 	 */
 	protected void notifyListeners(DecisionEvent de) {
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(
+				"Notifying decision listeneres. Number of listeners to " +
+				"notifry is " + listeners.size());
+		}
 
 		DecisionListener listener = null;
 		ListIterator<DecisionListener> i = listeners.listIterator();
@@ -254,7 +263,7 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * @return Signal generator.
 	 */
-	public SignalGenerator<Quote> getGenerator() {
+	public SignalGenerator<? extends Quote> getGenerator() {
 		return generator;
 	}
 
@@ -270,7 +279,7 @@ public class DecisionMaker implements PriceListener {
 	 * 
 	 * @param position - position type
 	 */
-	public void setCurrentPosition(Position position) {
+	public void setPosition(Position position) {
 		if (position == null) {
 			throw new IllegalArgumentException("Position cannot be null");
 		}

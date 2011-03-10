@@ -3,6 +3,9 @@ package com.sarxos.medusa.data.persistence;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.trader.Trader;
 
@@ -13,6 +16,8 @@ import com.sarxos.medusa.trader.Trader;
  * @author Bartosz Firyn (SarXos)
  */
 public class PersistenceWriter implements Runnable {
+
+	private static final Logger LOG = LoggerFactory.getLogger(PersistenceWriter.class.getSimpleName());
 
 	/**
 	 * Persistence provider.
@@ -40,14 +45,15 @@ public class PersistenceWriter implements Runnable {
 			try {
 				trader = queue.take();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.error("Interrupt exception", e);
 			}
 
 			if (trader != null) {
+				LOG.info("Saving trader " + trader);
 				try {
 					provider.saveTrader(trader);
 				} catch (PersistenceException e) {
-					e.printStackTrace();
+					LOG.error("Cannot save trader", e);
 				}
 			}
 		}
@@ -59,6 +65,11 @@ public class PersistenceWriter implements Runnable {
 	 * @param trader - trader to write
 	 */
 	public void write(Trader trader) {
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Putting trader " + trader + " into persistence queue");
+		}
+
 		try {
 			queue.put(trader);
 		} catch (InterruptedException e) {
