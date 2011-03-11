@@ -216,7 +216,7 @@ public class MedusaDaemon extends Thread {
 
 	public static void main(String[] args) {
 
-		// configureLoggers();
+		configureLoggers();
 
 		MedusaDaemon r = new MedusaDaemon();
 		r.startTraders();

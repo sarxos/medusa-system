@@ -86,6 +86,11 @@ case $1 in
 	stop)
 		ACTION="-p"
 		;;
+	restart)
+		bin/medusa.sh stop
+		bin/medusa.sh start
+		exit $?
+		;;	
 	status)
 		ACTION="-q"
 		;;
