@@ -1,5 +1,8 @@
 package com.sarxos.medusa.comm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
@@ -18,6 +21,11 @@ import com.sarxos.medusa.util.Configuration;
  * @see MessagingPolicy#allows(Symbol)
  */
 public class MessagesBroker {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(MessagesBroker.class.getSimpleName());
 
 	/**
 	 * Messages driver.
@@ -60,10 +68,15 @@ public class MessagesBroker {
 	 * @throws IllegalAccessException
 	 */
 	protected void init() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+
 		String name = configuration.getProperty("messaging", "driver");
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		Class<?> clazz = loader.loadClass(name);
 		driver = (MessagesDriver) clazz.newInstance();
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Messages broker initialized. Used driver is " + name);
+		}
 	}
 
 	/**
@@ -99,6 +112,13 @@ public class MessagesBroker {
 
 		// check if message for given symbol can be send
 		if (!policy.allows(symbol)) {
+
+			if (LOG.isInfoEnabled()) {
+				LOG.info(
+					"Messaging policy " + policy.getClass().getSimpleName() + " " +
+					"does not allow sending acknowledge message to the player");
+			}
+
 			return false;
 		}
 
@@ -112,16 +132,18 @@ public class MessagesBroker {
 		message.setBody(body);
 		message.setRecipient(recipient);
 
+		if (LOG.isInfoEnabled()) {
+			LOG.info("Sending message to the player " + message);
+		}
+
 		// send message via messages driver
 		boolean sent = false;
 		try {
 			sent = driver.send(message);
+			policy.sent(symbol); // tell policy object that we have sent message
 		} catch (Exception e) {
 			throw new MessagingException(e);
 		}
-
-		// tell policy object that we have sent message
-		policy.sent(symbol);
 
 		if (!sent) {
 			throw new MessagingException("Message cannot be sent");
@@ -139,6 +161,10 @@ public class MessagesBroker {
 				Thread.sleep(sleep * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Checking response for the code " + code);
 			}
 
 			// receive message for given code - will return null if no message

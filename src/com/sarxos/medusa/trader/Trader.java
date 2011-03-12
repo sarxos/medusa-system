@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sarxos.medusa.comm.MessagesBroker;
 import com.sarxos.medusa.comm.MessagingException;
 import com.sarxos.medusa.data.persistence.Persistent;
@@ -28,6 +31,11 @@ import com.sarxos.medusa.provider.RealTimeProvider;
  */
 @Persistent("trader")
 public abstract class Trader implements DecisionListener, Runnable {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(Trader.class.getSimpleName());
 
 	/**
 	 * Set of signal types to be acknowledged by player.
@@ -311,14 +319,28 @@ public abstract class Trader implements DecisionListener, Runnable {
 
 		if (NOTIFICATIONS.contains(signal)) {
 
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Acknowledge decision " + de);
+			}
+
 			boolean ok = false;
 			try {
 				ok = getMessagesBroker().acknowledge(paper, signal);
 			} catch (MessagingException e) {
-				e.printStackTrace();
+				LOG.error("Cannot acknowledge decision", e);
+			}
+
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Aknowledge response is " + ok);
 			}
 
 			return ok;
+		} else {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug(
+					"This kind of decision (" + de.getSignalType() +
+					") cannot be acknowledge");
+			}
 		}
 
 		return false;

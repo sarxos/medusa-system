@@ -114,20 +114,17 @@ public class Message {
 
 	@Override
 	public String toString() {
-
 		StringBuffer sb = new StringBuffer();
-
-		sb.append("---- ").append(getClass().getSimpleName()).append(" ----").append("\n");
-		sb.append("code:   ").append(getCode()).append("\n");
-		sb.append("body:   ").append(getBody()).append("\n");
-
+		sb.append(getClass().getSimpleName()).append('[');
+		sb.append("code:").append(getCode()).append(" ");
+		sb.append("body:").append(getBody()).append(" ");
 		if (getSender() != null) {
-			sb.append("from:   ").append(getSender()).append("\n");
+			sb.append("from:").append(getSender());
 		}
 		if (getRecipient() != null) {
-			sb.append("to:     ").append(getRecipient()).append("\n");
+			sb.append("to:").append(getRecipient());
 		}
-
+		sb.append(']');
 		return sb.toString();
 	}
 
