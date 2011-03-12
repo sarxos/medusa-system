@@ -273,7 +273,7 @@ public class ObserverSimulator extends Observer {
 
 		configureLoggers();
 
-		Symbol sym = Symbol.PEO;
+		Symbol sym = Symbol.BRE;
 		String from = "2010-02-26 08:00:00";
 		String to = "2011-02-26 08:00:00";
 		SignalGenerator<Quote> siggen = new MAVD(3, 13, 30);
@@ -309,9 +309,12 @@ public class ObserverSimulator extends Observer {
 
 			@Override
 			public void decisionChange(DecisionEvent de) {
+
 				Quote q = de.getQuote();
 				String date = q.getDateString();
+
 				if (dates.get(date) == null) {
+
 					// System.out.println(de);
 					if (de.getSignalType() == SignalType.BUY) {
 						dmaker.setPosition(Position.LONG);
@@ -334,6 +337,7 @@ public class ObserverSimulator extends Observer {
 							String.format("%.2f", spread));
 
 					} else {
+
 						dmaker.setPosition(Position.SHORT);
 
 						double fund = number * q.getClose();
@@ -357,6 +361,7 @@ public class ObserverSimulator extends Observer {
 				} else {
 					return;
 				}
+
 				dates.put(date, true);
 			}
 		};
