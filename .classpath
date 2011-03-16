@@ -24,6 +24,8 @@
 	<classpathentry kind="lib" path="lib/logback-classic-0.9.28.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-0.9.28.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar" sourcepath="D:/usr/sarxos/libraries/slf4j-1.6.1/slf4j-api-1.6.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jama-20110315.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SmesX"/>

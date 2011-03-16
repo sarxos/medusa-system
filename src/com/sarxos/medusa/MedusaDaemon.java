@@ -1,7 +1,6 @@
 package com.sarxos.medusa;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,25 +34,6 @@ public class MedusaDaemon extends Thread {
 	private static final Logger LOG = LoggerFactory.getLogger(MedusaDaemon.class.getSimpleName());
 
 	/**
-	 * VM shutdown handler. The goal of this class is to remove lock after
-	 * graceful exit.
-	 * 
-	 * @author Bartosz Firyn (SarXos)
-	 */
-	protected class ShutdownHandler extends Thread {
-
-		@Override
-		public void run() {
-			// TODO remoe this class - this is only w/a
-			LOG.info("Removing lock");
-			File lock = new File(lockPath);
-			if (lock.exists() && !lock.delete()) {
-				lock.deleteOnExit();
-			}
-		}
-	}
-
-	/**
 	 * Traders executor.
 	 */
 	private ExecutorService executor = Executors.newCachedThreadPool();
@@ -68,11 +48,6 @@ public class MedusaDaemon extends Thread {
 	 */
 	private AtomicBoolean running = new AtomicBoolean(false);
 
-	/**
-	 * Lock file path.
-	 */
-	private String lockPath = "data/medusa.lock";
-
 	public MedusaDaemon() {
 		super("Traders Runner");
 	}
@@ -83,31 +58,22 @@ public class MedusaDaemon extends Thread {
 
 		LOG.info("Executing Medusa daemon");
 
-		Runtime.getRuntime().addShutdownHook(new ShutdownHandler());
-
+		// ensure mysql running
 		LOG.info("Checking MySQL");
 		MySQLRunner.getInstance().runMySQL();
-
-		DBDAO dao = null;
-		List<Trader> tmp = null;
-		Iterator<Trader> it = null;
-		Trader trader = null;
-		String a, b;
-		boolean found;
-
-		if (!createLock()) {
-			LOG.error(
-				"Lock already exists. In case of problems please " +
-				"try to remove " + lockPath + " file"
-			);
-			return;
-		}
 
 		// initially reconcile quotes data
 		new ReconcileQuotesDataTask().run();
 
+		// start traders
+		DBDAO dao = null;
+
 		while (running.get()) {
 			try {
+
+				List<Trader> tmp = null;
+				Iterator<Trader> it = null;
+
 				try {
 					dao = DBDAO.getInstance();
 					tmp = dao.getTraders();
@@ -120,14 +86,14 @@ public class MedusaDaemon extends Thread {
 
 				while (it != null && it.hasNext()) {
 
-					trader = it.next();
-					found = false;
+					Trader trader = it.next();
+					boolean found = false;
 
 					for (Trader t : traders) {
-						a = t.getName();
-						b = trader.getName();
-						if (a != null && b != null) {
-							found = a.equals(b);
+						String tn1 = t.getName();
+						String tn2 = trader.getName();
+						if (tn1 != null && tn2 != null) {
+							found = tn1.equals(tn2);
 							if (found) {
 								break;
 							}
@@ -158,28 +124,6 @@ public class MedusaDaemon extends Thread {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * Create lock.
-	 * 
-	 * @return true if lock has been created, false otherwise
-	 */
-	protected boolean createLock() {
-		File lock = new File(lockPath);
-		if (!lock.exists()) {
-			boolean ok = false;
-			try {
-				ok = lock.createNewFile();
-				if (ok) {
-					lock.deleteOnExit();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return ok;
-		}
-		return false;
 	}
 
 	public void stopTraders() {

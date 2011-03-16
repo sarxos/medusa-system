@@ -11,7 +11,7 @@ function o = osc(Q, k, i)
     D = H - L;
     p = 2 / k;
     
-    SM = sma(C(1 : end - 1), k, k, i);
+    SM = sma(C(1 : end - 1), k);
     
     %o = p * sum(D ./ SM);
     o = p * sum(D);
