@@ -26,7 +26,7 @@ EXECUTABLE="wrapper.exe"
 MEDUSA_BIN="$MEDUSA_HOME\\$BIN_DIR"
 MEDUSA_LIB="$MEDUSA_HOME\\$LIB_DIR"
 MEDUSA_DAT="$MEDUSA_HOME\data"
-NT_WRAPPER_BIN="$MEDUSA_BIN\\$EXECUTABLE"
+NT_WRAPPER_BIN="$EXECUTABLE"
 NT_WRAPPER_CFG="$MEDUSA_HOME\data\service-def.conf"
 NT_WRAPPER_TMP="$MEDUSA_DAT\service.conf"
 
@@ -62,14 +62,7 @@ done
 echo "#### MEDUSA GENERATED CONTENT #### END" >> "$NT_WRAPPER_TMP"
 echo >> "$NT_WRAPPER_TMP"
 
-# copy wrapper binary
-
 cd "$MEDUSA_HOME"
-
-if [ ! -f "$NT_WRAPPER_BIN" ]
-then
-	cp "$NT_WRAPPER_BIN" .
-fi
 
 ACTION=""
 
@@ -111,6 +104,6 @@ case $1 in
 		;;
 esac
 
-./$EXECUTABLE $ACTION "$NT_WRAPPER_TMP"
+./$NT_WRAPPER_BIN $ACTION "$NT_WRAPPER_TMP"
 
 exit $?

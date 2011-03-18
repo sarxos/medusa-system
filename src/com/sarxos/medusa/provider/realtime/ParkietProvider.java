@@ -83,7 +83,7 @@ public class ParkietProvider implements RealTimeProvider {
 				try {
 					Thread.sleep(15000);
 				} catch (InterruptedException e) {
-					LOG.error(this + " has been interrupted!", e);
+					LOG.error(this + " has been interrupted!");
 				}
 				try {
 					update();
@@ -100,7 +100,7 @@ public class ParkietProvider implements RealTimeProvider {
 						try {
 							Thread.sleep(delay * 1000);
 						} catch (InterruptedException e1) {
-							LOG.error(this + " has been interrupted!", e1);
+							LOG.error(this + " has been interrupted!");
 						}
 					} else {
 						LOG.error("Cannot execute quotes update", e);
