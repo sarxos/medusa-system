@@ -69,7 +69,11 @@ public enum Symbol {
 	IPE("IPOPEMA"),
 	GTN("GETIN"),
 	EUR("EUROCASH"),
-	PEO("PEKAO");
+	PEO("PEKAO"),
+	/**
+	 * AmRest Holdings SE.
+	 */
+	EAT("AMREST");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)

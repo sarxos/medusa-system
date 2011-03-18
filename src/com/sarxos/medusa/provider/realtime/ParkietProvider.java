@@ -3,6 +3,7 @@ package com.sarxos.medusa.provider.realtime;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,6 +38,8 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.json.parser.JSONArray;
 import org.json.parser.JSONException;
 import org.json.parser.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,6 +64,11 @@ import com.sarxos.medusa.util.Configuration;
 public class ParkietProvider implements RealTimeProvider {
 
 	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(ParkietProvider.class.getSimpleName());
+
+	/**
 	 * Quotes updater. Once obtained quote will be stored in the quotation map
 	 * and will be updated periodically with the 15s interval.
 	 * 
@@ -71,17 +79,51 @@ public class ParkietProvider implements RealTimeProvider {
 		@Override
 		public void run() {
 			while (true) {
+
 				try {
 					Thread.sleep(15000);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					LOG.error(this + " has been interrupted!", e);
 				}
 				try {
 					update();
 				} catch (Exception e) {
-					e.printStackTrace();
+					if (isConnectivityIssue(e)) {
+						LOG.error("Network connection is probably broken, waiting 30s to check again");
+
+						int delay = 30;
+						String delaystr = CFG.getProperty("parkiet.com", "delay");
+						if (delaystr != null) {
+							delay = Integer.parseInt(delaystr);
+						}
+
+						try {
+							Thread.sleep(delay * 1000);
+						} catch (InterruptedException e1) {
+							LOG.error(this + " has been interrupted!", e1);
+						}
+					} else {
+						LOG.error("Cannot execute quotes update", e);
+					}
 				}
 			}
+		}
+
+		private boolean isConnectivityIssue(Throwable t) {
+			if (t == null) {
+				throw new IllegalArgumentException("Throwable to check cannot be null");
+			}
+			do {
+				if (t instanceof UnknownHostException) {
+					return true;
+				}
+			} while ((t = t.getCause()) != null);
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			return getClass().getSimpleName();
 		}
 
 		/**
@@ -293,6 +335,8 @@ public class ParkietProvider implements RealTimeProvider {
 
 			isProxied = true;
 		}
+
+		// cookies settings
 
 		// parser features
 
@@ -615,11 +659,15 @@ public class ParkietProvider implements RealTimeProvider {
 	protected synchronized String execute(HttpUriRequest req) throws ProviderException {
 
 		ByteArrayOutputStream baos = null;
+		HttpEntity entity = null;
+		HttpEntity decompressing = null;
+
 		try {
 
 			HttpResponse response = client.execute(req);
-			HttpEntity entity = response.getEntity();
-			HttpEntity orig = entity;
+
+			entity = response.getEntity();
+
 			Header[] headers = null;
 
 			int size = 32768;
@@ -641,23 +689,30 @@ public class ParkietProvider implements RealTimeProvider {
 			if (headers.length > 0) {
 				String val = headers[0].getValue();
 				if ("gzip".equals(val)) {
-					entity = new GzipDecompressingEntity(entity);
+					decompressing = new GzipDecompressingEntity(entity);
 				} else if ("deflat".equals(val)) {
-					entity = new DeflateDecompressingEntity(entity);
+					decompressing = new DeflateDecompressingEntity(entity);
 				}
 			}
 
-			int s = (int) entity.getContentLength();
+			int s = (int) decompressing.getContentLength();
 			if (s > 0) {
 				size = s;
 			}
 
 			baos = new ByteArrayOutputStream(size + 1);
-			entity.writeTo(baos);
-			orig.getContent().close();
+			decompressing.writeTo(baos);
 
 		} catch (Exception e) {
 			throw new ProviderException(e);
+		} finally {
+			if (entity != null) {
+				try {
+					entity.getContent().close();
+				} catch (Exception e) {
+					throw new ProviderException("Cannot close entity stream", e);
+				}
+			}
 		}
 
 		String html = null;

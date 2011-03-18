@@ -1,5 +1,7 @@
 package com.sarxos.medusa.task;
 
+import static java.lang.String.format;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -93,7 +95,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 				if (LOG.isInfoEnabled()) {
 					String k = Integer.toString(missing.length);
 					String s = paper.getSymbol().toString();
-					LOG.info("Missing %s quotes from %s symbol", k, s);
+					LOG.info(format("Missing %s quotes from %s symbol", k, s));
 				}
 
 				List<Quote> add = null;
@@ -149,7 +151,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 
 				if (LOG.isInfoEnabled()) {
 					String s = paper.getSymbol().toString();
-					LOG.info(String.format("Reconsiliation for symbol %s finished", s));
+					LOG.info(format("Reconsiliation for symbol %s finished", s));
 				}
 			}
 		}
