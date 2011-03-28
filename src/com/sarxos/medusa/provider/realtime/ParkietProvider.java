@@ -86,10 +86,13 @@ public class ParkietProvider implements RealTimeProvider {
 				} catch (InterruptedException e) {
 					LOG.error(this + " has been interrupted!");
 				}
+
 				try {
 					update();
 				} catch (Exception e) {
+
 					if (isConnectivityIssue(e)) {
+
 						LOG.error("Network connection is probably broken, waiting 30s to check again");
 
 						int delay = 30;
@@ -182,11 +185,15 @@ public class ParkietProvider implements RealTimeProvider {
 					name = name.trim();
 
 					Symbol symbol = Symbol.valueOfName(name);
-					if (symbol != null && quotations.containsKey(symbol)) {
+					if (symbol != null) {
+
 						Quote q = jsonToQuote(o, symbol);
 						Quote t = quotations.get(symbol);
+
 						if (t != null) {
 							t.copyFrom(q);
+						} else {
+							quotations.put(symbol, q);
 						}
 					}
 				}
@@ -458,6 +465,7 @@ public class ParkietProvider implements RealTimeProvider {
 		}
 
 		Quote q = quotations.get(symbol);
+
 		if (q == null) {
 
 			Date d = new Date();
@@ -485,6 +493,10 @@ public class ParkietProvider implements RealTimeProvider {
 
 			String json = execute(post);
 			q = getQuote0(symbol, json);
+
+			if (q == null) {
+				q = getQuote1(symbol);
+			}
 
 			if (q != null) {
 				quotations.put(symbol, q);
@@ -532,6 +544,85 @@ public class ParkietProvider implements RealTimeProvider {
 		}
 
 		return null;
+	}
+
+	private Quote getQuote1(Symbol symbol) throws ProviderException {
+		HttpUriRequest get = affectFirefox(new HttpGet(address));
+		return getQuoteFromHTML(symbol, execute(get));
+	}
+
+	/**
+	 * Read HTML, parse it and find symbol data inside.
+	 * 
+	 * @param symbol - symbol to find
+	 * @param html - input HTML
+	 * @return Return new quote
+	 * @throws ProviderException
+	 */
+	private Quote getQuoteFromHTML(Symbol symbol, String html) throws ProviderException {
+
+		Document dom = parseHTML(html);
+		String xpath = "//DIV[@class='quotations']/TABLE[@title='Dane rzeczywiste']/TBODY";
+		XPathExpression expression = getExpression(xpath);
+		NodeList nodes = getNodeList(dom, expression);
+		Node node = null;
+
+		if (nodes.getLength() > 0) {
+
+			node = nodes.item(0);
+			expression = getExpression("TR/TD[@class='nazwa']/A[text()='" + symbol.getName() + "']");
+			nodes = getNodeList(node, expression);
+
+			if (nodes.getLength() > 0) {
+				node = nodes.item(0).getParentNode().getParentNode();
+			} else {
+				throw new ProviderException("Cannot find symbol " + symbol.getName());
+			}
+
+			String time = getNodeValue(node, getExpression("TD[@class='czas']/SPAN/text()"));
+			String price = getNodeValue(node, getExpression("TD[@class='c']/text()"));
+			String open = getNodeValue(node, getExpression("TD[@class='o']/text()"));
+			String high = getNodeValue(node, getExpression("TD[@class='h']/text()"));
+			String low = getNodeValue(node, getExpression("TD[@class='l']/text()"));
+			String volume = getNodeValue(node, getExpression("TD[@class='v']/text()"));
+
+			Date now = new Date();
+			Date date = null;
+			try {
+				date = TIME_FORMAT.parse(time);
+			} catch (ParseException e) {
+				throw new ProviderException(e);
+			}
+
+			Calendar tmp = new GregorianCalendar();
+			tmp.setTime(date);
+
+			Calendar calendar = new GregorianCalendar();
+
+			Calendarium c = Calendarium.getInstance();
+			while (c.isFreeDay(now)) {
+				now = c.getPreviousWorkingDay(now);
+			}
+
+			calendar.setTime(now);
+			calendar.set(Calendar.HOUR_OF_DAY, tmp.get(Calendar.HOUR_OF_DAY));
+			calendar.set(Calendar.MINUTE, tmp.get(Calendar.MINUTE));
+			calendar.set(Calendar.SECOND, tmp.get(Calendar.SECOND));
+			calendar.set(Calendar.MILLISECOND, 0);
+
+			now = calendar.getTime();
+
+			double dopen = Double.parseDouble(open.replaceAll(",", "."));
+			double dhigh = Double.parseDouble(high.replaceAll(",", "."));
+			double dlow = Double.parseDouble(low.replaceAll(",", "."));
+			double close = Double.parseDouble(price.replaceAll(",", "."));
+			long dvolume = Long.parseLong(volume.replaceAll(" ", ""));
+
+			return new Quote(now, dopen, dhigh, dlow, close, dvolume);
+
+		} else {
+			throw new ProviderException("Cannot match elements for XPath " + xpath);
+		}
 	}
 
 	protected Quote jsonToQuote(JSONObject o, Symbol s) throws ProviderException, JSONException {
