@@ -3,6 +3,7 @@ package com.sarxos.medusa.provider.realtime;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -182,7 +183,7 @@ public class ParkietProvider implements RealTimeProvider {
 
 					Symbol symbol = Symbol.valueOfName(name);
 					if (symbol != null && quotations.containsKey(symbol)) {
-						Quote q = jsonToQuote(o);
+						Quote q = jsonToQuote(o, symbol);
 						Quote t = quotations.get(symbol);
 						if (t != null) {
 							t.copyFrom(q);
@@ -523,7 +524,7 @@ public class ParkietProvider implements RealTimeProvider {
 				name = name.trim();
 
 				if (symbol.getName().equals(name)) {
-					return jsonToQuote(o);
+					return jsonToQuote(o, symbol);
 				}
 			}
 		} catch (JSONException e) {
@@ -533,7 +534,7 @@ public class ParkietProvider implements RealTimeProvider {
 		return null;
 	}
 
-	protected Quote jsonToQuote(JSONObject o) throws ProviderException, JSONException {
+	protected Quote jsonToQuote(JSONObject o, Symbol s) throws ProviderException, JSONException {
 
 		String name = o.getString("nazwa");
 		String date = o.getString("data_sesji");
@@ -568,6 +569,7 @@ public class ParkietProvider implements RealTimeProvider {
 		ba.setAsk(Double.parseDouble(ask));
 
 		Quote q = new Quote();
+		q.setSymbol(s);
 		q.setDate(ndate);
 		q.setOpen(Double.parseDouble(open));
 		q.setHigh(Double.parseDouble(high));
@@ -664,7 +666,17 @@ public class ParkietProvider implements RealTimeProvider {
 
 		try {
 
-			HttpResponse response = client.execute(req);
+			HttpResponse response = null;
+
+			int attempts = 0;
+			do {
+				try {
+					response = client.execute(req);
+					break;
+				} catch (SocketException se) {
+					LOG.error("Cannot connect to " + req.getURI());
+				}
+			} while (attempts++ < 5);
 
 			entity = response.getEntity();
 

@@ -7,8 +7,8 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sarxos.medusa.comm.MessagesDriver;
 import com.sarxos.medusa.comm.Message;
+import com.sarxos.medusa.comm.MessagesDriver;
 import com.sarxos.medusa.comm.MessagingException;
 import com.sarxos.medusa.util.Configuration;
 import com.sarxos.smesx.SmesXException;

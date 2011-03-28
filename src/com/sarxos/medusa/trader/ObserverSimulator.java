@@ -273,7 +273,7 @@ public class ObserverSimulator extends Observer {
 
 		configureLoggers();
 
-		Symbol sym = Symbol.BRE;
+		Symbol sym = Symbol.PEP;
 		String from = "2010-02-26 08:00:00";
 		String to = "2011-02-26 08:00:00";
 		SignalGenerator<Quote> siggen = new MAVD(3, 13, 30);

@@ -2,6 +2,7 @@ package com.sarxos.medusa.provider;
 
 import java.util.List;
 
+import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 
@@ -24,4 +25,13 @@ public interface HistoryProvider {
 	 * @throws ProviderException
 	 */
 	public List<Quote> getAllQuotes(Symbol symbol) throws ProviderException;
+
+	/**
+	 * Return intraday quotes iterator.
+	 * 
+	 * @param symbol
+	 * @return Return quotes iterator.
+	 * @throws ProviderException
+	 */
+	public QuotesIterator<Quote> getIntradayQuotes(Symbol symbol) throws ProviderException;
 }

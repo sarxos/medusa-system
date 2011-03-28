@@ -63,7 +63,7 @@ public enum Symbol {
 	MCI("MCI"),
 	PBG("PBG"),
 	/**
-	 * Astarta.
+	 * Astarta
 	 */
 	AST("ASTARTA"),
 	IPE("IPOPEMA"),
@@ -71,9 +71,49 @@ public enum Symbol {
 	EUR("EUROCASH"),
 	PEO("PEKAO"),
 	/**
-	 * AmRest Holdings SE.
+	 * AmRest Holdings SE
 	 */
-	EAT("AMREST");
+	EAT("AMREST"),
+	/**
+	 * Automotive Components Europe SA
+	 */
+	ACE("ACE"),
+	/**
+	 * Gielda Papierow Wartosciowych SA
+	 */
+	GPW("GPW"),
+	/**
+	 * Kogeneracja SA
+	 */
+	KGN("KOGENERA"),
+	/**
+	 * PEP SA
+	 */
+	PEP("PEP"),
+	/**
+	 * Polimex-Mostostal SA
+	 */
+	PXM("POLIMEXMS"),
+	/**
+	 * AB SA
+	 */
+	ABE("ABPL"),
+	/**
+	 * Agroton SA
+	 */
+	AGT("AGROTON"),
+	/**
+	 * Erbud SA
+	 */
+	ERB("ERBUD"),
+	/**
+	 * Pol-Aqua SA
+	 */
+	PQA("POLAQUA"),
+	/**
+	 * Wawel SA
+	 */
+	WWL("WAWEL");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)

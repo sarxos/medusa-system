@@ -49,7 +49,7 @@ function [Hfw, Ft, Per] = wiener(Hp, maks)
     
     %plot(Per)
     
-    HabsZ = Per - N;            % teoretyczna transformata zawuieraj¹ca tylko sygna³ (bez szumów bo je
+    HabsZ = Per - N;            % teoretyczna transformata zawieraj¹ca tylko sygna³ (bez szumów bo je
                                 % odjêliœmy), jednak zawsze w tym sygnale bêd¹ te¿ szumy.
 
     Ft = HabsZ ./ (HabsZ + N);          % Obliczamy funkcje transmisji dla filtru Wienera.

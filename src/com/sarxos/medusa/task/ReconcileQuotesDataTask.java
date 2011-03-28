@@ -2,6 +2,7 @@ package com.sarxos.medusa.task;
 
 import static java.lang.String.format;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -12,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sarxos.medusa.data.DBDAO;
+import com.sarxos.medusa.data.DBDAOException;
 import com.sarxos.medusa.data.QuotesAudit;
+import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
@@ -21,6 +24,7 @@ import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.history.BossaProvider;
 import com.sarxos.medusa.trader.PlannedTask;
+import com.sarxos.medusa.trader.Trader;
 import com.sarxos.medusa.trader.Wallet;
 
 
@@ -44,7 +48,7 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 
 	private DBDAO qdao = DBDAO.getInstance();
 
-	private HistoryProvider bdp = new BossaProvider();
+	private HistoryProvider provider = new BossaProvider();
 
 	public ReconcileQuotesDataTask() {
 
@@ -75,7 +79,22 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 
 		LOG.info("Performing quotes data reconciliation");
 
-		List<Paper> papers = wallet.getPapers();
+		List<Trader> traders = null;
+
+		try {
+			traders = qdao.getTraders();
+		} catch (DBDAOException e1) {
+			e1.printStackTrace();
+		}
+
+		if (traders == null) {
+			throw new RuntimeException("Traders list cannot be null here!");
+		}
+
+		List<Paper> papers = new ArrayList<Paper>(traders.size() + 1);
+		for (Trader t : traders) {
+			papers.add(t.getPaper());
+		}
 
 		int i, ad, am, ay, bd, bm, by;
 
@@ -107,19 +126,19 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 
 				try {
 					if (missing.length <= 6) {
-						add = bdp.getLastQuotes(symbol);
+						add = provider.getLastQuotes(symbol);
 					} else {
-						add = bdp.getAllQuotes(symbol);
+						add = provider.getAllQuotes(symbol);
 					}
 				} catch (ProviderException e) {
-					e.printStackTrace();
+					LOG.error(e.getMessage(), e);
 				}
 
-				ListIterator<Quote> qi = add.listIterator();
+				ListIterator<Quote> qli = add.listIterator();
 
-				while (qi.hasNext()) {
+				while (qli.hasNext()) {
 
-					q = qi.next();
+					q = qli.next();
 					d = q.getDate();
 
 					calendar.setTime(d);
@@ -143,15 +162,37 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 					}
 
 					if (!required) {
-						qi.remove();
+						qli.remove();
 					}
 				}
 
 				qdao.addQuotes(symbol, add);
 
 				if (LOG.isInfoEnabled()) {
-					String s = paper.getSymbol().toString();
-					LOG.info(format("Reconsiliation for symbol %s finished", s));
+					String s = symbol.toString();
+					String msg = format("Quotes reconsiliation for symbol %s finished", s);
+					LOG.info(msg);
+				}
+
+				if (LOG.isInfoEnabled()) {
+					String s = symbol.toString();
+					String msg = format("Starting intraday reconciliation for symbol %s", s);
+					LOG.info(msg);
+				}
+
+				try {
+					QuotesIterator<Quote> qi = provider.getIntradayQuotes(symbol);
+					if (!qi.hasNext()) {
+						LOG.error("Cannot reconcile intraday quotes for symbol " + symbol);
+					}
+				} catch (ProviderException e) {
+					LOG.error(e.getMessage(), e);
+				}
+
+				if (LOG.isInfoEnabled()) {
+					String s = symbol.toString();
+					String msg = format("Intraday reconciliation for symbol %s has been finished", s);
+					LOG.info(msg);
 				}
 			}
 		}
@@ -167,6 +208,17 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 			qdao.addQuotes(symbol, quotes);
 		} catch (ProviderException e) {
 			throw new RuntimeException(e);
+		}
+
+		LOG.info("Downloading intraday quotes for symbol " + symbol);
+
+		try {
+			QuotesIterator<Quote> qi = hp.getIntradayQuotes(symbol);
+			if (!qi.hasNext()) {
+				LOG.error("Cannot reconcile intraday quotes for symbol " + symbol);
+			}
+		} catch (ProviderException e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 

@@ -257,16 +257,6 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * @param symbol - observed symbol
 	 */
 	public void trade() {
-
-		Wallet wallet = Wallet.getInstance();
-		Paper paper = wallet.getPaper(getSymbol());
-		if (paper == null) {
-			throw new IllegalStateException(
-				"There is no '" + this.paper.getSymbol() + "' paper " +
-				"specified in the wallet. You have to add paper to the " +
-				"wallet first, and then start trading.");
-		}
-
 		getDecisionMaker().getObserver().start();
 	}
 
@@ -390,4 +380,10 @@ public abstract class Trader implements DecisionListener, Runnable {
 		paperDesiredQuantity = desired;
 	}
 
+	/**
+	 * @return Return paper.
+	 */
+	public Paper getPaper() {
+		return paper;
+	}
 }
