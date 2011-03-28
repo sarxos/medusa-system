@@ -367,6 +367,46 @@ public class BossaProvider implements HistoryProvider {
 		return quotes;
 	}
 
+	private void downloadZIP(File zipf, Symbol symbol) throws ProviderException {
+		FileOutputStream fos = null;
+		HttpEntity entity = null;
+
+		try {
+
+			fos = new FileOutputStream(zipf);
+
+			DefaultHttpClient client = new DefaultHttpClient();
+			HttpGet get = new HttpGet("http://bossa.pl/pub/intraday/mstock/cgl/" + symbol.getName() + ".zip");
+			HttpResponse response = client.execute(get);
+			entity = response.getEntity();
+			entity.writeTo(fos);
+
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("ZIP file for symbol " + symbol + " has been downloaded");
+			}
+
+		} catch (Exception e) {
+			throw new ProviderException(e);
+		} finally {
+
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					throw new ProviderException(e);
+				}
+			}
+
+			if (entity != null) {
+				try {
+					entity.getContent().close();
+				} catch (Exception e) {
+					throw new ProviderException(e);
+				}
+			}
+		}
+	}
+
 	@Override
 	public QuotesIterator<Quote> getIntradayQuotes(Symbol symbol) throws ProviderException {
 
@@ -375,7 +415,9 @@ public class BossaProvider implements HistoryProvider {
 		File prn = new File("data/tmp/intraday/" + symbol.getName() + ".prn");
 
 		if (prn.exists()) {
+
 			Date modified = new Date(prn.lastModified());
+
 			if (DateUtils.isToday(modified)) {
 				download = false;
 			}
@@ -392,50 +434,23 @@ public class BossaProvider implements HistoryProvider {
 		if (download) {
 
 			File zipf = new File("data/tmp/" + symbol.getName() + ".zip");
-			FileOutputStream fos = null;
-			HttpEntity entity = null;
 
-			try {
-
-				fos = new FileOutputStream(zipf);
-
-				DefaultHttpClient client = new DefaultHttpClient();
-				HttpGet get = new HttpGet("http://bossa.pl/pub/intraday/mstock/cgl/" + symbol.getName() + ".zip");
-				HttpResponse response = client.execute(get);
-				entity = response.getEntity();
-				entity.writeTo(fos);
-
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("ZIP file for symbol " + symbol + " has been downloaded");
-				}
-
-			} catch (Exception e) {
-				throw new ProviderException(e);
-			} finally {
-
-				if (fos != null) {
-					try {
-						fos.close();
-					} catch (IOException e) {
-						throw new ProviderException(e);
-					}
-				}
-
-				if (entity != null) {
-					try {
-						entity.getContent().close();
-					} catch (Exception e) {
-						throw new ProviderException(e);
-					}
-				}
-			}
+			downloadZIP(zipf, symbol);
 
 			ZipFile zf = null;
-			try {
-				zf = new ZipFile(zipf);
-			} catch (Exception e) {
-				throw new ProviderException(e);
-			}
+
+			int attempts = 0;
+			do {
+				try {
+					zf = new ZipFile(zipf);
+					break;
+				} catch (ZipException ze) {
+					LOG.error("Cannot open ZIP file " + zf.getName());
+					downloadZIP(zipf, symbol);
+				} catch (IOException e) {
+					throw new ProviderException(e);
+				}
+			} while (attempts++ < 5);
 
 			boolean unpacked = false;
 			Enumeration<? extends ZipEntry> zfe = zf.entries();
