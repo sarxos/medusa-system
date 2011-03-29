@@ -13,6 +13,8 @@ import com.sarxos.medusa.market.Symbol;
 /**
  * Papers wallet.
  * 
+ * TODO: need to reimplement to interact strictly with traders
+ * 
  * @author Bartosz Firyn (SarXos)
  */
 public class Wallet {
@@ -21,31 +23,31 @@ public class Wallet {
 	 * List of papers I have or would like to have.
 	 */
 	private List<Paper> papers = new LinkedList<Paper>();
-	
+
 	/**
 	 * Wallet instance.
 	 */
 	private static Wallet instance = new Wallet();
-	
+
 	/**
 	 * Database DAO.
 	 */
 	private DBDAO dbdao = DBDAO.getInstance();
-	
+
 	/**
 	 * Private constructor.
 	 */
 	private Wallet() {
 		this.reload();
 	}
-	
+
 	/**
 	 * @return Return {@link Wallet} singleton instance.
 	 */
 	public static Wallet getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * Add paper to the wallet.
 	 * 
@@ -65,9 +67,9 @@ public class Wallet {
 		if (!found) {
 			added = papers.add(paper.clone());
 		}
-		return added; 
+		return added;
 	}
-	
+
 	/**
 	 * @return Return all papers.
 	 */
@@ -76,7 +78,7 @@ public class Wallet {
 		papers.addAll(this.papers);
 		return papers;
 	}
-	
+
 	/**
 	 * Remove given paper.
 	 * 
@@ -107,7 +109,7 @@ public class Wallet {
 		ListIterator<Paper> pi = papers.listIterator();
 		Paper p = null;
 		while (pi.hasNext()) {
-			 p = pi.next();
+			p = pi.next();
 			if (p.getSymbol() == paper.getSymbol()) {
 				p.setQuantity(paper.getQuantity());
 				p.setDesiredQuantity(paper.getDesiredQuantity());
@@ -117,7 +119,7 @@ public class Wallet {
 		}
 		return updated;
 	}
-	
+
 	/**
 	 * @param symbol - symbol to find
 	 * @return Return paper with given symbol or null if paper doses not exist
@@ -126,7 +128,7 @@ public class Wallet {
 		if (symbol == null) {
 			throw new IllegalArgumentException("Paper symbol cannot be null");
 		}
-		
+
 		ListIterator<Paper> pi = papers.listIterator();
 		Paper p = null;
 		while (pi.hasNext()) {
@@ -135,10 +137,10 @@ public class Wallet {
 				return p;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * @param paper - paper to find (on the symbol base)
 	 * @return Return paper with given symbol or null if paper doses not exist
@@ -150,7 +152,7 @@ public class Wallet {
 		}
 		return getPaper(paper.getSymbol());
 	}
-	
+
 	/**
 	 * Force reload wallet from the database.
 	 */

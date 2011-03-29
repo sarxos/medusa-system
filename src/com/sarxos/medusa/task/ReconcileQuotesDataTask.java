@@ -25,7 +25,6 @@ import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.history.BossaProvider;
 import com.sarxos.medusa.trader.PlannedTask;
 import com.sarxos.medusa.trader.Trader;
-import com.sarxos.medusa.trader.Wallet;
 
 
 /**
@@ -41,8 +40,6 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	private static final Logger LOG = LoggerFactory.getLogger(ReconcileQuotesDataTask.class.getSimpleName());
 
 	private GregorianCalendar calendar = new GregorianCalendar();
-
-	private Wallet wallet = Wallet.getInstance();
 
 	private QuotesAudit qa = new QuotesAudit();
 
