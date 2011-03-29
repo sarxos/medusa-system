@@ -128,6 +128,8 @@ public abstract class Trader implements DecisionListener, Runnable {
 
 		Observer observer = new Observer(provider, paper.getSymbol());
 		DecisionMaker dm = new DecisionMaker(observer, siggen);
+
+		dm.setTrader(this);
 		dm.addDecisionListener(this);
 
 		setDecisionMaker(dm);

@@ -36,6 +36,11 @@ public class DecisionMaker implements PriceListener {
 	private static final Logger LOG = LoggerFactory.getLogger(DecisionMaker.class.getSimpleName());
 
 	/**
+	 * Trader
+	 */
+	private Trader trader = null;
+
+	/**
 	 * Price observer.
 	 */
 	private Observer observer = null;
@@ -63,24 +68,34 @@ public class DecisionMaker implements PriceListener {
 	private QuotesRegistry registry = QuotesRegistry.getInstance();
 
 	/**
-	 * Protected constructor - used somewhere?
-	 */
-	protected DecisionMaker() {
-	}
-
-	/**
 	 * Create Decision maker with given observer and signal generator. After
 	 * price notification from observer, generator will calculate signal and on
 	 * its base decision maker will decide if given paper shall be bought or
 	 * sell.
 	 * 
-	 * @param observer
-	 * @param generator
+	 * @param observer - instrument observer
+	 * @param generator - signal generator
+	 * @param trader - trader instance
 	 */
 	public DecisionMaker(Observer observer, SignalGenerator<? extends Quote> generator) {
 		this.observer = observer;
 		this.observer.addPriceListener(this);
 		this.generator = generator;
+	}
+
+	public void setTrader(Trader trader) {
+
+		if (trader != null) {
+			Symbol t = trader.getPaper().getSymbol();
+			Symbol o = observer.getSymbol();
+			if (t != o) {
+				throw new IllegalArgumentException(
+					"Symbols from trader and observer differs! From " +
+					"trader " + t + " and from observer " + o);
+			}
+		}
+
+		this.trader = trader;
 	}
 
 	@Override
@@ -91,8 +106,17 @@ public class DecisionMaker implements PriceListener {
 			return;
 		}
 
-		Wallet wallet = Wallet.getInstance();
-		Paper paper = wallet.getPaper(observer.getSymbol());
+		Paper paper = null;
+		if (trader == null) {
+			paper = trader.getPaper();
+		} else {
+			paper = Wallet.getInstance().getPaper(observer.getSymbol());
+		}
+
+		if (paper == null) {
+			throw new RuntimeException("Neither trader nor wallet has paper object set");
+		}
+
 		Quote quote = pe.getQuote();
 		Symbol symbol = observer.getSymbol();
 
@@ -105,8 +129,7 @@ public class DecisionMaker implements PriceListener {
 		boolean sell = position == LONG && type == SELL;
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("Price change notification " + pe);
-			LOG.info("Decision signal is " + signal);
+			LOG.info("Price change " + pe + " signal " + signal);
 		}
 
 		if (buy || sell) {

@@ -107,6 +107,13 @@ public class MessagesBroker {
 	 */
 	public boolean acknowledge(Paper paper, SignalType type) throws MessagingException {
 
+		if (paper == null) {
+			throw new IllegalArgumentException("Paper cannot be null!");
+		}
+		if (type == null) {
+			throw new IllegalArgumentException("Signal type cannot be null!");
+		}
+
 		MessagingPolicy policy = MessagingPolicy.getPolicy();
 		Symbol symbol = paper.getSymbol();
 
