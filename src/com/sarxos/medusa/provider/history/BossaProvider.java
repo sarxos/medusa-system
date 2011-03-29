@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sarxos.medusa.data.QuotesIterator;
+import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.HistoryProvider;
@@ -135,6 +136,7 @@ public class BossaProvider implements HistoryProvider {
 		long volume = 0;
 
 		List<Quote> quotes = new LinkedList<Quote>();
+		Quote quote = null;
 
 		for (File file : files) {
 			try {
@@ -151,33 +153,56 @@ public class BossaProvider implements HistoryProvider {
 					}
 				}
 
-				// <TICKER>,<DTYYYYMMDD>,<OPEN>,<HIGH>,<LOW>,<CLOSE>,<VOL>
-				// KGHM,20101220,156.70,158.20,155.00,157.90,394584
+				if (parts == null) {
 
-				if (parts.length < 7) {
-					throw new ProviderException(
-							"Something is wrong with data - should be 7 elements, " +
-							"found " + parts.length + " instead!");
+					// no quotes for given day (it is sometimes possible for low
+					// volumes)
+
+					if (quote == null) {
+
+						List<Quote> tmp = QuotesRegistry.getInstance().getQuotes(symbol);
+						if (tmp.size() > 0) {
+							quote = tmp.get(tmp.size() - 1);
+						} else {
+							// no quotes in the db - omit whole day
+							continue;
+						}
+
+					} else {
+						// quote != null -> insert previous quote
+					}
+
+				} else {
+
+					// <TICKER>,<DTYYYYMMDD>,<OPEN>,<HIGH>,<LOW>,<CLOSE>,<VOL>
+					// KGHM,20101220,156.70,158.20,155.00,157.90,394584
+
+					if (parts.length < 7) {
+						throw new ProviderException(
+								"Something is wrong with data - should be 7 elements, " +
+								"found " + parts.length + " instead!");
+					}
+					if (!parts[0].equals(symbol.getName())) {
+						throw new ProviderException(
+								"Something is wrong with read method - tried to read " + symbol + " " +
+								"but read " + parts[0] + " instead!");
+					}
+
+					date = DATE_FORMAT.parse(parts[1]);
+					open = Double.valueOf(parts[2]);
+					high = Double.valueOf(parts[3]);
+					low = Double.valueOf(parts[4]);
+					close = Double.valueOf(parts[5]);
+					volume = Long.valueOf(parts[6]);
+
+					quote = new Quote(date, open, high, low, close, volume);
 				}
-				if (!parts[0].equals(symbol.getName())) {
-					throw new ProviderException(
-							"Something is wrong with read method - tried to read " + symbol + " " +
-							"but read " + parts[0] + " instead!");
-				}
 
-				date = DATE_FORMAT.parse(parts[1]);
-				open = Double.valueOf(parts[2]);
-				high = Double.valueOf(parts[3]);
-				low = Double.valueOf(parts[4]);
-				close = Double.valueOf(parts[5]);
-				volume = Long.valueOf(parts[6]);
-
-				quotes.add(new Quote(date, open, high, low, close, volume));
+				quotes.add(quote);
 
 			} catch (Throwable e) {
 				throw new ProviderException(e);
 			}
-
 		}
 
 		return quotes;
