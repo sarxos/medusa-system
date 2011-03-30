@@ -259,6 +259,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * @param symbol - observed symbol
 	 */
 	public void trade() {
+		TradersRegistry.getInstance().addTrader(this);
 		getDecisionMaker().getObserver().start();
 	}
 

@@ -29,6 +29,71 @@ import com.sarxos.medusa.trader.Trader;
 public class MedusaDaemon extends Thread {
 
 	/**
+	 * The goal of this class is to perform periodic SLF4J update when
+	 * configuration file has been changed.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
+	protected static class LogConfigurationUpdater implements Runnable {
+
+		private static final String LOG_CFG_PATH = "data/logback.xml";
+
+		@Override
+		public void run() {
+
+			LOG.info("Log configuration updater has been started");
+
+			long updated = 0;
+			long tmp = 0;
+
+			while (true) {
+
+				File cfg = new File(LOG_CFG_PATH);
+				tmp = cfg.lastModified();
+
+				if (tmp != updated) {
+					configure();
+					updated = tmp;
+				}
+
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		/**
+		 * Configure SLF4J.
+		 */
+		public static void configure() {
+
+			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+			File cfg = new File(LOG_CFG_PATH);
+
+			try {
+				JoranConfigurator configurator = new JoranConfigurator();
+				configurator.setContext(lc);
+
+				// the context was probably already configured by default
+				// configuration rules, so it needs to be reset
+				lc.reset();
+
+				configurator.doConfigure(cfg);
+
+			} catch (JoranException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	// configure loggers
+	static {
+		LogConfigurationUpdater.configure();
+	}
+
+	/**
 	 * Logger.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(MedusaDaemon.class.getSimpleName());
@@ -140,28 +205,14 @@ public class MedusaDaemon extends Thread {
 		return running.get();
 	}
 
-	protected static void configureLoggers() {
-
-		// assume SLF4J is bound to logback in the current environment
-		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-
-		try {
-			JoranConfigurator configurator = new JoranConfigurator();
-			configurator.setContext(lc);
-
-			// the context was probably already configured by default
-			// configuration rules, so it needs to be reset
-			lc.reset();
-			configurator.doConfigure(new File("data/logback.xml"));
-		} catch (JoranException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static void main(String[] args) {
 
-		configureLoggers();
+		// start logger configuration updater
+		Thread updater = new Thread(new LogConfigurationUpdater(), "LogCfgUpdater");
+		updater.setDaemon(true);
+		updater.start();
 
+		// start Medusa
 		MedusaDaemon r = new MedusaDaemon();
 		r.startTraders();
 		try {

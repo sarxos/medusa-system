@@ -209,7 +209,6 @@ public class Observer implements Runnable {
 		}
 		state = State.RUNNIG;
 		getRunner().start();
-		LOG.info(getSymbol() + " observer has been started");
 	}
 
 	/**
@@ -230,19 +229,24 @@ public class Observer implements Runnable {
 
 	@Override
 	public void run() {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info(getSymbol() + " observer has been started");
+		}
+
 		do {
 			if (state == State.STOPPED) {
 				break;
 			} else {
 				try {
 					runOnce();
-				} catch (ProviderException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
 				}
 				try {
 					Thread.sleep(interval);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					LOG.error(e.getMessage(), e);
 				}
 			}
 		} while (true);
@@ -260,7 +264,7 @@ public class Observer implements Runnable {
 		try {
 			q = provider.getQuote(symbol);
 		} catch (QuoteLackException e) {
-			// this situation occurs when there was no given instrument trade
+			// this situation occurs when there was no trade in given instrument
 			// within particular day
 			LOG.warn(e.getMessage());
 			return;
