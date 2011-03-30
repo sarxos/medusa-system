@@ -386,6 +386,9 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * @return Return paper.
 	 */
 	public Paper getPaper() {
+		if (paper == null) {
+			paper = new Paper(getSymbol(), paperDesiredQuantity, paperQuantity);
+		}
 		return paper;
 	}
 }

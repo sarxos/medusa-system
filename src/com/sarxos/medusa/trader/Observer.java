@@ -11,6 +11,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.Providers;
+import com.sarxos.medusa.provider.QuoteLackException;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
@@ -255,7 +256,15 @@ public class Observer implements Runnable {
 	 */
 	protected void runOnce() throws ProviderException {
 
-		Quote q = provider.getQuote(symbol);
+		Quote q = null;
+		try {
+			q = provider.getQuote(symbol);
+		} catch (QuoteLackException e) {
+			// this situation occurs when there was no given instrument trade
+			// within particular day
+			LOG.warn(e.getMessage());
+			return;
+		}
 
 		if (q == null) {
 			notifyListeners(new NullEvent(this, price, price, null));

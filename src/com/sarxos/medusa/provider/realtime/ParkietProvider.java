@@ -51,6 +51,7 @@ import com.sarxos.medusa.market.Calendarium;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
+import com.sarxos.medusa.provider.QuoteLackException;
 import com.sarxos.medusa.provider.RealTimeProvider;
 import com.sarxos.medusa.util.Configuration;
 
@@ -611,6 +612,13 @@ public class ParkietProvider implements RealTimeProvider {
 			calendar.set(Calendar.MILLISECOND, 0);
 
 			now = calendar.getTime();
+
+			String[] check = new String[] { open, high, low, price, volume };
+			for (int j = 0; j < check.length; j++) {
+				if ("--".equals(check[j])) {
+					throw new QuoteLackException("No quote for symbol " + symbol);
+				}
+			}
 
 			double dopen = Double.parseDouble(open.replaceAll(",", "."));
 			double dhigh = Double.parseDouble(high.replaceAll(",", "."));
