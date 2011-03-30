@@ -33,7 +33,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.cyberneko.html.parsers.DOMParser;
 import org.json.parser.JSONArray;
@@ -46,6 +45,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.sarxos.medusa.data.MedusaHttpClient;
 import com.sarxos.medusa.market.BidAsk;
 import com.sarxos.medusa.market.Calendarium;
 import com.sarxos.medusa.market.Quote;
@@ -237,7 +237,7 @@ public class ParkietProvider implements RealTimeProvider {
 	/**
 	 * HTTP client.
 	 */
-	private final DefaultHttpClient client;
+	private final MedusaHttpClient client;
 
 	/**
 	 * Parkiet.com user's name.
@@ -318,34 +318,13 @@ public class ParkietProvider implements RealTimeProvider {
 	 */
 	public ParkietProvider() {
 
-		client = new DefaultHttpClient();
+		client = new MedusaHttpClient();
 
-		// proxy
-
-		String phost = (String) System.getProperties().get("http.proxyHost");
-		String pport = (String) System.getProperties().get("http.proxyPort");
-
-		if (phost == null && pport == null) {
-			phost = CFG.getProperty("core", "proxy_host");
-			pport = CFG.getProperty("core", "proxy_port");
-		}
-
-		if (phost != null && pport != null) {
-
-			int port = -1;
-			try {
-				port = Integer.parseInt(pport);
-			} catch (NumberFormatException e) {
-				throw new RuntimeException("Incorrect proxy port '" + pport + "'", e);
-			}
-
-			HttpHost proxy = new HttpHost(phost, port, "http");
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-
-			isProxied = true;
-		}
+		isProxied = client.getProxy() != null;
 
 		// cookies settings
+		
+		// TODO: implement persistence cookies storage
 
 		// parser features
 

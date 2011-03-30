@@ -3,7 +3,10 @@ package com.sarxos.medusa.data;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.sarxos.medusa.market.Future;
 import com.sarxos.medusa.market.Index;
@@ -152,6 +155,24 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 		qsr.close();
 	}
 
+	/**
+	 * Create collection from this iterator. This method is sometimes useful but
+	 * shall not be overused due to its performance impact. Quotes iterator is a 
+	 * lightweight object allowing us to iterate through the all quotes without
+	 * necessity to allocate large amounts of memory. When you convert it to 
+	 * collection this advantage does not take effect (it means you change
+	 * lightweight object to very heavy weighted).
+	 * 
+	 * @return Return new collection of all quotes.
+	 */
+	public Collection<E> collection() {
+		List<E> quotes = new LinkedList<E>();
+		while (hasNext()) {
+			quotes.add(next());
+		}
+		return quotes;
+	}
+	
 	public static void main(String[] args) throws IOException {
 		QuotesIterator<Quote> qi = new QuotesIterator<Quote>(Symbol.CPS);
 		int i = 0;

@@ -14,6 +14,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import com.sarxos.gpwnotifier.data.RealTimeDataProvider;
 import com.sarxos.gpwnotifier.data.DataProviderException;
 import com.sarxos.gpwnotifier.market.Symbol;
+import com.sarxos.medusa.data.MedusaHttpClient;
 
 
 /**
@@ -32,19 +33,8 @@ public class BizzoneDataProvider implements RealTimeDataProvider {
 			throw new DataProviderException(name + " cannot serve data for symbol " + symbol);
 		}
 		
-		String proxy_host = (String)System.getProperties().get("http.proxyHost");
-		String proxy_port = (String)System.getProperties().get("http.proxyPort");
-
-		DefaultHttpClient client = new DefaultHttpClient();
+		MedusaHttpClient client = new MedusaHttpClient();
 		
-		if (proxy_host != null && proxy_port != null) {
-			System.out.println(proxy_host);
-			System.out.println(proxy_port);
-			int port = Integer.parseInt(proxy_port);
-			HttpHost proxy = new HttpHost(proxy_host, port, "http");
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-		}
-
 		HttpResponse response = null;
 		HttpEntity entity = null;
 		HttpGet get = null;

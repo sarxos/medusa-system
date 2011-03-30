@@ -20,10 +20,10 @@ import java.util.zip.ZipFile;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sarxos.medusa.data.MedusaHttpClient;
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Quote;
@@ -215,11 +215,16 @@ public class BossaProvider implements HistoryProvider {
 		FileOutputStream fos = null;
 		HttpEntity entity = null;
 
+		File parent = f.getParentFile(); 
+		if (!parent.exists()) {
+			parent.mkdirs();
+		}
+		
 		try {
 
 			fos = new FileOutputStream(f);
 
-			DefaultHttpClient client = new DefaultHttpClient();
+			MedusaHttpClient client = new MedusaHttpClient();
 			HttpGet get = new HttpGet("http://bossa.pl/pub/metastock/cgl/mstcgl.zip");
 			HttpResponse response = client.execute(get);
 			entity = response.getEntity();
@@ -400,7 +405,7 @@ public class BossaProvider implements HistoryProvider {
 
 			fos = new FileOutputStream(zipf);
 
-			DefaultHttpClient client = new DefaultHttpClient();
+			MedusaHttpClient client = new MedusaHttpClient();
 			HttpGet get = new HttpGet("http://bossa.pl/pub/intraday/mstock/cgl/" + symbol.getName() + ".zip");
 			HttpResponse response = client.execute(get);
 			entity = response.getEntity();
@@ -470,7 +475,7 @@ public class BossaProvider implements HistoryProvider {
 					zf = new ZipFile(zipf);
 					break;
 				} catch (ZipException ze) {
-					LOG.error("Cannot open ZIP file " + zf.getName());
+					LOG.error("Cannot open ZIP file " + zipf.getName());
 					downloadZIP(zipf, symbol);
 				} catch (IOException e) {
 					throw new ProviderException(e);

@@ -2,6 +2,7 @@ package com.sarxos.medusa.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,7 @@ public class Configuration extends INIProperties {
 		loadFile(ini);
 		updater.setTimestamp(ini.lastModified());
 
-		Thread runner = new Thread(updater, "Configuration Updater");
+		Thread runner = new Thread(updater, "ConfigurationUpdater");
 		runner.setDaemon(true);
 		runner.start();
 
@@ -117,10 +118,16 @@ public class Configuration extends INIProperties {
 	private void loadFile(File ini) {
 		try {
 			load(new FileInputStream(ini));
+			
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Configuration loaded from " + ini.getPath());
+			}
+			
+		} catch (FileNotFoundException e) {
+			LOG.error("Configuration file '" + ini.getPath() + "' has not been found");
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		}
-		LOG.info("Configuration loaded from " + ini.getPath());
 	}
 
 	/**

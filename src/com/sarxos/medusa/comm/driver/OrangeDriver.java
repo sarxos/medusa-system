@@ -8,19 +8,17 @@ import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.sarxos.medusa.comm.Message;
 import com.sarxos.medusa.comm.MessagesDriver;
 import com.sarxos.medusa.comm.MessagingException;
+import com.sarxos.medusa.data.MedusaHttpClient;
 import com.sarxos.medusa.util.Configuration;
 
 
@@ -99,20 +97,7 @@ public final class OrangeDriver implements MessagesDriver {
 	@Override
 	public boolean send(Message message) throws MessagingException {
 
-		String proxy_host = (String) System.getProperties().get("http.proxyHost");
-		String proxy_port = (String) System.getProperties().get("http.proxyPort");
-
-		DefaultHttpClient client = new DefaultHttpClient();
-
-		if (proxy_host != null && proxy_port != null) {
-
-			System.out.println(proxy_host);
-			System.out.println(proxy_port);
-
-			int port = Integer.parseInt(proxy_port);
-			HttpHost proxy = new HttpHost(proxy_host, port, "http");
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-		}
+		MedusaHttpClient client = new MedusaHttpClient();
 
 		HttpResponse response = null;
 		HttpEntity entity = null;
