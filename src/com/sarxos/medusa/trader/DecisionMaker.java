@@ -107,7 +107,7 @@ public class DecisionMaker implements PriceListener {
 		}
 
 		Paper paper = null;
-		if (trader == null) {
+		if (trader != null) {
 			paper = trader.getPaper();
 		} else {
 			paper = Wallet.getInstance().getPaper(observer.getSymbol());
