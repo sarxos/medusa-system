@@ -1,6 +1,7 @@
 package com.sarxos.medusa.data;
 
 import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.sarxos.medusa.market.Quote;
@@ -66,5 +67,26 @@ public class QuotesRegistry {
 			quotes.put(symbol, q);
 		}
 		return q;
+	}
+
+	/**
+	 * Reload quotes within registry.
+	 */
+	public void reload() {
+
+		List<Quote> list = null;
+		Set<Symbol> symbols = quotes.keySet();
+
+		for (Symbol s : symbols) {
+			list = dbdao.getQuotes(s);
+			quotes.put(s, list);
+		}
+	}
+
+	/**
+	 * Reload quotes within registry.
+	 */
+	public void reload(Symbol s) {
+		quotes.put(s, dbdao.getQuotes(s));
 	}
 }

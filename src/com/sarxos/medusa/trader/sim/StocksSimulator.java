@@ -1,4 +1,4 @@
-package com.sarxos.medusa.trader;
+package com.sarxos.medusa.trader.sim;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +31,12 @@ import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.RealTimeProvider;
+import com.sarxos.medusa.trader.DecisionEvent;
+import com.sarxos.medusa.trader.DecisionListener;
+import com.sarxos.medusa.trader.DecisionMaker;
+import com.sarxos.medusa.trader.Observer;
+import com.sarxos.medusa.trader.PositionEvent;
+import com.sarxos.medusa.trader.Wallet;
 
 
 /**
@@ -39,7 +45,7 @@ import com.sarxos.medusa.provider.RealTimeProvider;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class ObserverSimulator extends Observer {
+public class StocksSimulator extends Observer {
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -226,7 +232,7 @@ public class ObserverSimulator extends Observer {
 		}
 	}
 
-	public ObserverSimulator(Symbol symbol, Date from, Date to) {
+	public StocksSimulator(Symbol symbol, Date from, Date to) {
 		super(new SimulationProvider(symbol, from.getTime(), to.getTime()), symbol);
 		setInterval(0);
 	}
@@ -282,7 +288,7 @@ public class ObserverSimulator extends Observer {
 
 		final QuotesRegistrySimulator registry = new QuotesRegistrySimulator();
 
-		final ObserverSimulator observer = new ObserverSimulator(sym, DATE_FORMAT.parse(from), DATE_FORMAT.parse(to));
+		final StocksSimulator observer = new StocksSimulator(sym, DATE_FORMAT.parse(from), DATE_FORMAT.parse(to));
 		observer.getRunner().setDaemon(false);
 
 		final DecisionMaker dmaker = new DecisionMaker(observer, siggen) {

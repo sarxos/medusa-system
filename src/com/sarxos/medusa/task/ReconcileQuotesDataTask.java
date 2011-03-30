@@ -16,6 +16,7 @@ import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.data.DBDAOException;
 import com.sarxos.medusa.data.QuotesAudit;
 import com.sarxos.medusa.data.QuotesIterator;
+import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
@@ -191,6 +192,8 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 					String msg = format("Intraday reconciliation for symbol %s has been finished", s);
 					LOG.info(msg);
 				}
+
+				QuotesRegistry.getInstance().reload(symbol);
 			}
 		}
 	}

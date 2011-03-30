@@ -113,7 +113,11 @@ public enum Symbol {
 	/**
 	 * Wawel SA
 	 */
-	WWL("WAWEL");
+	WWL("WAWEL"),
+	/**
+	 * ABM Solid SA
+	 */
+	ABM("ABMSOLID");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)

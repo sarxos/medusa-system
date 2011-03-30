@@ -334,7 +334,7 @@ public class DecisionMaker implements PriceListener {
 	 * 
 	 * @param registry - new quotes registry to set
 	 */
-	protected void setRegistry(QuotesRegistry registry) {
+	public void setRegistry(QuotesRegistry registry) {
 		if (registry == null) {
 			throw new IllegalArgumentException("Quotes registry cannot be null");
 		}
