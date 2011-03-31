@@ -61,7 +61,7 @@ public class CodeGenerator {
 		
 		do {
 			for (i = 0; i < CODE_LENGTH; i++) {
-				r = generator.nextInt(9);
+				r = (generator.nextInt(9) + Math.abs((int) System.nanoTime())) % 10;
 				sb.append(r);
 			}
 			code = sb.toString();
@@ -69,5 +69,16 @@ public class CodeGenerator {
 		} while (list.contains(code));
 		
 		return code;
+	}
+	
+	public static void main(String[] args) {
+		CodeGenerator cg = CodeGenerator.getInstance();
+		System.out.println(cg.generate());
+		System.out.println(cg.generate());
+		System.out.println(cg.generate());
+		System.out.println(cg.generate());
+		System.out.println(cg.generate());
+		System.out.println();
+		System.out.println(cg.generator.nextInt(9));
 	}
 }

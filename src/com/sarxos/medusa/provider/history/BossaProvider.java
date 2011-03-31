@@ -18,6 +18,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
@@ -32,15 +33,30 @@ import com.sarxos.medusa.provider.HistoryProvider;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.util.Configuration;
 import com.sarxos.medusa.util.DateUtils;
-import com.sarxos.smesx.http.NaiveSSLClient;
 
 
 public class BossaProvider implements HistoryProvider {
 
+	/**
+	 * Used date format
+	 */
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
 
-	public static final Configuration CFG = Configuration.getInstance();
+	/**
+	 * Configuration instance
+	 */
+	private static final Configuration CFG = Configuration.getInstance();
 
+	/**
+	 * URL to file with quotes for 6 last days 
+	 */
+	private static final String LAST_QUOTES_URL = "http://bossa.pl/pub/metastock/mstock/sesjaall/few_last.zip";
+	
+	/**
+	 * MSTCLG metastock file URL
+	 */
+	private static final String MSTCGL_URL = "http://bossa.pl/pub/metastock/cgl/mstcgl.zip";
+	
 	/**
 	 * Logger.
 	 */
@@ -62,17 +78,9 @@ public class BossaProvider implements HistoryProvider {
 
 		if (download) {
 			try {
-				NaiveSSLClient client = NaiveSSLClient.getInstance();
-				HttpGet get = new HttpGet("http://bossa.pl/pub/metastock/mstock/sesjaall/few_last.zip");
-
-				synchronized (client) {
-					HttpResponse response = client.execute(get);
-					HttpEntity entity = response.getEntity();
-					entity.writeTo(new FileOutputStream(f));
-					entity.getContent().close();
-				}
-			} catch (Exception e) {
-				throw new ProviderException(e);
+				new MedusaHttpClient().download(LAST_QUOTES_URL, f);
+			} catch (HttpException e) {
+				LOG.error(e.getMessage(), e);
 			}
 		}
 
@@ -210,45 +218,17 @@ public class BossaProvider implements HistoryProvider {
 
 	private void downloadMSTCGL(File f) throws ProviderException {
 
-		LOG.info("Downloading MSTCGL file");
-
-		FileOutputStream fos = null;
-		HttpEntity entity = null;
-
 		File parent = f.getParentFile(); 
 		if (!parent.exists()) {
 			parent.mkdirs();
 		}
 		
 		try {
-
-			fos = new FileOutputStream(f);
-
-			MedusaHttpClient client = new MedusaHttpClient();
-			HttpGet get = new HttpGet("http://bossa.pl/pub/metastock/cgl/mstcgl.zip");
-			HttpResponse response = client.execute(get);
-			entity = response.getEntity();
-			entity.writeTo(fos);
-
-		} catch (Exception e) {
-			throw new ProviderException(e);
-		} finally {
-
-			if (entity != null) {
-				try {
-					entity.getContent().close();
-				} catch (Exception e) {
-					throw new ProviderException(e);
-				}
-			}
-
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					throw new ProviderException(e);
-				}
-			}
+			LOG.info("Downloading MSTCGL file");
+			new MedusaHttpClient().download(MSTCGL_URL, f);
+			LOG.info("MSTCGL file has been downloaded");
+		} catch (HttpException e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 
