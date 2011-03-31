@@ -1,7 +1,6 @@
 package com.sarxos.medusa.data;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -49,7 +48,6 @@ public class DBDAO implements PersistenceProvider {
 
 	private Connection con = null;
 
-	private SQLFileReader sqlreader = new SQLFileReader();
 
 	private static AtomicReference<DBDAO> instance = new AtomicReference<DBDAO>();
 
@@ -59,20 +57,8 @@ public class DBDAO implements PersistenceProvider {
 		String pwd = cfg.getProperty("database", "password");
 
 		try {
-
 			con = DriverManager.getConnection(url, usr, pwd);
-
-			// TODO iterate via directory and install all
-			installProcedure("GetQuotes");
-			installProcedure("AddPaper");
-			installProcedure("SaveTrader");
-			installProcedure("CreatePaper");
-			installProcedure("UpdatePaper");
-			installProcedure("GetPapers");
-			installProcedure("RemovePaper");
-			installProcedure("GetTrader");
-			installProcedure("RemoveTrader");
-			installProcedure("GetTraders");
+			DB.installProcedures(con);
 		} catch (Exception e) {
 			throw new DBDAOException(e);
 		}
@@ -92,19 +78,6 @@ public class DBDAO implements PersistenceProvider {
 		return instance.get();
 	}
 
-	protected void installProcedure(String name) throws IOException, SQLException {
-
-		String sql = sqlreader.getSQL(name);
-		Statement st = null;
-
-		st = con.createStatement();
-		st.execute("DROP PROCEDURE IF EXISTS " + name);
-		st.close();
-
-		st = con.createStatement();
-		st.execute(sql);
-		st.close();
-	}
 
 	protected void ensureSymbolTableExists(Symbol symbol) throws SQLException {
 		Statement create = con.createStatement();
@@ -124,11 +97,11 @@ public class DBDAO implements PersistenceProvider {
 	protected void ensureWalletTableExists() throws SQLException {
 		Statement create = con.createStatement();
 		create.execute(
-		"CREATE TABLE IF NOT EXISTS wallet ( " +
-		"    symbol VARCHAR(20) NOT NULL PRIMARY KEY, " +
-		"    desired INT NOT NULL, " +
-		"    quantity INT NOT NULL" +
-		")"
+			"CREATE TABLE IF NOT EXISTS wallet ( " +
+			"    symbol VARCHAR(20) NOT NULL PRIMARY KEY, " +
+			"    desired INT NOT NULL, " +
+			"    quantity INT NOT NULL" +
+			")"
 		);
 		create.close();
 	}
@@ -139,8 +112,8 @@ public class DBDAO implements PersistenceProvider {
 			ensureSymbolTableExists(symbol);
 
 			PreparedStatement insert = con.prepareStatement(
-			"INSERT INTO " + symbol + " " +
-			"VALUES (?, ?, ?, ?, ?, ?)"
+				"INSERT INTO " + symbol + " " +
+				"VALUES (?, ?, ?, ?, ?, ?)"
 			);
 
 			for (Quote quote : quotes) {

@@ -85,6 +85,13 @@ public class TradersRegistry {
 	}
 
 	/**
+	 * @return Return number of traders in the registry
+	 */
+	public int getTradersCount() {
+		return traders.size();
+	}
+	
+	/**
 	 * Return trader on the base name given as the input argument
 	 * 
 	 * @param name - name of the trader to find

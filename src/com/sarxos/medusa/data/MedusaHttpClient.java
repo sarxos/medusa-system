@@ -16,8 +16,6 @@ import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sarxos.medusa.provider.ProviderException;
-
 
 /**
  * HTTP client used by Medusa.
@@ -99,6 +97,7 @@ public class MedusaHttpClient extends DefaultHttpClient {
 	 */
 	public void download(String from, File to) throws HttpException {
 		int attempts = 0;
+		int max = 5;
 		do {
 			try {
 				download0(from, to);
@@ -106,9 +105,9 @@ public class MedusaHttpClient extends DefaultHttpClient {
 			} catch (HttpException e) {
 				LOG.error(
 						"Invalid download attempt. " +
-						(attempts < 5 ? " Trying one more time" : "Fatal."), e);
+						(attempts < max -1 ? " Trying one more time" : "Fatal."), e);
 			}
-		} while (attempts++ < 5); 
+		} while (attempts++ < max); 
 	}
 	
 	private void download0(String url, File f) throws HttpException {
