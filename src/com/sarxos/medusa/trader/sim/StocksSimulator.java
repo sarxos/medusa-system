@@ -1,6 +1,7 @@
 package com.sarxos.medusa.trader.sim;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +33,7 @@ import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.SignalType;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
+import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.RealTimeProvider;
 import com.sarxos.medusa.trader.DecisionEvent;
 import com.sarxos.medusa.trader.DecisionListener;
@@ -84,11 +88,19 @@ public class StocksSimulator extends Observer {
 					"Time 'from' cannot be larger then 'to' time. Current " +
 					"values are 'from' = " + from + " and 'to' = " + to);
 			}
+
 			try {
 				qi = new QuotesIterator<Quote>(symbol);
+			} catch (FileNotFoundException e) {
+				try {
+					qi = Providers.getHistoryProvider().getIntradayQuotes(symbol);
+				} catch (ProviderException e1) {
+					e1.printStackTrace();
+				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+
 			this.from = from;
 			this.to = to;
 
@@ -279,10 +291,10 @@ public class StocksSimulator extends Observer {
 
 		configureLoggers();
 
-		Symbol sym = Symbol.PEP;
+		Symbol sym = Symbol.POZ;
 		String from = "2010-02-26 08:00:00";
 		String to = "2011-02-26 08:00:00";
-		SignalGenerator<Quote> siggen = new MAVD(3, 13, 30);
+		SignalGenerator<Quote> siggen = new MAVD(20, 40, 100);
 
 		Wallet.getInstance().addPaper(new Paper(sym, 100));
 
@@ -291,22 +303,36 @@ public class StocksSimulator extends Observer {
 		final StocksSimulator observer = new StocksSimulator(sym, DATE_FORMAT.parse(from), DATE_FORMAT.parse(to));
 		observer.getRunner().setDaemon(false);
 
+		final CyclicBarrier cb = new CyclicBarrier(2);
+
 		final DecisionMaker dmaker = new DecisionMaker(observer, siggen) {
 
 			@Override
 			protected void handleNull(NullEvent ne) {
+
+				try {
+					cb.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (BrokenBarrierException e) {
+					e.printStackTrace();
+				}
+
 				getObserver().stop();
 			}
 		};
 		dmaker.setRegistry(registry);
 
+		final double start = 3000;
+		final double[] finish = new double[1];
+
 		DecisionListener dl = new DecisionListener() {
 
 			Map<String, Object> dates = new HashMap<String, Object>();
 
-			double start = 3000;
 			double cash = start;
 			int number = 0;
+			double assets = 0;
 
 			@Override
 			public void positionChange(PositionEvent pe) {
@@ -333,7 +359,8 @@ public class StocksSimulator extends Observer {
 						cash = cash - fund - tax - spread;
 						number = n;
 
-						double assets = n * q.getClose() + cash;
+						assets = n * q.getClose() + cash;
+						finish[0] = assets;
 
 						System.out.println(
 							q.getDateString() + " " +
@@ -355,7 +382,8 @@ public class StocksSimulator extends Observer {
 						cash = cash + fund - tax - spread;
 						number = 0;
 
-						double assets = cash;
+						assets = cash;
+						finish[0] = assets;
 
 						System.out.println(
 							q.getDateString() + " " +
@@ -374,5 +402,15 @@ public class StocksSimulator extends Observer {
 
 		dmaker.addDecisionListener(dl);
 		dmaker.start();
+
+		try {
+			cb.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (BrokenBarrierException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Profit: " + Math.round(100 * (finish[0] - start) / start) + "%");
 	}
 }

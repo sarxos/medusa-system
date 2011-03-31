@@ -87,8 +87,12 @@ public class SQLUtils {
 		st.execute("DROP PROCEDURE IF EXISTS " + name);
 		st.close();
 
-		st = conn.createStatement();
-		st.execute(sql);
-		st.close();
+		try {
+			st = conn.createStatement();
+			st.execute(sql);
+			st.close();
+		} catch (Exception e) {
+			throw new SQLException("Cannot install procedure '" + name + "'", e);
+		}
 	}
 }

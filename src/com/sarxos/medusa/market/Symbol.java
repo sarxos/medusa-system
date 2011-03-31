@@ -121,7 +121,15 @@ public enum Symbol {
 	/**
 	 * Getin Noble Bank SA
 	 */
-	GNB("GETINOBLE");
+	GNB("GETINOBLE"),
+	/**
+	 * Indykpol SA
+	 */
+	IND("INDYKPOL"),
+	/**
+	 * Pozbud T&R SA
+	 */
+	POZ("POZBUD");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)
