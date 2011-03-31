@@ -97,13 +97,6 @@ public class Observer implements Runnable {
 	 */
 	private List<PriceListener> listeners = new LinkedList<PriceListener>();
 
-	/**
-	 * This constructor shall never be used, it is required only by JAXB
-	 * reflection mechanism.
-	 */
-	protected Observer() {
-	}
-
 	public Observer(Symbol symbol) {
 		this(null, symbol);
 	}
@@ -239,6 +232,7 @@ public class Observer implements Runnable {
 				break;
 			} else {
 				try {
+					// TODO: add check if session in prog
 					runOnce();
 				} catch (Exception e) {
 					LOG.error(e.getMessage(), e);

@@ -58,7 +58,7 @@ public class DBDAO implements PersistenceProvider {
 
 		try {
 			con = DriverManager.getConnection(url, usr, pwd);
-			DB.installProcedures(con);
+			SQLUtils.installProcedures(con);
 		} catch (Exception e) {
 			throw new DBDAOException(e);
 		}

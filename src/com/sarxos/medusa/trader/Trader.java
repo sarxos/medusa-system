@@ -145,6 +145,14 @@ public abstract class Trader implements DecisionListener, Runnable {
 	public void positionChange(PositionEvent pe) {
 		Position p = pe.getNewPosition();
 		if (position != p) {
+			switch (p) {
+				case LONG:
+					setPaperQuantity(getPaperDesiredQuantity());
+					break;
+				case SHORT:
+					setPaperQuantity(0);
+					break;
+			}
 			position = p;
 		}
 	}

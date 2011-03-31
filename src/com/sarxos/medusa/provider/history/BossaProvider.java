@@ -48,15 +48,15 @@ public class BossaProvider implements HistoryProvider {
 	private static final Configuration CFG = Configuration.getInstance();
 
 	/**
-	 * URL to file with quotes for 6 last days 
+	 * URL to file with quotes for 6 last days
 	 */
 	private static final String LAST_QUOTES_URL = "http://bossa.pl/pub/metastock/mstock/sesjaall/few_last.zip";
-	
+
 	/**
 	 * MSTCLG metastock file URL
 	 */
 	private static final String MSTCGL_URL = "http://bossa.pl/pub/metastock/cgl/mstcgl.zip";
-	
+
 	/**
 	 * Logger.
 	 */
@@ -218,11 +218,11 @@ public class BossaProvider implements HistoryProvider {
 
 	private void downloadMSTCGL(File f) throws ProviderException {
 
-		File parent = f.getParentFile(); 
+		File parent = f.getParentFile();
 		if (!parent.exists()) {
 			parent.mkdirs();
 		}
-		
+
 		try {
 			LOG.info("Downloading MSTCGL file");
 			new MedusaHttpClient().download(MSTCGL_URL, f);

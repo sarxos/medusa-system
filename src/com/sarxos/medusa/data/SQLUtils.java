@@ -14,20 +14,19 @@ import com.sarxos.medusa.util.Configuration;
 
 
 /**
- * Useful database methods. 
+ * Useful database methods.
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class DB {
+public class SQLUtils {
 
 	public static final String STORED_PROC_PATH = Configuration.getInstance().getProperty("core", "procedures");
 
 	/**
 	 * Logger.
 	 */
-	private static final Logger LOG = LoggerFactory.getLogger(DB.class.getSimpleName());
-	
-	
+	private static final Logger LOG = LoggerFactory.getLogger(SQLUtils.class.getSimpleName());
+
 	/**
 	 * SQL file name filter.
 	 * 
@@ -40,28 +39,27 @@ public class DB {
 			return name.toLowerCase().endsWith("sql");
 		}
 	}
-	
+
 	/**
 	 * Install all stored procedures from the Medusa stored procedures
 	 * directory.
 	 * 
-	 * @throws SQLException if stored procedures directory is empty or
-	 * 			other reason
+	 * @throws SQLException if stored procedures directory is empty or other
+	 *             reason
 	 */
 	public static void installProcedures(Connection conn) throws SQLException {
-		
+
 		File dir = new File(STORED_PROC_PATH);
 		String[] paths = dir.list(new SQLFileFilter());
 
 		if (paths.length > 0) {
-			
-			SQLFileReader reader = new SQLFileReader();
+
 			String name = null;
-			
+
 			for (String path : paths) {
 				name = path.substring(0, path.lastIndexOf(".sql"));
 				try {
-					installProcedure(reader, conn, name);
+					installProcedure(conn, name);
 				} catch (IOException e) {
 					LOG.error(e.getMessage(), e);
 				}
@@ -70,18 +68,18 @@ public class DB {
 			throw new SQLException("Stored procedures directory is empty");
 		}
 	}
-	
+
 	/**
 	 * Install single stored procedure.
 	 * 
-	 * @param reader - SQL file reader
 	 * @param conn - connection object
 	 * @param name - stored procedure name
 	 * @throws IOException if reader cannot read SQL file
 	 * @throws SQLException if something is wrong with SQL
 	 */
-	private static void installProcedure(SQLFileReader reader, Connection conn, String name) throws IOException, SQLException {
+	public static void installProcedure(Connection conn, String name) throws IOException, SQLException {
 
+		SQLFileReader reader = new SQLFileReader();
 		String sql = reader.getSQL(name);
 		Statement st = null;
 

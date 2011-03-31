@@ -117,7 +117,11 @@ public enum Symbol {
 	/**
 	 * ABM Solid SA
 	 */
-	ABM("ABMSOLID");
+	ABM("ABMSOLID"),
+	/**
+	 * Getin Noble Bank SA
+	 */
+	GNB("GETINOBLE");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)
