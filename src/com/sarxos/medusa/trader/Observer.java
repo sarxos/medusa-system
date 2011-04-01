@@ -255,14 +255,27 @@ public class Observer implements Runnable {
 	protected void runOnce() throws ProviderException {
 
 		Quote q = null;
-		try {
-			q = provider.getQuote(symbol);
-		} catch (QuoteLackException e) {
-			// this situation occurs when there was no trade in given instrument
-			// within particular day
-			LOG.warn(e.getMessage());
-			return;
-		}
+
+		boolean error = false;
+		int attempts = 0;
+		do {
+			try {
+				q = provider.getQuote(symbol);
+				error = false;
+				break;
+			} catch (QuoteLackException e) {
+				error = true;
+				// this situation occurs when there was no trade in given
+				// instrument within particular day
+				LOG.warn("Due to lack of quotes Observer will sleep for 5 minutes. " + e.getMessage());
+				try {
+					// sleep for 5 minutes
+					Thread.sleep(1000 * 60 * 5);
+				} catch (InterruptedException e1) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		} while (error && attempts++ < 5);
 
 		if (q == null) {
 			notifyListeners(new NullEvent(this, price, price, null));
