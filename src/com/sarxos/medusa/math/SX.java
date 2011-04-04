@@ -89,4 +89,19 @@ public class SX {
 		}
 		return quotes;
 	}
+
+	/**
+	 * Reverse input vector.
+	 * 
+	 * @param v - vector to be
+	 * @return
+	 */
+	public static double[] reverse(double[] v) {
+		int n = v.length;
+		double[] r = new double[n];
+		for (int i = 0; i < n; i++) {
+			r[n - i - 1] = v[i];
+		}
+		return r;
+	}
 }

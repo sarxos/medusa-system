@@ -43,6 +43,11 @@ public class MA {
 		return sma;
 	}
 
+	public static double wma(Quote q, int N) {
+		Quote[] data = new Quote[] { q };
+		return wma(data, N)[0];
+	}
+
 	public static double[] wma(Quote[] data, int N) {
 
 		if (N <= 0) {
@@ -168,7 +173,7 @@ public class MA {
 
 		return dema;
 	}
-	
+
 	/**
 	 * <b>M</b>odified <b>M</b>oving <b>A</b>varage.
 	 * 
@@ -177,39 +182,56 @@ public class MA {
 	 * @return Will return double array
 	 */
 	public static double[] mma(Quote[] data, int N) {
-		
+
 		double[] mma = new double[data.length];
-		
+
 		mma[0] = mma(data[0], N);
-		
+
 		for (int i = 1; i < data.length; i++) {
 			mma[i] = (mma[i - 1] * (N - 1) + data[i].getClose()) / N;
 		}
-		
+
 		return mma;
 	}
-	
+
 	/**
 	 * <b>M</b>odified <b>M</b>oving <b>A</b>varage.
 	 * 
 	 * @param q - input quote
 	 * @param N - period
 	 * @return Will return double value
-	 * @see http://autotradingstrategy.wordpress.com/2009/11/30/modified-moving-average
+	 * @see http
+	 *      ://autotradingstrategy.wordpress.com/2009/11/30/modified-moving-
+	 *      average
 	 */
 	public static double mma(Quote q, int N) {
-		
+
 		double[][] qs = SX.detach(q, N);
 		double[] p = qs[3];
-		
+
 		double ps = 0;
 		double ks = 0;
-		
+
 		for (int i = 0; i < p.length; i++) {
 			ps += p[i];
 			ks += (N - (2 * i + 1)) * p[i] / 2;
 		}
-		
+
 		return ps / N - 6 * ks / (N * (N + 1));
+	}
+
+	/**
+	 * Calculate <b>J</b>urik's <b>M</b>oving <b>A</b>verage for given quote
+	 * point.
+	 * 
+	 * @param q - quote
+	 * @param K - MA degree
+	 * @param P - phase
+	 * @return Return double value
+	 */
+	public static double jma(Quote q, double K, double P) {
+		double[] c = SX.reverse(SX.detach(q, 80)[3]);
+		double[] jma = JRK.jrk(c, K, P);
+		return jma[jma.length - 1];
 	}
 }
