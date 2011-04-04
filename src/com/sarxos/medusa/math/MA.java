@@ -146,9 +146,11 @@ public class MA {
 	}
 
 	/**
-	 * EMA diff.
+	 * EMA derivative.
 	 * 
-	 * @return
+	 * @param data - input quotes array (last element is the newest)
+	 * @param N - period
+	 * @return Will return double array
 	 */
 	public static double[] emad(Quote[] data, int N) {
 		Quote[] quotes = new Quote[data.length + 1];
@@ -165,5 +167,49 @@ public class MA {
 		}
 
 		return dema;
+	}
+	
+	/**
+	 * <b>M</b>odified <b>M</b>oving <b>A</b>varage.
+	 * 
+	 * @param data - input quotes array (last element is the newest)
+	 * @param N - period
+	 * @return Will return double array
+	 */
+	public static double[] mma(Quote[] data, int N) {
+		
+		double[] mma = new double[data.length];
+		
+		mma[0] = mma(data[0], N);
+		
+		for (int i = 1; i < data.length; i++) {
+			mma[i] = (mma[i - 1] * (N - 1) + data[i].getClose()) / N;
+		}
+		
+		return mma;
+	}
+	
+	/**
+	 * <b>M</b>odified <b>M</b>oving <b>A</b>varage.
+	 * 
+	 * @param q - input quote
+	 * @param N - period
+	 * @return Will return double value
+	 * @see http://autotradingstrategy.wordpress.com/2009/11/30/modified-moving-average
+	 */
+	public static double mma(Quote q, int N) {
+		
+		double[][] qs = SX.detach(q, N);
+		double[] p = qs[3];
+		
+		double ps = 0;
+		double ks = 0;
+		
+		for (int i = 0; i < p.length; i++) {
+			ps += p[i];
+			ks += (N - (2 * i + 1)) * p[i] / 2;
+		}
+		
+		return ps / N - 6 * ks / (N * (N + 1));
 	}
 }

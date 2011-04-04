@@ -50,5 +50,20 @@ public class M {
 	public static double max(double a, double b) {
 		return a >= b ? a : b;
 	}
+	
+	/**
+	 * Perform multiplication of vector and scalar value.
+	 * 
+	 * @param v
+	 * @param a
+	 * @return
+	 */
+	public static double[] mul(double[] v, double a) {
+		double[] r = new double[v.length]; 
+		for (int i = 0; i < v.length; i++) {
+			r[i] = v[i] * a;
+		}
+		return r;
+	}
 
 }
