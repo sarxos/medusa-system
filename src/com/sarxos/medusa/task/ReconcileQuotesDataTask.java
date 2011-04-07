@@ -2,6 +2,10 @@ package com.sarxos.medusa.task;
 
 import static java.lang.String.format;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,6 +30,7 @@ import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.history.BossaProvider;
 import com.sarxos.medusa.trader.PlannedTask;
 import com.sarxos.medusa.trader.Trader;
+import com.sarxos.medusa.util.Configuration;
 
 
 /**
@@ -47,6 +52,11 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 	private DBDAO qdao = DBDAO.getInstance();
 
 	private HistoryProvider provider = new BossaProvider();
+
+	/**
+	 * Configuration instance
+	 */
+	private static final Configuration CFG = Configuration.getInstance();
 
 	public ReconcileQuotesDataTask() {
 
@@ -164,7 +174,16 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 					}
 				}
 
-				qdao.addQuotes(symbol, add);
+				try {
+					qdao.addQuotes(symbol, add);
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+					if (e instanceof SQLIntegrityConstraintViolationException) {
+						saveProblematicQuotes(symbol, add);
+					} else {
+						throw new RuntimeException(e);
+					}
+				}
 
 				if (LOG.isInfoEnabled()) {
 					String s = symbol.toString();
@@ -195,6 +214,27 @@ public class ReconcileQuotesDataTask extends PlannedTask {
 
 				QuotesRegistry.getInstance().reload(symbol);
 			}
+		}
+	}
+
+	private void saveProblematicQuotes(Symbol symbol, List<Quote> add) {
+
+		String fdir = CFG.getProperty("core", "tmpdir");
+		String fname = symbol + "-" + System.currentTimeMillis() + ".add";
+		File tmp = new File(fdir + "/" + fname);
+
+		LOG.error(
+			"Cannot add quote for symbol '" + symbol + "'. " +
+			"Problematic quotes list has been saved in the " +
+			tmp.getPath() + " file");
+
+		try {
+			PrintStream ps = new PrintStream(tmp);
+			for (Quote q : add) {
+				ps.println(q);
+			}
+		} catch (FileNotFoundException e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 
