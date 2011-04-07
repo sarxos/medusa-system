@@ -230,8 +230,12 @@ public class MA {
 	 * @return Return double value
 	 */
 	public static double jma(Quote q, double K, double P) {
-		double[] c = SX.reverse(SX.detach(q, 80)[3]);
+		double[] c = SX.reverse(SX.detach(q, 100)[3]);
 		double[] jma = JRK.jrk(c, K, P);
-		return jma[jma.length - 1];
+//		for (int i = 0; i < jma.length; i++) {
+//			System.out.println(c[i] + " " + jma[i]);
+//		}
+//		System.exit(1);
+		return jma[0];
 	}
 }

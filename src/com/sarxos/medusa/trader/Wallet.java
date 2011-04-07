@@ -157,6 +157,9 @@ public class Wallet {
 	 * Force reload wallet from the database.
 	 */
 	public void reload() {
+		if (dbdao == null) {
+			throw new RuntimeException("Database DAO is null!");
+		}
 		papers = dbdao.getPapers();
 	}
 }

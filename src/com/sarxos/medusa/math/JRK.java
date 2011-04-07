@@ -72,10 +72,11 @@ public class JRK {
 			close[u] = list.get(u);
 		}
 
-		double[] jma = SX.reverse(jrk(close, 3, 5));
+		double[] jma = SX.reverse(jrk(close, 5, 0));
 
 		for (int i = 70; i < jma.length; i++) {
-			System.out.println(Double.toString(jma[i]).replaceAll("\\.", ",") + ";");
+			System.out.println(jma[i] - ref[i]);
+			//System.out.println(Double.toString(jma[i]).replaceAll("\\.", ",") + ";");
 		}
 	}
 

@@ -129,7 +129,15 @@ public enum Symbol {
 	/**
 	 * Pozbud T&R SA
 	 */
-	POZ("POZBUD");
+	POZ("POZBUD"),
+	/**
+	 * Petrolinvest SA
+	 */
+	OIL("PETROLINV"),
+	/**
+	 * Impel SA
+	 */
+	IPL("IMPEL");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)

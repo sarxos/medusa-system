@@ -93,6 +93,10 @@ public class Providers {
 
 			String tmp = CFG.getProperty("data", "history");
 
+			if (tmp == null) {
+				return null;
+			}
+			
 			if (name == null || !name.equals(tmp)) {
 				name = tmp;
 				Class<?> clazz = null;

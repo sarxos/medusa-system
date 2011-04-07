@@ -67,7 +67,8 @@ public class BossaProvider implements HistoryProvider {
 
 		boolean download = true;
 
-		File f = new File("data/tmp/few_last.zip");
+		String dir = CFG.getProperty("core", "tmpdir");
+		File f = new File(dir + "/few_last.zip");
 
 		if (f.exists()) {
 			Date modified = new Date(f.lastModified());
@@ -111,7 +112,7 @@ public class BossaProvider implements HistoryProvider {
 
 				is = zip.getInputStream(entry);
 
-				f = new File("data/tmp/" + name);
+				f = new File(dir + "/" + name);
 				if (!f.exists()) {
 					if (!f.createNewFile()) {
 						throw new ProviderException("Cannot create file " + f.getName());
@@ -237,7 +238,8 @@ public class BossaProvider implements HistoryProvider {
 
 		boolean download = true;
 
-		File f = new File("data/tmp/mstcgl.zip");
+		String dir = CFG.getProperty("core", "tmpdir");
+		File f = new File(dir + "/mstcgl.zip");
 
 		if (f.exists()) {
 			Date modified = new Date(f.lastModified());
@@ -263,7 +265,7 @@ public class BossaProvider implements HistoryProvider {
 
 		try {
 
-			File sessall = new File("data/tmp/mstcgl");
+			File sessall = new File(dir + "/mstcgl");
 			if (!sessall.exists()) {
 				if (!sessall.mkdirs()) {
 					throw new ProviderException("Cannot create directory " + f.getName());
@@ -329,6 +331,7 @@ public class BossaProvider implements HistoryProvider {
 		long volume = 0;
 
 		List<Quote> quotes = new LinkedList<Quote>();
+		Quote q = null, t = null;
 
 		try {
 
@@ -367,7 +370,15 @@ public class BossaProvider implements HistoryProvider {
 				close = Double.valueOf(parts[5]);
 				volume = Long.valueOf(parts[6]);
 
-				quotes.add(new Quote(date, open, high, low, close, volume));
+				t = new Quote(date, open, high, low, close, volume);
+				if (q != null) {
+					t.setPrev(q);
+					q.setNext(t);
+				}
+				
+				q = t;
+				
+				quotes.add(t);
 			}
 
 		} catch (Throwable e) {
@@ -383,6 +394,18 @@ public class BossaProvider implements HistoryProvider {
 
 		try {
 
+			if (!zipf.exists()) {
+				File parent = new File(zipf.getParent());
+				if (!parent.exists()) {
+					parent.mkdirs();
+				}
+				if (!zipf.exists()) {
+					if (zipf.createNewFile()) {
+						throw new ProviderException("Cannot create ZIP file");
+					}
+				}
+			}
+			
 			fos = new FileOutputStream(zipf);
 
 			MedusaHttpClient client = new MedusaHttpClient();
@@ -422,8 +445,14 @@ public class BossaProvider implements HistoryProvider {
 
 		boolean download = true;
 
-		File prn = new File("data/tmp/intraday/" + symbol.getName() + ".prn");
+		String dir = CFG.getProperty("core", "tmpdir");
+		File prn = new File(dir + "/intraday/" + symbol.getName() + ".prn");
 
+		File parent = prn.getParentFile();
+		if (!parent.exists()) {
+			parent.mkdirs();
+		}
+		
 		if (prn.exists()) {
 
 			Date modified = new Date(prn.lastModified());

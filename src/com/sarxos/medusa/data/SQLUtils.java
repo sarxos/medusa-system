@@ -49,6 +49,10 @@ public class SQLUtils {
 	 */
 	public static void installProcedures(Connection conn) throws SQLException {
 
+		if (STORED_PROC_PATH == null) {
+			throw new RuntimeException("Stored ptocedures path has to be defined!");
+		}
+		
 		File dir = new File(STORED_PROC_PATH);
 		String[] paths = dir.list(new SQLFileFilter());
 

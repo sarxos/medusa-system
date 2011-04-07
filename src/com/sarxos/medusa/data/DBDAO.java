@@ -56,6 +56,13 @@ public class DBDAO implements PersistenceProvider {
 		String usr = cfg.getProperty("database", "user");
 		String pwd = cfg.getProperty("database", "password");
 
+		if (usr == null) {
+			throw new DBDAOException("Database user's name cannot be null!");
+		}
+		if (pwd == null) {
+			throw new DBDAOException("Database user's password cannot be null!");
+		}
+		
 		try {
 			con = DriverManager.getConnection(url, usr, pwd);
 			SQLUtils.installProcedures(con);

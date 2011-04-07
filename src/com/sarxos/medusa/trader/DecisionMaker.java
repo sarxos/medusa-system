@@ -116,7 +116,7 @@ public class DecisionMaker implements PriceListener {
 		if (paper == null) {
 			throw new RuntimeException(
 				"Neither trader nor wallet has paper object set, " +
-				"symbol " + trader.getSymbol());
+				"symbol " + observer.getSymbol());
 		}
 
 		Quote quote = pe.getQuote();
