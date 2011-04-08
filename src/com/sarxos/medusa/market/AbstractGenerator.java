@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Abstract class for signal generators. All common methods is here.
@@ -14,6 +17,16 @@ import java.util.Set;
  * @author Bartosz Firyn (SarXos)
  */
 public abstract class AbstractGenerator<T extends Quote> implements SignalGenerator<T> {
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractGenerator.class.getSimpleName());
+
+	/**
+	 * Shall resultant signal handle internal calculation values in map?
+	 */
+	private boolean outputting = false;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -55,4 +68,20 @@ public abstract class AbstractGenerator<T extends Quote> implements SignalGenera
 		}
 	}
 
+	/**
+	 * @return Return true if resultant signal handle internal calculation
+	 * 		values in map, false otherwise.
+	 */
+	public boolean isOutputting() {
+		return outputting;
+	}
+
+	/**
+	 * Shall resultant signal handle internal calculation values in map?
+	 * 
+	 * @param outputting
+	 */
+	public void setOutputting(boolean outputting) {
+		this.outputting = outputting;
+	}	
 }

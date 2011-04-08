@@ -1,50 +1,40 @@
 package com.sarxos.medusa.generator;
 
 import static com.sarxos.medusa.market.SignalType.BUY;
-import static com.sarxos.medusa.market.SignalType.DELAY;
 import static com.sarxos.medusa.market.SignalType.SELL;
 import static com.sarxos.medusa.market.SignalType.WAIT;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.sarxos.medusa.market.AbstractGenerator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
-import com.sarxos.medusa.market.SignalType;
+import com.sarxos.medusa.market.Signal.Value;
+import com.sarxos.medusa.market.SignalParameter;
 import com.sarxos.medusa.math.MA;
 
 
 /**
- * <b>MAVD</b> = <b>M</b>oving <b>A</b>verages <b>V</b>ariation &
- * <b>D</b>erivative.
- * 
- * <p>
- * This system is <b>NOT</b> good for chaotic trends (e.g. TVN), but it is very
- * good for stable market (e.g. BRE, KGHM).
- * </p>
- * 
- * <p>
- * D(n) = EMA(Q(n), A) - SMA(Q(n), B)<br>
- * G(n) = d(EMA(Q(n), C))<br>
- * <br>
- * 
- * B &lt;=&gt; D(n) &gt; 0 && G(n) &gt; 0<br>
- * D &lt;=&gt; D(n) &gt; 0 && G(n) &lt; 0<br>
- * S &lt;=&gt; D(n) &lt; 0
- * </p>
  * 
  * @author Bartosz Firyn (SarXos)
  */
 public class MAVD2 extends AbstractGenerator<Quote> {
 
+	@SignalParameter
 	private int A = 5;
 
+	@SignalParameter
 	private int B = 15;
 
+	@SignalParameter
 	private int C = 30;
+	
 
 	public MAVD2() {
 	}
@@ -71,84 +61,38 @@ public class MAVD2 extends AbstractGenerator<Quote> {
 
 	@Override
 	public List<Signal> generate(Quote[] data, int R) {
-
-		List<Signal> signals = new LinkedList<Signal>();
-
-		Quote[] quotes = new Quote[R];
-
-		System.arraycopy(data, data.length - R - 1, quotes, 0, R);
-
-		SignalType signal = null;
-		Quote q = null;
-
-		double[] ema = MA.ema(quotes, A);
-		double[] sma = MA.sma(quotes, B);
-		double[] emad = MA.emad(quotes, C);
-
-		double delta = 0;
-
-		boolean delay = false;
-
-		for (int i = 0; i < R; i++) {
-			q = quotes[i];
-			delta = ema[i] - sma[i];
-			if (delta > 0 && !delay) {
-				if (emad[i] > 0) {
-					if (signal != BUY) {
-						signal = BUY;
-						signals.add(new Signal(q.getDate(), signal, q, emad[i]));
-						delay = false;
-					}
-				} else {
-					delay = true;
-				}
-			} else if (delta < 0) {
-				if (signal != SELL) {
-					signal = SELL;
-					signals.add(new Signal(q.getDate(), signal, q, emad[i]));
-					delay = false;
-				}
-			}
-
-			if (delay) {
-				if (emad[i] > 0) {
-					if (signal != BUY) {
-						signal = BUY;
-						signals.add(new Signal(q.getDate(), signal, q, emad[i]));
-						delay = false;
-					}
-				}
-			}
-		}
-
-		return signals;
+		throw new RuntimeException("Not implemented");
 	}
 
 	@Override
 	public Signal generate(Quote q) {
 
 		// calculate necessary coefficients
-		double e2 = MA.ema(q, A);
-		double s2 = MA.sma(q, B);
-		double d2 = MA.emad(q, C);
+		double e1 = MA.ema(q, A);
+		double s1 = MA.sma(q, B);
 
 		// required to find optimal position opening moment
-		// double e1 = MA.ema(q.prev(), A);
-		// double s1 = MA.sma(q.prev(), B);
+		 double e2 = MA.ema(q.prev(), A);
+		 double s2 = MA.sma(q.prev(), B);
 
-		// initially just wait
-		Signal signal = new Signal(q, WAIT);
+		Signal signal = null;
 
-		if (e2 - s2 > 0) {
-			if (d2 > 0 /* && e1 - s1 < 0 */) {
-				signal = new Signal(q, BUY);
-			} else {
-				signal = new Signal(q, DELAY);
-			}
-		} else {
+		boolean buy = e1 - s1 > 0 && e2 - s2 <= 0; 
+		boolean sell = e1 - s1 < 0 && e2 - s2 >= 0;
+		
+		if (buy) {
+			signal = new Signal(q, BUY);
+		} else if (sell) {
 			signal = new Signal(q, SELL);
+		} else {
+			signal = new Signal(q, WAIT);
 		}
 
+		if (isOutputting()) {
+			signal.addValue(new Value("EMA", e1));
+			signal.addValue(new Value("SMA", s1));
+		}
+		
 		return signal;
 	}
 
@@ -167,5 +111,47 @@ public class MAVD2 extends AbstractGenerator<Quote> {
 		int B = Integer.parseInt(params.get("B").toString());
 		int C = Integer.parseInt(params.get("C").toString());
 		init(A, B, C);
+	}
+	
+	// TODO: remove - this is for test purpose only
+	public static void main(String[] args) {
+		
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("A", Integer.toString(20));
+		params.put("B", Integer.toString(30));
+		params.put("C", Integer.toString(40));
+		
+		Set<Entry<String, String>> entries = params.entrySet();
+		Iterator<Entry<String, String>> ei = entries.iterator();
+		Entry<String, String> entry = null;
+		
+		while (ei.hasNext()) {
+			
+			entry = ei.next();
+			
+			String n = entry.getKey();
+			String v = entry.getValue();
+
+			Method[] methods = MAVD2.class.getDeclaredMethods();
+			
+//			Field field = null;
+//			try {
+//				field = MAVD2.class.getDeclaredField(n);
+//			} catch (SecurityException e) {
+//				e.printStackTrace();
+//			} catch (NoSuchFieldException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			if (field == null) {
+//				continue;
+//			}
+//			
+//			field.setAccessible(true);
+//			field.set(this, v);
+		}
+		
+		
+		
 	}
 }

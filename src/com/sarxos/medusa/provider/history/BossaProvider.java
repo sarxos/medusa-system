@@ -298,6 +298,10 @@ public class BossaProvider implements HistoryProvider {
 				is = zip.getInputStream(entry);
 
 				File mstf = new File("data/tmp/mstcgl/" + name);
+				File parent = mstf.getParentFile(); 
+				if (!parent.exists()) {
+					parent.mkdirs();
+				}
 				if (!mstf.exists()) {
 					if (!mstf.createNewFile()) {
 						throw new ProviderException("Cannot create file " + mstf.getName());
@@ -400,8 +404,8 @@ public class BossaProvider implements HistoryProvider {
 					parent.mkdirs();
 				}
 				if (!zipf.exists()) {
-					if (zipf.createNewFile()) {
-						throw new ProviderException("Cannot create ZIP file");
+					if (!zipf.createNewFile()) {
+						throw new ProviderException("Cannot create ZIP file " + zipf.getPath());
 					}
 				}
 			}

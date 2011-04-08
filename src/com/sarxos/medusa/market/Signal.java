@@ -1,6 +1,9 @@
 package com.sarxos.medusa.market;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -10,6 +13,27 @@ import java.util.Date;
  */
 public class Signal {
 
+	public static class Value {
+		
+		private String name = null;
+		
+		private double value = 0;
+
+		public Value(String name, double value) {
+			super();
+			this.name = name;
+			this.value = value;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public double getValue() {
+			return value;
+		}
+	}
+	
 	/**
 	 * Signal type - buy/sell/delay/wait
 	 */
@@ -26,18 +50,12 @@ public class Signal {
 	private Quote quote = null;
 
 	/**
-	 * Numeric value of signal trigger - need to be removed/reworked.
+	 * Numeric value of signal trigger - need to be removed/reworked?
 	 */
 	private double level = 0;
 
-	public double getLevel() {
-		return level;
-	}
-
-	public void setLevel(double level) {
-		this.level = level;
-	}
-
+	private List<Value> values = null; 
+	
 	public Signal() {
 		super();
 	}
@@ -96,5 +114,33 @@ public class Signal {
 		sb.append(getType());
 		sb.append("]");
 		return sb.toString();
+	}
+
+	public double getLevel() {
+		return level;
+	}
+
+	public void setLevel(double level) {
+		this.level = level;
+	}
+	
+	private void checkList() {
+		if (values == null) {
+			values = new LinkedList<Value>();
+		}		
+	}
+	
+	public void addValue(Value value) {
+		checkList();
+		values.add(value);
+	}
+	
+	public void addValues(Collection<Value> values) {
+		checkList();
+		this.values.addAll(values);
+	}
+	
+	public List<Value> getValues() {
+		return values;
 	}
 }
