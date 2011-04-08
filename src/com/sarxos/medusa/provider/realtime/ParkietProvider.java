@@ -746,6 +746,7 @@ public class ParkietProvider implements RealTimeProvider {
 
 			HttpResponse response = null;
 
+			int max = 5;
 			int attempts = 0;
 			do {
 				try {
@@ -754,8 +755,14 @@ public class ParkietProvider implements RealTimeProvider {
 				} catch (SocketException se) {
 					LOG.error("Cannot connect to " + req.getURI());
 				}
-			} while (attempts++ < 5);
+			} while (attempts++ < max);
 
+			if (response == null) {
+				throw new ProviderException(
+					"Persistent problem when connecting to " + req.getURI() + ". " + 
+					"Maximum number of attempts (" + max + ") has been reached");
+			}
+			
 			entity = response.getEntity();
 
 			Header[] headers = null;
