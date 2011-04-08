@@ -30,7 +30,12 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
 
+import com.sarxos.medusa.generator.MAVD2;
+import com.sarxos.medusa.market.AbstractGenerator;
 import com.sarxos.medusa.market.Quote;
+import com.sarxos.medusa.market.Signal;
+import com.sarxos.medusa.market.Signal.Value;
+import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.math.MA;
 import com.sarxos.medusa.provider.ProviderException;
@@ -70,44 +75,47 @@ public class Test extends JFrame {
         HighLowRenderer crend = new HighLowRenderer();
         ohlc.setRenderer(crend);
         plot.add(ohlc);
-        
-        /// 
-        double[] ema = new double[quotes.size()];
-        double[] sma = new double[quotes.size()];
-        double[] jma = new double[quotes.size()];
-        
-        TimeSeries s1 = new TimeSeries("EMA for " + s);
-		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
-			Quote q = quotes.get(i);
-			ema[i] = MA.jma(q, 10, 0);
-			s1.add(new Day(q.getDate()), ema[i]);
-		}
 
-        TimeSeries s2 = new TimeSeries("SMA for " + s);
-		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
-			Quote q = quotes.get(i);
-			sma[i] = MA.jma(q, 20, 0);
-			s2.add(new Day(q.getDate()), sma[i]);
-		}
-		
-		for (int i = 1; i < quotes.size(); i++) {
-			Quote q = quotes.get(i);
-			if (ema[i] < sma[i] && ema[i - 1] > sma[i - 1]) {
-				CircleDrawer cd = new CircleDrawer(Color.red, new BasicStroke(1.0f), null);
-				double x = new Day(q.getDate()).getFirstMillisecond();
-				XYDrawableAnnotation annotation = new XYDrawableAnnotation(x, q.getOpen(), 10, 10, cd);
-				ohlc.addAnnotation(annotation);
-			} else if (ema[i] > sma[i] && ema[i - 1] < sma[i - 1]) {
-				CircleDrawer cd = new CircleDrawer(Color.green, new BasicStroke(1.0f), null);
-				double x = new Day(q.getDate()).getFirstMillisecond();
-				XYDrawableAnnotation annotation = new XYDrawableAnnotation(x, q.getOpen(), 10, 10, cd);
-				ohlc.addAnnotation(annotation);
-			}
-		}
+        ///
+        
+        TimeSeries s1 = new TimeSeries("EMA");
+        TimeSeries s2 = new TimeSeries("SMA");
 		
 		TimeSeriesCollection dataset = new TimeSeriesCollection();	
 		dataset.addSeries(s1);
 		dataset.addSeries(s2);
+        
+		AbstractGenerator<Quote> siggen = new MAVD2(10, 20, 20);
+		siggen.setOutputting(true);
+		
+		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
+			
+			Quote q = quotes.get(i);
+			Signal signal = siggen.generate(q);
+
+			CircleDrawer cd = null;
+			double x = 0;
+			
+			switch (signal.getType()) {
+				case BUY:
+					cd = new CircleDrawer(Color.GREEN, new BasicStroke(1.0f), null);
+					x = new Day(q.getDate()).getFirstMillisecond();
+					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getOpen(), 10, 10, cd));
+					break;
+				case SELL:
+					cd = new CircleDrawer(Color.RED, new BasicStroke(1.0f), null);
+					x = new Day(q.getDate()).getFirstMillisecond();
+					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getOpen(), 10, 10, cd));
+					break;
+			}
+			
+			List<Value> vals = signal.getValues();
+			for (Value v : vals) {
+				TimeSeries ts = dataset.getSeries(v.getName());
+				ts.add(new Day(q.getDate()), v.getValue());
+			}
+		}
+		
 		
         XYSplineRenderer lrend = new XYSplineRenderer();
         lrend.setSeriesShapesVisible(0, false);
