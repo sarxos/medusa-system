@@ -21,6 +21,7 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
 
+import com.sarxos.medusa.generator.HMAC;
 import com.sarxos.medusa.generator.MAVD2;
 import com.sarxos.medusa.gui.drawer.BDrawer;
 import com.sarxos.medusa.gui.drawer.DDrawer;
@@ -32,6 +33,9 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.Signal.Value;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.math.ADX;
+import com.sarxos.medusa.math.ATR;
+import com.sarxos.medusa.math.MA;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.history.BossaProvider;
 
@@ -42,22 +46,21 @@ public class Test extends JFrame {
 
 	public static void main(String[] args) throws ProviderException {
 
-		BossaProvider bp = new BossaProvider();
-		List<Quote> quotes = bp.getAllQuotes(Symbol.KGH);
-
-		System.out.println(quotes.size());
-
 		Symbol s = Symbol.BRE;
+		AbstractGenerator<Quote> siggen = new HMAC(20, 40, 20);
+		siggen.setOutputting(true);
+		
+		//
+		
+		
+		BossaProvider bp = new BossaProvider();
+		List<Quote> quotes = bp.getAllQuotes(s);
 
 		OHLCSeries series = new OHLCSeries(s);
 		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
 			Quote q = quotes.get(i);
 			series.add(new Day(q.getDate()), q.getOpen(), q.getHigh(), q.getLow(), q.getClose());
 		}
-
-		// Quote q = quotes.get(quotes.size() - 1);
-		//
-		// MA.ema(q, 3);
 
 		OHLCSeriesCollection dataset1 = new OHLCSeriesCollection();
 		dataset1.addSeries(series);
@@ -75,19 +78,10 @@ public class Test extends JFrame {
 
 		// /
 
-		TimeSeries s1 = new TimeSeries("EMA");
-		TimeSeries s2 = new TimeSeries("SMA");
-
 		TimeSeriesCollection dataset2 = new TimeSeriesCollection();
-
-		dataset2.addSeries(s2);
-		dataset2.addSeries(s1);
 
 		ohlc.setDataset(1, dataset1);
 		ohlc.setDataset(0, dataset2);
-
-		AbstractGenerator<Quote> siggen = new MAVD2(10, 20, 20);
-		siggen.setOutputting(true);
 
 		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
 
@@ -100,30 +94,59 @@ public class Test extends JFrame {
 				case BUY:
 					x = new Day(q.getDate()).getFirstMillisecond();
 					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getOpen(), 10, 10, new BDrawer()));
-					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getLow() - 2, 8, 15, new UDrawer()));
+					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getLow() * 0.96, 8, 15, new UDrawer()));
 					break;
 				case SELL:
 					x = new Day(q.getDate()).getFirstMillisecond();
 					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getOpen(), 10, 10, new SDrawer()));
-					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getHigh() + 2, 8, 15, new DDrawer()));
+					ohlc.addAnnotation(new XYDrawableAnnotation(x, q.getHigh() * 1.04, 8, 15, new DDrawer()));
 					break;
 			}
 
 			List<Value> vals = signal.getValues();
 			for (Value v : vals) {
-				TimeSeries ts = dataset2.getSeries(v.getName());
+				String name = v.getName();
+				TimeSeries ts = dataset2.getSeries(name);
+				if (ts == null) {
+					ts = new TimeSeries(name);
+					dataset2.addSeries(ts);
+				}
 				ts.add(new Day(q.getDate()), v.getValue());
 			}
 		}
 
 		XYSplineRenderer lrend = new XYSplineRenderer();
-		lrend.setSeriesShapesVisible(0, false);
-		lrend.setSeriesShapesVisible(1, false);
-
-		// XYPlot jmaplot = new XYPlot(dataset, time, values, lrend);
-		// jmaplot.setRenderer(lrend);
-
+		int snum = dataset2.getSeriesCount();
+		for (int i = 0; i < snum; i++) {
+			lrend.setSeriesShapesVisible(i, false);
+		}
 		ohlc.setRenderer(0, lrend);
+
+		// atr
+		
+		TimeSeriesCollection dataset3 = new TimeSeriesCollection();
+		XYSplineRenderer lrend2 = new XYSplineRenderer();
+		lrend2.setSeriesShapesVisible(0, false);
+		DateAxis time2 = new DateAxis("Time");
+		NumberAxis values2 = new NumberAxis("HMA");
+		XYPlot jmaplot = new XYPlot(dataset3, time2, values2, lrend2);
+		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
+			Quote q = quotes.get(i);
+			//double atr = ATR.atr(q, 4);
+			//double atr = MA.cwma(new Quote[] {q}, 14);
+			double atr = MA.hma(q, 20);
+			TimeSeries ts = dataset3.getSeries("HMA");
+			if (ts == null) {
+				ts = new TimeSeries("HMA");
+				dataset3.addSeries(ts);
+			}
+			ts.add(new Day(q.getDate()), atr);
+		}
+		plot.add(jmaplot);
+		
+		//
+		
+
 
 		JFreeChart chart = new JFreeChart(s.getName(), JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 		// ChartFactory.getChartTheme().apply(chart);
