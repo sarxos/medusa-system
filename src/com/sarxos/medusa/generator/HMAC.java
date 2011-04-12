@@ -22,25 +22,27 @@ import com.sarxos.medusa.math.MA;
 
 
 /**
+ * Hull Moving Averages Crossover
  * 
  * @author Bartosz Firyn (SarXos)
+ * @see http://www.justdata.com.au/Journals/AlanHull/hull_ma.htm
  */
-public class MAVD2 extends AbstractGenerator<Quote> {
+public class HMAC extends AbstractGenerator<Quote> {
 
 	@SignalParameter
-	private int A = 5;
+	private int A = 20;
 
 	@SignalParameter
-	private int B = 15;
+	private int B = 40;
 
 	@SignalParameter
 	private int C = 30;
 	
 
-	public MAVD2() {
+	public HMAC() {
 	}
 
-	public MAVD2(int A, int B, int C) {
+	public HMAC(int A, int B, int C) {
 		init(A, B, C);
 	}
 
@@ -69,17 +71,17 @@ public class MAVD2 extends AbstractGenerator<Quote> {
 	public Signal generate(Quote q) {
 
 		// calculate necessary coefficients
-		double e1 = MA.ema(q, A);
-		double s1 = MA.sma(q, B);
+		double f1 = MA.hma(q, A); // fast HMA
+		double s1 = MA.hma(q, B); // slow HMA
 
 		// required to find optimal position opening moment
-		double e2 = MA.ema(q.prev(), A);
-		double s2 = MA.sma(q.prev(), B);
+		double f2 = MA.hma(q.prev(), A); // prev fast HMA
+		double s2 = MA.hma(q.prev(), B); // prev slow HMA
 
 		Signal signal = null;
 
-		boolean buy = e1 - s1 > 0 && e2 - s2 <= 0; 
-		boolean sell = e1 - s1 < 0 && e2 - s2 >= 0;
+		boolean buy = f1 - s1 > 0 && f2 - s2 <= 0; 
+		boolean sell = f1 - s1 < 0 && f2 - s2 >= 0;
 		
 		if (buy) {
 			signal = new Signal(q, BUY);
@@ -90,8 +92,8 @@ public class MAVD2 extends AbstractGenerator<Quote> {
 		}
 
 		if (isOutputting()) {
-			signal.addValue(new Value("EMA", e1));
-			signal.addValue(new Value("SMA", s1));
+			signal.addValue(new Value("FHMA", f1));
+			signal.addValue(new Value("SHMA", s1));
 		}
 		
 		return signal;
@@ -133,7 +135,7 @@ public class MAVD2 extends AbstractGenerator<Quote> {
 			String n = entry.getKey();
 			String v = entry.getValue();
 
-			Method[] methods = MAVD2.class.getDeclaredMethods();
+			Method[] methods = HMAC.class.getDeclaredMethods();
 			
 //			Field field = null;
 //			try {

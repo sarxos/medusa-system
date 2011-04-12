@@ -296,7 +296,7 @@ public class StocksSimulator extends Observer {
 		Symbol sym = Symbol.KGH;
 		String from = "2010-02-26 08:00:00";
 		String to = "2011-02-26 08:00:00";
-		SignalGenerator<Quote> siggen = new MAVD2(3, 13, 20);
+		SignalGenerator<Quote> siggen = new MAVD2(10, 20, 20);
 
 		Wallet.getInstance().addPaper(new Paper(sym, 100));
 

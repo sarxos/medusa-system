@@ -89,6 +89,10 @@ public class ADX {
 		
 		return dmn;
 	}
+	public static double adx(Quote q, int P) {
+		Quote[] data = new Quote[] { q };
+		return adx(data, P)[0];
+	}
 	
 	/**
 	 * @param data
