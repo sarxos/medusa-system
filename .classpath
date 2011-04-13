@@ -31,7 +31,7 @@
 	<classpathentry kind="lib" path="lib/smackx-debug-3.2.0-beta2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/SmesX"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/smesx"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>

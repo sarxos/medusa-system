@@ -76,13 +76,16 @@ public class HMAC extends AbstractGenerator<Quote> {
 		double f2 = MA.hma(q.prev(), A); // prev fast HMA
 		double s2 = MA.hma(q.prev(), B); // prev slow HMA
 
-		double de = MA.emad(q, C);
+		double dec = MA.emad(q, C);
 		double dep = MA.emad(q.prev(), C);
 
 		Signal signal = null;
 
-		boolean buy = f1 - s1 > 0 && f2 - s2 <= 0 && de > 0;
-		boolean sell = f1 - s1 < 0 && f2 - s2 >= 0 || (de < 0 && dep > 0);
+		boolean buy = false;
+		boolean sell = false;
+		
+		buy = f1 - s1 > 0 && f2 - s2 <= 0 && dec > 0;
+		sell = f1 - s1 < 0 && f2 - s2 >= 0 || (dec < 0 && dep > 0);
 
 		if (sell && f1 - f2 > 0) {
 			sell = false;

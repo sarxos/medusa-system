@@ -149,7 +149,31 @@ public enum Symbol {
 	/**
 	 * LW Bogdanka SA
 	 */
-	LWB("BOGDANKA");
+	LWB("BOGDANKA"),
+	/**
+	 * Sadovaya Group SA
+	 */
+	SGR("SADOVAYA"),
+	/**
+	 * Kruszwica SA
+	 */
+	KSW("KRUSZWICA"),
+	/**
+	 * Stomil Sanok SA
+	 */
+	SNK("SANOK"),
+	/**
+	 * Belvedere SA
+	 */
+	BVD("SOBIESKI"),
+	/**
+	 * Mondi Œwiecie SA
+	 */
+	MSC("SWIECIE"),
+	/**
+	 * Sygnity SA
+	 */
+	SGN("SYGNITY");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)
