@@ -1,9 +1,6 @@
 package com.sarxos.medusa.math;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import com.sarxos.medusa.market.Quote;
@@ -235,83 +232,109 @@ public class MA {
 	public static double jma(Quote q, double K, double P) {
 		double[] c = SX.reverse(SX.detach(q, 100)[3]);
 		double[] jma = JRK.jrk(c, K, P);
-//		for (int i = 0; i < jma.length; i++) {
-//			System.out.println(c[i] + " " + jma[i]);
-//		}
-//		System.exit(1);
+		// for (int i = 0; i < jma.length; i++) {
+		// System.out.println(c[i] + " " + jma[i]);
+		// }
+		// System.exit(1);
 		return jma[0];
 	}
-	
-    /**
-     * Calculate WMA on array of doubles.
-     * 
-     * @param values - double array to calculate WMA on
-     * @param end - ending position
-     * @param n - how many elements
-     * @return Will return double value for calculated WMA
-     */
-    private static double wma(double[] values, int end, int n) {	
-    	
-    	// special cases, return the element at end
-    	if (n <= 1) { 
-    		return values[end];
-    	}
-    	
-    	int begin = end - n + 1;
-    	
-    	// update start pos if there are not enough elements
-    	if (begin < 0) { 
-    		 begin = 0;
-    		 n = end + 1;
-    	}
-    	
-        double wma = 0;
-        double count = 1;
 
-        for (int i = begin; i <= end; i++) {
-        	wma += values[i] * (count++);
-        }
+	/**
+	 * Calculate WMA on array of doubles.
+	 * 
+	 * @param values - double array to calculate WMA on
+	 * @param end - ending position
+	 * @param n - how many elements
+	 * @return Will return double value for calculated WMA
+	 */
+	private static double wma(double[] values, int end, int n) {
 
-        return wma / (n * (n + 1) / 2);
-    }	
-    
-    /**
-     * <b>H</b>ull <b>M</b>oving <b>A</b>verage.
-     * 
-     * @param q - quote to calculate HMA for
-     * @param L - HMA length
-     * @return Will return double value for calculated HMA
-     */
-    public static double hma(Quote q, int L) {
-    	
-    	int sqrlen = (int) Math.sqrt(L);
-    	if (sqrlen < 1) {
-    		sqrlen = 1;
-    	}
-    	
-    	// we need len + sqrlen number of data points for the rest of the
-    	// algorithm to work
-    	int arraysize = L + sqrlen;
-
-    	int k = 0;
-    	do {
-    		q = q.prev();
-    	} while (k++ < arraysize - 2);
-    	
-    	double[] prices = new double[arraysize];
-    	double[] wmavalues = new double[sqrlen];
-    	
-    	for (int i = 0; i < arraysize; i++) {
-			prices[i] = q.getClose();
-    		q = q.next();
-    	}
-    	
-    	for (int i = 0; i < sqrlen; i++) {
-    		double dfull = wma(prices, arraysize - 1 - i, L); // full WMA
-    		double dhalf = wma(prices, arraysize - 1 - i, L / 2); // half lenght
-	    	wmavalues[sqrlen - 1 - i] = 2 * dhalf - dfull;
+		// special cases, return the element at end
+		if (n <= 1) {
+			return values[end];
 		}
-    	
-    	return wma(wmavalues, sqrlen - 1, sqrlen);
-    }
+
+		int begin = end - n + 1;
+
+		// update start pos if there are not enough elements
+		if (begin < 0) {
+			begin = 0;
+			n = end + 1;
+		}
+
+		double wma = 0;
+		double count = 1;
+
+		for (int i = begin; i <= end; i++) {
+			wma += values[i] * (count++);
+		}
+
+		return wma / (n * (n + 1) / 2);
+	}
+
+	/**
+	 * Hull Moving Average derivative.
+	 * 
+	 * @param q
+	 * @param L
+	 * @return
+	 */
+	public static double hmad(Quote q, int L) {
+		Quote[] data = new Quote[] { q.prev(), q };
+		double[] hma = hma(data, L);
+		return hma[1] - hma[0];
+	}
+
+	public static double[] hma(Quote[] data, int L) {
+		double[] hma = new double[data.length];
+		for (int i = 0; i < data.length; i++) {
+			hma[i] = hma(data[i], L);
+		}
+		return hma;
+	}
+
+	/**
+	 * <b>H</b>ull <b>M</b>oving <b>A</b>verage.
+	 * 
+	 * @param q - quote to calculate HMA for
+	 * @param L - HMA length
+	 * @return Will return double value for calculated HMA
+	 */
+	public static double hma(Quote q, int L) {
+
+		int sqrlen = (int) Math.sqrt(L);
+		if (sqrlen < 1) {
+			sqrlen = 1;
+		}
+
+		// we need len + sqrlen number of data points for the rest of the
+		// algorithm to work
+		int arraysize = L + sqrlen;
+
+		// int k = 0;
+		// do {
+		// q = q.prev();
+		// } while (k++ < arraysize - 2);
+
+		double[] prices = new double[arraysize];
+		double[] wmavalues = new double[sqrlen];
+
+		// for (int i = 0; i < arraysize; i++) {
+		// prices[i] = q.getClose();
+		// q = q.next();
+		// }
+		//
+		for (int i = arraysize - 1; i >= 0; i--) {
+			prices[i] = q.getClose();
+			q = q.prev();
+		}
+
+		for (int i = 0; i < sqrlen; i++) {
+			double dfull = wma(prices, arraysize - 1 - i, L); // full WMA
+			double dhalf = wma(prices, arraysize - 1 - i, L / 2); // half lenght
+			wmavalues[sqrlen - 1 - i] = 2 * dhalf - dfull;
+		}
+
+		return wma(wmavalues, sqrlen - 1, sqrlen);
+	}
 }

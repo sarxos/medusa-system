@@ -17,7 +17,6 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.Signal.Value;
 import com.sarxos.medusa.market.SignalParameter;
-import com.sarxos.medusa.math.ATR;
 import com.sarxos.medusa.math.MA;
 
 
@@ -37,7 +36,6 @@ public class HMAC extends AbstractGenerator<Quote> {
 
 	@SignalParameter
 	private int C = 30;
-	
 
 	public HMAC() {
 	}
@@ -78,11 +76,18 @@ public class HMAC extends AbstractGenerator<Quote> {
 		double f2 = MA.hma(q.prev(), A); // prev fast HMA
 		double s2 = MA.hma(q.prev(), B); // prev slow HMA
 
+		double de = MA.emad(q, C);
+		double dep = MA.emad(q.prev(), C);
+
 		Signal signal = null;
 
-		boolean buy = f1 - s1 > 0 && f2 - s2 <= 0; 
-		boolean sell = f1 - s1 < 0 && f2 - s2 >= 0;
-		
+		boolean buy = f1 - s1 > 0 && f2 - s2 <= 0 && de > 0;
+		boolean sell = f1 - s1 < 0 && f2 - s2 >= 0 || (de < 0 && dep > 0);
+
+		if (sell && f1 - f2 > 0) {
+			sell = false;
+		}
+
 		if (buy) {
 			signal = new Signal(q, BUY);
 		} else if (sell) {
@@ -95,7 +100,7 @@ public class HMAC extends AbstractGenerator<Quote> {
 			signal.addValue(new Value("FHMA", f1));
 			signal.addValue(new Value("SHMA", s1));
 		}
-		
+
 		return signal;
 	}
 
@@ -115,46 +120,44 @@ public class HMAC extends AbstractGenerator<Quote> {
 		int C = Integer.parseInt(params.get("C").toString());
 		init(A, B, C);
 	}
-	
+
 	// TODO: remove - this is for test purpose only
 	public static void main(String[] args) {
-		
+
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("A", Integer.toString(20));
 		params.put("B", Integer.toString(30));
 		params.put("C", Integer.toString(40));
-		
+
 		Set<Entry<String, String>> entries = params.entrySet();
 		Iterator<Entry<String, String>> ei = entries.iterator();
 		Entry<String, String> entry = null;
-		
+
 		while (ei.hasNext()) {
-			
+
 			entry = ei.next();
-			
+
 			String n = entry.getKey();
 			String v = entry.getValue();
 
 			Method[] methods = HMAC.class.getDeclaredMethods();
-			
-//			Field field = null;
-//			try {
-//				field = MAVD2.class.getDeclaredField(n);
-//			} catch (SecurityException e) {
-//				e.printStackTrace();
-//			} catch (NoSuchFieldException e) {
-//				e.printStackTrace();
-//			}
-//			
-//			if (field == null) {
-//				continue;
-//			}
-//			
-//			field.setAccessible(true);
-//			field.set(this, v);
+
+			// Field field = null;
+			// try {
+			// field = MAVD2.class.getDeclaredField(n);
+			// } catch (SecurityException e) {
+			// e.printStackTrace();
+			// } catch (NoSuchFieldException e) {
+			// e.printStackTrace();
+			// }
+			//
+			// if (field == null) {
+			// continue;
+			// }
+			//
+			// field.setAccessible(true);
+			// field.set(this, v);
 		}
-		
-		
-		
+
 	}
 }

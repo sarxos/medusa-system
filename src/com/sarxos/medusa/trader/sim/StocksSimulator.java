@@ -25,9 +25,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.data.QuotesRegistry;
-import com.sarxos.medusa.generator.JMAC;
-import com.sarxos.medusa.generator.MAVD;
-import com.sarxos.medusa.generator.MAVD2;
+import com.sarxos.medusa.generator.HMAC;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
@@ -293,10 +291,10 @@ public class StocksSimulator extends Observer {
 
 		configureLoggers();
 
-		Symbol sym = Symbol.KGH;
-		String from = "2010-02-26 08:00:00";
-		String to = "2011-02-26 08:00:00";
-		SignalGenerator<Quote> siggen = new MAVD2(10, 20, 20);
+		Symbol sym = Symbol.BRE;
+		String from = "2011-01-01 08:00:00";
+		String to = "2011-04-12 08:00:00";
+		SignalGenerator<Quote> siggen = new HMAC(20, 40, 30);
 
 		Wallet.getInstance().addPaper(new Paper(sym, 100));
 

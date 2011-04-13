@@ -80,4 +80,36 @@ public class M {
 		}
 		return r;
 	}
+
+	/**
+	 * Find minimum value in input vector
+	 * 
+	 * @param v - input vector
+	 * @return Return minimum value from vector
+	 */
+	public static double min(double[] v) {
+		double m = Double.MAX_VALUE;
+		for (int i = 0; i < v.length; i++) {
+			if (v[i] < m) {
+				m = v[i];
+			}
+		}
+		return m;
+	}
+
+	/**
+	 * Find maximum value in input vector
+	 * 
+	 * @param v - input vector
+	 * @return Return maximum value from vector
+	 */
+	public static double max(double[] v) {
+		double m = Double.MIN_VALUE;
+		for (int i = 0; i < v.length; i++) {
+			if (v[i] > m) {
+				m = v[i];
+			}
+		}
+		return m;
+	}
 }

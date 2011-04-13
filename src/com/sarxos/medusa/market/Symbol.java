@@ -137,7 +137,19 @@ public enum Symbol {
 	/**
 	 * Impel SA
 	 */
-	IPL("IMPEL");
+	IPL("IMPEL"),
+	/**
+	 * CEZ a.s.
+	 */
+	CEZ("CEZ"),
+	/**
+	 * Police SA
+	 */
+	PCE("POLICE"),
+	/**
+	 * LW Bogdanka SA
+	 */
+	LWB("BOGDANKA");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)
