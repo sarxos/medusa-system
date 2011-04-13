@@ -46,18 +46,18 @@ public class Test extends JFrame {
 
 	public static void main(String[] args) throws ProviderException {
 
-		Symbol s = Symbol.BRE;
-		AbstractGenerator<Quote> siggen = new HMAC(20, 40, 20);
+		int N = 300;
+		Symbol s = Symbol.SGN;
+		AbstractGenerator<Quote> siggen = new HMAC(20, 40, 30);
 		siggen.setOutputting(true);
 		
 		//
-		
 		
 		BossaProvider bp = new BossaProvider();
 		List<Quote> quotes = bp.getAllQuotes(s);
 
 		OHLCSeries series = new OHLCSeries(s);
-		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
+		for (int i = quotes.size() - N; i < quotes.size(); i++) {
 			Quote q = quotes.get(i);
 			series.add(new Day(q.getDate()), q.getOpen(), q.getHigh(), q.getLow(), q.getClose());
 		}
@@ -83,7 +83,7 @@ public class Test extends JFrame {
 		ohlc.setDataset(1, dataset1);
 		ohlc.setDataset(0, dataset2);
 
-		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
+		for (int i = quotes.size() - N; i < quotes.size(); i++) {
 
 			Quote q = quotes.get(i);
 			Signal signal = siggen.generate(q);
@@ -132,9 +132,7 @@ public class Test extends JFrame {
 		XYPlot jmaplot = new XYPlot(dataset3, time2, values2, lrend2);
 		for (int i = quotes.size() - 300; i < quotes.size(); i++) {
 			Quote q = quotes.get(i);
-			//double atr = ATR.atr(q, 4);
-			//double atr = MA.cwma(new Quote[] {q}, 14);
-			double atr = MA.hma(q, 20);
+			double atr = ADX.adx(q, 70);
 			TimeSeries ts = dataset3.getSeries("HMA");
 			if (ts == null) {
 				ts = new TimeSeries("HMA");
