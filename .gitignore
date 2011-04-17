@@ -7,3 +7,4 @@ data/*.prn
 ispag
 .settings
 data/service.conf
+log

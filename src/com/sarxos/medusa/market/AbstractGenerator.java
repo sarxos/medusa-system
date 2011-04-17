@@ -70,7 +70,7 @@ public abstract class AbstractGenerator<T extends Quote> implements SignalGenera
 
 	/**
 	 * @return Return true if resultant signal handle internal calculation
-	 * 		values in map, false otherwise.
+	 *         values in map, false otherwise.
 	 */
 	public boolean isOutputting() {
 		return outputting;
@@ -83,5 +83,10 @@ public abstract class AbstractGenerator<T extends Quote> implements SignalGenera
 	 */
 	public void setOutputting(boolean outputting) {
 		this.outputting = outputting;
-	}	
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(
+				"Signal generator " + getClass().getSimpleName() + " " +
+				"will create output content");
+		}
+	}
 }
