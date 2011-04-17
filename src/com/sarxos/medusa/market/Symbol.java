@@ -173,7 +173,15 @@ public enum Symbol {
 	/**
 	 * Sygnity SA
 	 */
-	SGN("SYGNITY");
+	SGN("SYGNITY"),
+	/**
+	 * Grupa Lotos SA
+	 */
+	LTS("LOTOS"),
+	/**
+	 * Synthos SA
+	 */
+	SNS("SYNTHOS");
 
 	/**
 	 * Symbol second name (e.g. KGH == KGHM, BZW == BZWBK)
