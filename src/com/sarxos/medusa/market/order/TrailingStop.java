@@ -23,7 +23,7 @@ public class TrailingStop extends AbstractOrder {
 	}
 
 	/**
-	 * @return the threshold
+	 * @return Stop threshold, 0.05 (5%) by default.
 	 */
 	public double getThreshold() {
 		return threshold;

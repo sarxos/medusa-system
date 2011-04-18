@@ -13,9 +13,14 @@ public enum OrderType {
 	LIMIT,
 
 	/**
-	 * Order with the opening price
+	 * Order with the current market price.
 	 */
 	PCR,
+	
+	/**
+	 * Order with the opening price
+	 */
+	PCRO,
 
 	/**
 	 * Order with any price

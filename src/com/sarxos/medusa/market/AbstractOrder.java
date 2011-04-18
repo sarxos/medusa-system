@@ -5,7 +5,7 @@ package com.sarxos.medusa.market;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public abstract class AbstractOrder implements Order {
+public class AbstractOrder implements Order {
 
 	/**
 	 * Paper to buy/sell.
@@ -22,6 +22,23 @@ public abstract class AbstractOrder implements Order {
 	 */
 	private OrderType type = OrderType.LIMIT;
 
+	/**
+	 * Activation limit.
+	 */
+	private double activation = 0;
+	
+	/**
+	 * Validity type
+	 */
+	private OrderValidity validity = OrderValidity.DOM;
+	
+	/**
+	 * Price limit
+	 */
+	private double limit = 0;
+	
+	private boolean deployed = false;
+	
 	/**
 	 * @param paper - paper to buy/sell
 	 * @param direction - order direction
@@ -69,5 +86,46 @@ public abstract class AbstractOrder implements Order {
 			throw new IllegalArgumentException("Order type cannot be null");
 		}
 		this.type = type;
+	}
+	
+	@Override
+	public double getActivationLimit() {
+		return activation;
+	}
+	
+	@Override
+	public void setActivationLimit(double activation) {
+		this.activation = activation;
+	}
+
+	@Override
+	public OrderValidity getValidityType() {
+		return validity;
+	}
+
+	@Override
+	public void setValidityType(OrderValidity validity) {
+		if (validity == null) {
+			throw new IllegalArgumentException("Validity type cannot be null");
+		}
+		this.validity = validity;
+	}
+
+	@Override
+	public double getLimit() {
+		return limit;
+	}
+
+	@Override
+	public void setLimit(double price) {
+		if (limit < 0) {
+			throw new IllegalArgumentException("Limit cannot be negative");
+		}
+		this.limit = price;
+	}
+
+	@Override
+	public boolean isDeployed() {
+		return deployed;
 	}
 }
