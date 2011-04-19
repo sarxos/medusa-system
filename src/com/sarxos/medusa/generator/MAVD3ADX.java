@@ -6,7 +6,6 @@ import static com.sarxos.medusa.market.SignalType.SELL;
 import static com.sarxos.medusa.market.SignalType.WAIT;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import com.sarxos.medusa.market.AbstractGenerator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.Signal.Value;
-import com.sarxos.medusa.market.SignalType;
+import com.sarxos.medusa.math.ADX;
 import com.sarxos.medusa.math.MA;
 
 
@@ -39,7 +38,7 @@ import com.sarxos.medusa.math.MA;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class MAVD extends AbstractGenerator<Quote> {
+public class MAVD3ADX extends AbstractGenerator<Quote> {
 
 	private int A = 5;
 
@@ -47,10 +46,10 @@ public class MAVD extends AbstractGenerator<Quote> {
 
 	private int C = 30;
 
-	public MAVD() {
+	public MAVD3ADX() {
 	}
 
-	public MAVD(int A, int B, int C) {
+	public MAVD3ADX(int A, int B, int C) {
 		init(A, B, C);
 	}
 
@@ -72,76 +71,28 @@ public class MAVD extends AbstractGenerator<Quote> {
 
 	@Override
 	public List<Signal> generate(Quote[] data, int R) {
-
-		List<Signal> signals = new LinkedList<Signal>();
-
-		Quote[] quotes = new Quote[R];
-
-		System.arraycopy(data, data.length - R - 1, quotes, 0, R);
-
-		SignalType signal = null;
-		Quote q = null;
-
-		double[] ema = MA.ema(quotes, A);
-		double[] sma = MA.sma(quotes, B);
-		double[] emad = MA.emad(quotes, C);
-
-		double delta = 0;
-
-		boolean delay = false;
-
-		for (int i = 0; i < R; i++) {
-			q = quotes[i];
-			delta = ema[i] - sma[i];
-			if (delta > 0 && !delay) {
-				if (emad[i] > 0) {
-					if (signal != BUY) {
-						signal = BUY;
-						signals.add(new Signal(q.getDate(), signal, q, emad[i]));
-						delay = false;
-					}
-				} else {
-					delay = true;
-				}
-			} else if (delta < 0) {
-				if (signal != SELL) {
-					signal = SELL;
-					signals.add(new Signal(q.getDate(), signal, q, emad[i]));
-					delay = false;
-				}
-			}
-
-			if (delay) {
-				if (emad[i] > 0) {
-					if (signal != BUY) {
-						signal = BUY;
-						signals.add(new Signal(q.getDate(), signal, q, emad[i]));
-						delay = false;
-					}
-				}
-			}
-		}
-
-		return signals;
+		throw new RuntimeException("Not implemented");
 	}
 
 	@Override
 	public Signal generate(Quote q) {
 
+		// calculate necessary coefficients
+		double d = MA.emad(q, C);
+		double a = ADX.adx(q, C);
+
 		// do not treat trading price seriously - close price really matters,
 		// take it from previous day
 		q = q.prev();
 
-		// calculate necessary coefficients
 		double e = MA.ema(q, A);
 		double s = MA.sma(q, B);
-		double d = MA.emad(q, C);
 
 		// initially just wait
 		Signal signal = new Signal(q, WAIT);
 
 		if (e - s > 0) {
-			if (d > 0 /* && e1 - s1 < 0 */) {
+			if (d > 0 && a > 20) {
 				signal = new Signal(q, BUY);
 			} else {
 				signal = new Signal(q, DELAY);

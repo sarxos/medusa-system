@@ -26,7 +26,7 @@ import com.sarxos.medusa.math.MA;
  * @author Bartosz Firyn (SarXos)
  * @see http://www.justdata.com.au/Journals/AlanHull/hull_ma.htm
  */
-public class HMAC extends AbstractGenerator<Quote> {
+public class HMAD extends AbstractGenerator<Quote> {
 
 	@SignalParameter
 	private int A = 20;
@@ -37,10 +37,10 @@ public class HMAC extends AbstractGenerator<Quote> {
 	@SignalParameter
 	private int C = 30;
 
-	public HMAC() {
+	public HMAD() {
 	}
 
-	public HMAC(int A, int B, int C) {
+	public HMAD(int A, int B, int C) {
 		init(A, B, C);
 	}
 
@@ -68,28 +68,16 @@ public class HMAC extends AbstractGenerator<Quote> {
 	@Override
 	public Signal generate(Quote q) {
 
-		// calculate necessary coefficients
-		double f1 = MA.hma(q, A); // fast HMA
-		double s1 = MA.hma(q, B); // slow HMA
-
-		// required to find optimal position opening moment
-		double f2 = MA.hma(q.prev(), A); // prev fast HMA
-		double s2 = MA.hma(q.prev(), B); // prev slow HMA
-
-		double dec = MA.emad(q, C);
-		double dep = MA.emad(q.prev(), C);
+		double hc = MA.hmad(q, A);
+		double hp = MA.hmad(q.prev(), A);
 
 		Signal signal = null;
 
 		boolean buy = false;
 		boolean sell = false;
 
-		buy = f1 - s1 > 0 && dec > 0;
-		sell = f1 - s1 < 0 || (dec < 0 && dep > 0);
-
-		if (sell && f1 - f2 > 0) {
-			sell = false;
-		}
+		buy = hc > 0 && hp < 0;
+		sell = hc < 0 && hp > 0;
 
 		if (buy) {
 			signal = new Signal(q, BUY);
@@ -100,8 +88,7 @@ public class HMAC extends AbstractGenerator<Quote> {
 		}
 
 		if (isOutputting()) {
-			signal.addValue(new Value("FHMA", f1));
-			signal.addValue(new Value("SHMA", s1));
+			signal.addValue(new Value("HMAD", hc * 30));
 		}
 
 		return signal;
@@ -143,7 +130,7 @@ public class HMAC extends AbstractGenerator<Quote> {
 			String n = entry.getKey();
 			String v = entry.getValue();
 
-			Method[] methods = HMAC.class.getDeclaredMethods();
+			Method[] methods = HMAD.class.getDeclaredMethods();
 
 			// Field field = null;
 			// try {

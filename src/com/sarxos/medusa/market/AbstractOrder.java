@@ -26,19 +26,21 @@ public class AbstractOrder implements Order {
 	 * Activation limit.
 	 */
 	private double activation = 0;
-	
+
 	/**
 	 * Validity type
 	 */
 	private OrderValidity validity = OrderValidity.DOM;
-	
+
 	/**
 	 * Price limit
 	 */
 	private double limit = 0;
-	
+
 	private boolean deployed = false;
-	
+
+	private OrderStatus status = null;
+
 	/**
 	 * @param paper - paper to buy/sell
 	 * @param direction - order direction
@@ -87,12 +89,12 @@ public class AbstractOrder implements Order {
 		}
 		this.type = type;
 	}
-	
+
 	@Override
 	public double getActivationLimit() {
 		return activation;
 	}
-	
+
 	@Override
 	public void setActivationLimit(double activation) {
 		this.activation = activation;
@@ -127,5 +129,27 @@ public class AbstractOrder implements Order {
 	@Override
 	public boolean isDeployed() {
 		return deployed;
+	}
+
+	/**
+	 * @return the status
+	 */
+	@Override
+	public OrderStatus getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	protected void setStatus(OrderStatus status) {
+		this.status = status;
+	}
+
+	/**
+	 * @param deployed the deployed to set
+	 */
+	protected void setDeployed(boolean deployed) {
+		this.deployed = deployed;
 	}
 }
