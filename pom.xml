@@ -17,112 +17,21 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
 				<executions>
-				
+					
 					<execution>
-						<id>copy-httpclient</id>
+						<id>copy-jspf-core</id>
 						<phase>install</phase>
 						<goals>
 							<goal>install-file</goal>
 						</goals>
 						<configuration>
-							<file>lib/httpclient-4.1.jar</file>
-							<groupId>org.apache.http</groupId>
-							<artifactId>httpclient</artifactId>
-							<version>4.1</version>
+							<file>lib/jspf.core-1.0.1.jar</file>
+							<groupId>net.xeoh.plugins</groupId>
+							<artifactId>jspf.core</artifactId>
+							<version>1.0.1</version>
 							<packaging>jar</packaging>
 						</configuration>
 					</execution>
-					
-					<execution>
-						<id>copy-httpcore</id>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>lib/httpcore-4.1.jar</file>
-							<groupId>org.apache.http</groupId>
-							<artifactId>httpcore</artifactId>
-							<version>4.1</version>
-							<packaging>jar</packaging>
-						</configuration>
-					</execution>
-					
-					<execution>
-						<id>copy-httpmime</id>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>lib/httpmime-4.1.jar</file>
-							<groupId>org.apache.http</groupId>
-							<artifactId>httpmime</artifactId>
-							<version>4.1</version>
-							<packaging>jar</packaging>
-						</configuration>
-					</execution>
-					
-					<execution>
-						<id>copy-apache-mime4j</id>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>lib/apache-mime4j-0.6.jar</file>
-							<groupId>org.apache.james</groupId>
-							<artifactId>mime4j</artifactId>
-							<version>0.6</version>
-							<packaging>jar</packaging>
-						</configuration>
-					</execution>
-					
-					<execution>
-						<id>copy-commons-codec</id>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>lib/commons-codec-1.4.jar</file>
-							<groupId>org.apache.commons</groupId>
-							<artifactId>codec</artifactId>
-							<version>1.4</version>
-							<packaging>jar</packaging>
-						</configuration>
-					</execution>
-					
-					<execution>
-						<id>copy-nekohtml</id>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>lib/nekohtml-1.9.14.jar</file>
-							<groupId>org.cyberneko</groupId>
-							<artifactId>nekohtml</artifactId>
-							<version>1.9.14</version>
-							<packaging>jar</packaging>
-						</configuration>
-					</execution>
-					
-					<execution>
-						<id>copy-slf4j</id>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>lib/slf4j-api-1.6.1.jar</file>
-							<groupId>org.slf4j</groupId>
-							<artifactId>api</artifactId>
-							<version>1.6.1</version>
-							<packaging>jar</packaging>
-						</configuration>
-					</execution>
-					
 				</executions>
 			</plugin>
 		</plugins>
