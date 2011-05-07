@@ -311,19 +311,9 @@ public class MA {
 		// algorithm to work
 		int arraysize = L + sqrlen;
 
-		// int k = 0;
-		// do {
-		// q = q.prev();
-		// } while (k++ < arraysize - 2);
-
 		double[] prices = new double[arraysize];
 		double[] wmavalues = new double[sqrlen];
 
-		// for (int i = 0; i < arraysize; i++) {
-		// prices[i] = q.getClose();
-		// q = q.next();
-		// }
-		//
 		for (int i = arraysize - 1; i >= 0; i--) {
 			prices[i] = q.getClose();
 			q = q.prev();
