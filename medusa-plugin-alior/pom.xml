@@ -1,15 +1,35 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>medusa-alior-plugin</groupId>
-  <artifactId>medusa-alior-plugin</artifactId>
-  <version>0.0.1</version>
-  <name>Medusa Alior Plugin</name>
-  <description>Medusa plugin for the Alior Bank brokerage API</description>
-  <dependencies>
-    <dependency>
-      <groupId>com.sarxos</groupId>
-      <artifactId>alior-api</artifactId>
-      <version>0.0.1</version>
-    </dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<groupId>com.sarxos.medusa</groupId>
+		<artifactId>medusa-system</artifactId>
+		<version>0.0.1</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sarxos.medusa</groupId>
+	<artifactId>medusa-plugin-alior</artifactId>
+	<version>${project.parent.version}</version>
+	<name>Medusa System Plugin - Alior</name>
+	<description>Medusa System plugin for the Alior Bank brokerage API</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.sarxos</groupId>
+			<artifactId>alior-api</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sarxos.medusa</groupId>
+			<artifactId>medusa-core</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.xeoh.plugins</groupId>
+			<artifactId>jspf.core</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+	</dependencies>
+
 </project>

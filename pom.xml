@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sarxos.medusa</groupId>
+	<artifactId>medusa-system</artifactId>
+	<version>0.0.1</version>
+	<name>Medusa System</name>
+	<description>Medusa trading System top POM</description>
+	<packaging>pom</packaging>
+
+	<organization>
+		<name>SarXos Design</name>
+		<url>http://www.sarxos.pl</url>
+	</organization>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<modules>
+		<module>medusa-mvn</module>
+		<module>medusa-core</module>
+		<module>medusa-gui</module>
+		<module>medusa-plugin-alior</module>
+		<module>medusa-plugin-moneypl</module>
+	</modules>
+
+</project>
+

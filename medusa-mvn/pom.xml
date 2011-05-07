@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.sarxos</groupId>
-	<artifactId>sx-maven</artifactId>
-	<version>1.0</version>
-	<name>SX Maven Prerequisites</name>
-	
-	<description>Maven prerequisites for most of the SX projects</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<packaging>jar</packaging>
+	<parent>
+		<groupId>com.sarxos.medusa</groupId>
+		<artifactId>medusa-system</artifactId>
+		<version>0.0.1</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sarxos.medusa</groupId>
+	<artifactId>medusa-mvn</artifactId>
+	<version>${project.parent.version}</version>
+	<name>Medusa System Prerequisites</name>
+	<packaging>pom</packaging>
+
+	<description>Maven prerequisites for most of the Medusa System</description>
 
 	<build>
 		<plugins>
@@ -17,7 +23,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
 				<executions>
-					
+
 					<execution>
 						<id>copy-jspf-core</id>
 						<phase>install</phase>
@@ -32,11 +38,158 @@
 							<packaging>jar</packaging>
 						</configuration>
 					</execution>
+
+					<execution>
+						<id>copy-appframework</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/appframework-20110314.jar</file>
+							<groupId>org.jdesktop.application</groupId>
+							<artifactId>appframework</artifactId>
+							<version>20110314</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-jama</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/jama-20110315.jar</file>
+							<groupId>org.jama</groupId>
+							<artifactId>jama</artifactId>
+							<version>20110315</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-naturalcli</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/naturalcli-1.2.2.jar</file>
+							<groupId>org.naturalcli</groupId>
+							<artifactId>naturalcli</artifactId>
+							<version>1.2.2</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-smack</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/smack-3.2.0-beta2.jar</file>
+							<groupId>org.igniterealtime.smack</groupId>
+							<artifactId>smack</artifactId>
+							<version>3.2.0-beta2</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-smackx</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/smackx-3.2.0-beta2.jar</file>
+							<groupId>org.igniterealtime.smack</groupId>
+							<artifactId>smackx</artifactId>
+							<version>3.2.0-beta2</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-smackx-debug</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/smackx-debug-3.2.0-beta2.jar</file>
+							<groupId>org.igniterealtime.smack</groupId>
+							<artifactId>smackx-debug</artifactId>
+							<version>3.2.0-beta2</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-ta-lib</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/ta-lib-0.4.0.jar</file>
+							<groupId>com.tictactec</groupId>
+							<artifactId>ta-lib</artifactId>
+							<version>0.4.0</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-sgfilter</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/sgfilter-v1-2r25.jar</file>
+							<groupId>mr.go.sgfilter</groupId>
+							<artifactId>sgfilter</artifactId>
+							<version>v1-2r25</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-java-wrapper</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/wrapper-3.5.7.jar</file>
+							<groupId>tanukisoft</groupId>
+							<artifactId>wrapper</artifactId>
+							<version>3.5.7</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-prettytools-dde</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/pretty-tools-jdde-1.0.1.jar</file>
+							<groupId>com.prettytools</groupId>
+							<artifactId>pretty-tools-jdde</artifactId>
+							<version>1.0.1</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>
-		
-		<finalName>sx-maven</finalName>
-		
+
 	</build>
 </project>
