@@ -1,0 +1,36 @@
+Project to test automated trading possibility and to experiment with few trading models.
+
+Installation how-to:
+
+# Install and run MySQL
+# Create database gpw
+# Grant all permission for user 'root' with password set to 'secret'
+# Change file data/default.ini to data/medusa.ini and fill all preferences
+
+Running Medusa
+
+# Some manual configuration have to be performed. I do not have much time to specify all detailed tasks, but don't hesitate to ask
+# Install Medusa as service:
+<code>
+$ medusa-service.sh install
+</code>
+
+Next start it:
+<code>
+$ medusa-service.sh start
+</code>
+
+In the <code>service.log</code> file you can check service output:
+
+You should see something like that:
+<code>
+$ tail -f log/service.log
+STATUS | wrapper  | 2011/03/01 23:49:35 | Launching a JVM...
+INFO   | wrapper  | 2011/03/01 23:49:35 | Command: ... (a lot of stuff here) ...
+INFO   | jvm 1    | 2011/03/01 23:49:36 | WrapperManager: Initializing...
+INFO   | jvm 1    | 2011/03/01 23:49:37 | Starting configuration updater
+STATUS | wrapper  | 2011/03/01 23:49:40 | Medusa started.
+INFO   | jvm 1    | 2011/03/01 23:49:42 | Starting trader StocksTrader[KGH][MAVD]
+</code>
+
+Have fun and don't forget to add traders! 
