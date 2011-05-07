@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Medusa</name>
-	<comment></comment>
+	<name>medusa-core</name>
+	<comment>This is core of Medusa System</comment>
 	<projects>
 	</projects>
 	<buildSpec>

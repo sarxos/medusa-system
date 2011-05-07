@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>sx-maven</name>
-	<comment></comment>
+	<name>medusa-mvn</name>
+	<comment>This project contains all Maven prerequisites for the Medusa System</comment>
 	<projects>
 	</projects>
 	<buildSpec>
