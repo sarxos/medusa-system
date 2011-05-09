@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<groupId>com.sarxos.medusa</groupId>
+		<artifactId>medusa-system</artifactId>
+		<version>0.0.1</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sarxos.medusa</groupId>
+	<artifactId>medusa-plugin-orangepl</artifactId>
+	<version>${project.parent.version}</version>
+	<name>Medusa System Plugin - Orange.pl</name>
+	<description>
+		Orange.pl plugin for the Medusa System, allows Medusa to send SMS messages
+		via the orange.pl messages gateway.
+	</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.xeoh.plugins</groupId>
+			<artifactId>jspf.core</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sarxos.medusa</groupId>
+			<artifactId>medusa-core</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+	</dependencies>
+
+</project>
