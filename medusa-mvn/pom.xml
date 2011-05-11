@@ -173,6 +173,22 @@
 					</execution>
 
 					<execution>
+						<id>copy-java-wrapper-dll</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>dll/wrapper.dll</file>
+							<groupId>tanukisoft</groupId>
+							<artifactId>wrapper</artifactId>
+							<classifier>win32</classifier>
+							<version>3.5.7</version>
+							<packaging>dll</packaging>
+						</configuration>
+					</execution>
+
+					<execution>
 						<id>copy-prettytools-dde</id>
 						<phase>install</phase>
 						<goals>
@@ -187,6 +203,22 @@
 						</configuration>
 					</execution>
 
+					<execution>
+						<id>copy-prettytools-dde-dll</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>dll/javadde.dll</file>
+							<groupId>com.prettytools</groupId>
+							<artifactId>pretty-tools-jdde</artifactId>
+							<classifier>win32</classifier>
+							<version>1.0.1</version>
+							<packaging>dll</packaging>
+						</configuration>
+					</execution>
+					
 				</executions>
 			</plugin>
 		</plugins>

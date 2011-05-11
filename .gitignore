@@ -3,6 +3,7 @@ target
 medusa-core/data/medusa.ini
 medusa-core/data/service.conf
 medusa-core/target
+medusa-core/lib
 medusa-core/.settings
 medusa-gui/target
 medusa-gui/.settings

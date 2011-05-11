@@ -59,12 +59,62 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/tysdsd</outputDirectory>
+							<outputDirectory>lib</outputDirectory>
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
 						</configuration>
 					</execution>
+					<execution>
+						<id>copy-dlls</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>tanukisoft</groupId>
+									<artifactId>wrapper</artifactId>
+									<classifier>win32</classifier>
+									<version>3.5.7</version>
+									<type>dll</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>lib</outputDirectory>
+									<destFileName>wrapper.dll</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.prettytools</groupId>
+									<artifactId>pretty-tools-jdde</artifactId>
+									<version>1.0.1</version>
+									<classifier>win32</classifier>
+									<type>dll</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>lib</outputDirectory>
+									<destFileName>javadde.dll</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-medusa-core</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.sarxos.medusa</groupId>
+									<artifactId>medusa-core</artifactId>
+									<version>${project.parent.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>lib</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>					
 				</executions>
 			</plugin>
 		</plugins>

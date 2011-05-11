@@ -48,10 +48,8 @@ cat "$NT_WRAPPER_CFG" > "$NT_WRAPPER_TMP"
 echo >> "$NT_WRAPPER_TMP"
 echo "#### MEDUSA GENERATED CONTENT #### BEGIN" >> "$NT_WRAPPER_TMP"
 echo "wrapper.logfile=$LOG_DIR/service.log" >> "$NT_WRAPPER_TMP"
-echo "wrapper.java.library.path.1=$LIB_DIR" >> "$NT_WRAPPER_TMP"
-echo "wrapper.java.classpath.1=target" >> "$NT_WRAPPER_TMP"
 
-typeset -i num=2
+typeset -i num=1
 
 for f in $(ls $MEDUSA_LIB)
 do
