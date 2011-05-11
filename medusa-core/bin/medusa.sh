@@ -18,7 +18,6 @@ fi
 # directories
 
 BIN_DIR="bin"
-LOG_DIR="log"
 LIB_DIR="lib"
 
 EXECUTABLE="wrapper.exe"
@@ -47,7 +46,6 @@ cat "$NT_WRAPPER_CFG" > "$NT_WRAPPER_TMP"
 
 echo >> "$NT_WRAPPER_TMP"
 echo "#### MEDUSA GENERATED CONTENT #### BEGIN" >> "$NT_WRAPPER_TMP"
-echo "wrapper.logfile=$LOG_DIR/service.log" >> "$NT_WRAPPER_TMP"
 
 typeset -i num=1
 
