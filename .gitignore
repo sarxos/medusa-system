@@ -8,10 +8,14 @@ medusa-core/log
 medusa-core/.settings
 medusa-gui/target
 medusa-gui/.settings
-medusa-plugin-moneypl/target
-medusa-plugin-moneypl/.settings
+medusa-plugin-mystock/target
+medusa-plugin-mystock/.settings
 medusa-plugin-alior/target
 medusa-plugin-alior/.settings
+medusa-plugin-orange/target
+medusa-plugin-orange/.settings
 medusa-http/target
 medusa-http/.settings
+medusa-plugin-smesx/target
+medusa-plugin-smesx/.settings
 

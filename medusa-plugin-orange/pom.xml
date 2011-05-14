@@ -11,10 +11,10 @@
 	<groupId>com.sarxos.medusa</groupId>
 	<artifactId>medusa-plugin-orangepl</artifactId>
 	<version>${project.parent.version}</version>
-	<name>Medusa System Plugin - Orange.pl</name>
+	<name>Medusa System Plugin - Orange Mobile</name>
 	<description>
 		Orange.pl plugin for the Medusa System, allows Medusa to send SMS messages
-		via the orange.pl messages gateway.
+		via the orange.pl message gateway.
 	</description>
 
 	<dependencies>
@@ -27,6 +27,13 @@
 			<groupId>com.sarxos.medusa</groupId>
 			<artifactId>medusa-core</artifactId>
 			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sarxos.medusa</groupId>
+			<artifactId>medusa-http</artifactId>
+			<version>${project.parent.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

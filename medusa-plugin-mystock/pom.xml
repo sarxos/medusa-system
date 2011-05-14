@@ -9,10 +9,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sarxos.medusa</groupId>
-	<artifactId>medusa-plugin-money.pl</artifactId>
+	<artifactId>medusa-plugin-mystock</artifactId>
 	<version>${project.parent.version}</version>
-	<name>Medusa System Plugin - Money.pl</name>
-	<description>Money.pl plugin for the Medusa System</description>
+	<name>Medusa System Plugin - MyStock</name>
+	<description>MyStock.pl plugin for the Medusa System</description>
 
 	<dependencies>
 		<dependency>

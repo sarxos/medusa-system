@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>medusa-plugin-moneypl</name>
-	<comment>This is Medusa System plugin for the money.pl service</comment>
+	<name>medusa-plugin-mystock</name>
+	<comment>This is Medusa System plugin for the mystock.pl service</comment>
 	<projects>
 	</projects>
 	<buildSpec>

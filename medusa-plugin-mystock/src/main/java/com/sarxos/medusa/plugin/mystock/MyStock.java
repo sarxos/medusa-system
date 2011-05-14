@@ -1,4 +1,4 @@
-package com.sarxos.medusa.plugin.moneypl;
+package com.sarxos.medusa.plugin.mystock;
 
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ import com.sarxos.medusa.http.MedusaHttpClient;
 
 @PluginImplementation
 @Author(name = "Bartosz Firyn")
-public class MoneyPL {
+public class MyStock {
 
 	public boolean login(String usr, String pwd) throws Exception {
 
@@ -38,7 +38,7 @@ public class MoneyPL {
 	}
 
 	public static void main(String[] args) throws Exception {
-		MoneyPL mpl = new MoneyPL();
+		MyStock mpl = new MyStock();
 		mpl.login("bfiryn", "test1234");
 	}
 

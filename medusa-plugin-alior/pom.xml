@@ -11,7 +11,7 @@
 	<groupId>com.sarxos.medusa</groupId>
 	<artifactId>medusa-plugin-alior</artifactId>
 	<version>${project.parent.version}</version>
-	<name>Medusa System Plugin - Alior</name>
+	<name>Medusa System Plugin - Alior Bank</name>
 	<description>Medusa System plugin for the Alior Bank brokerage API</description>
 
 	<dependencies>
