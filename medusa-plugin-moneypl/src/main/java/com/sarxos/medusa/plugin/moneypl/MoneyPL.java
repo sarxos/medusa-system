@@ -11,6 +11,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.sarxos.medusa.http.MedusaHttpClient;
+
 
 @PluginImplementation
 @Author(name = "Bartosz Firyn")
@@ -18,20 +20,19 @@ public class MoneyPL {
 
 	public boolean login(String usr, String pwd) throws Exception {
 
-		MPLClient client = new MPLClient();
+		MedusaHttpClient client = new MedusaHttpClient();
 
 		// get login page
 		HttpGet get = new HttpGet("http://www.mystock.pl/user/login.do");
-		client.runVoid(get);
+		client.executeVoid(get);
 
+		// send credentials
 		ArrayList<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		nvps.add(new BasicNameValuePair("login", usr));
 		nvps.add(new BasicNameValuePair("password", pwd));
-
 		HttpPost post = new HttpPost("http://www.mystock.pl/logowanie/");
 		post.setEntity(new UrlEncodedFormEntity(nvps));
-
-		client.runVoid(post);
+		client.executeVoid(post);
 
 		return false;
 	}

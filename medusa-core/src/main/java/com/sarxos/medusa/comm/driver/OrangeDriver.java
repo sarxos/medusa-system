@@ -18,7 +18,7 @@ import org.apache.http.message.BasicNameValuePair;
 import com.sarxos.medusa.comm.Message;
 import com.sarxos.medusa.comm.MessagesDriver;
 import com.sarxos.medusa.comm.MessagingException;
-import com.sarxos.medusa.data.MedusaHttpClient;
+import com.sarxos.medusa.http.MedusaHttpClient;
 import com.sarxos.medusa.util.Configuration;
 
 

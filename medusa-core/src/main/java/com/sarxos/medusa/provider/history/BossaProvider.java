@@ -24,9 +24,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sarxos.medusa.data.MedusaHttpClient;
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.data.QuotesRegistry;
+import com.sarxos.medusa.http.MedusaHttpClient;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.HistoryProvider;
@@ -298,7 +298,7 @@ public class BossaProvider implements HistoryProvider {
 				is = zip.getInputStream(entry);
 
 				File mstf = new File("data/tmp/mstcgl/" + name);
-				File parent = mstf.getParentFile(); 
+				File parent = mstf.getParentFile();
 				if (!parent.exists()) {
 					parent.mkdirs();
 				}
@@ -379,9 +379,9 @@ public class BossaProvider implements HistoryProvider {
 					t.setPrev(q);
 					q.setNext(t);
 				}
-				
+
 				q = t;
-				
+
 				quotes.add(t);
 			}
 
@@ -409,7 +409,7 @@ public class BossaProvider implements HistoryProvider {
 					}
 				}
 			}
-			
+
 			fos = new FileOutputStream(zipf);
 
 			MedusaHttpClient client = new MedusaHttpClient();
@@ -456,7 +456,7 @@ public class BossaProvider implements HistoryProvider {
 		if (!parent.exists()) {
 			parent.mkdirs();
 		}
-		
+
 		if (prn.exists()) {
 
 			Date modified = new Date(prn.lastModified());

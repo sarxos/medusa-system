@@ -13,7 +13,7 @@
 		<name>SarXos Design</name>
 		<url>http://www.sarxos.pl</url>
 	</organization>
-
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -59,6 +59,7 @@
 
 	<modules>
 		<module>medusa-mvn</module>
+		<module>medusa-http</module>
 		<module>medusa-core</module>
 		<module>medusa-gui</module>
 		<module>medusa-plugin-alior</module>
@@ -83,6 +84,29 @@
 		</profile>
 	</profiles>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>0.9.28</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.28</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 	<reporting>
 		<plugins>
 			<plugin>

@@ -23,7 +23,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.DeflateDecompressingEntity;
@@ -32,7 +31,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.message.BasicNameValuePair;
 import org.cyberneko.html.parsers.DOMParser;
 import org.json.parser.JSONArray;
@@ -45,7 +43,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.sarxos.medusa.data.MedusaHttpClient;
+import com.sarxos.medusa.http.MedusaHttpClient;
 import com.sarxos.medusa.market.BidAsk;
 import com.sarxos.medusa.market.Calendarium;
 import com.sarxos.medusa.market.Quote;
@@ -323,7 +321,7 @@ public class ParkietProvider implements RealTimeProvider {
 		isProxied = client.getProxy() != null;
 
 		// cookies settings
-		
+
 		// TODO: implement persistence cookies storage
 
 		// parser features
@@ -759,10 +757,10 @@ public class ParkietProvider implements RealTimeProvider {
 
 			if (response == null) {
 				throw new ProviderException(
-					"Persistent problem when connecting to " + req.getURI() + ". " + 
+					"Persistent problem when connecting to " + req.getURI() + ". " +
 					"Maximum number of attempts (" + max + ") has been reached");
 			}
-			
+
 			entity = response.getEntity();
 
 			Header[] headers = null;
