@@ -18,4 +18,6 @@ medusa-http/target
 medusa-http/.settings
 medusa-plugin-smesx/target
 medusa-plugin-smesx/.settings
-
+medusa-plugin-dde/target
+medusa-plugin-dde/lib
+medusa-plugin-dde/.settings

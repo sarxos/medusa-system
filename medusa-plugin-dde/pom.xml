@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<artifactId>medusa-system</artifactId>
+		<groupId>com.sarxos.medusa</groupId>
+		<version>0.0.1</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sarxos.medusa</groupId>
+	<artifactId>medusa-plugin-dde</artifactId>
+	<version>${project.parent.version}</version>
+	<name>Medusa System Plugin - DDE</name>
+	<description>Plugin for the Medusa System containing available DDE clients</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<id>copy-dlls</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.prettytools</groupId>
+									<artifactId>pretty-tools-jdde</artifactId>
+									<version>1.0.1</version>
+									<classifier>win32</classifier>
+									<type>dll</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>lib</outputDirectory>
+									<destFileName>javadde.dll</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.prettytools</groupId>
+			<artifactId>pretty-tools-jdde</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sarxos.medusa</groupId>
+			<artifactId>medusa-core</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+	</dependencies>
+
+</project>

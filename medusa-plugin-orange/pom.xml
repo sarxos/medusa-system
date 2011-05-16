@@ -9,7 +9,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sarxos.medusa</groupId>
-	<artifactId>medusa-plugin-orangepl</artifactId>
+	<artifactId>medusa-plugin-orange</artifactId>
 	<version>${project.parent.version}</version>
 	<name>Medusa System Plugin - Orange Mobile</name>
 	<description>
