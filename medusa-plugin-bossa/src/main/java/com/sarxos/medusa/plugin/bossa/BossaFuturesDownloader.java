@@ -1,5 +1,7 @@
 package com.sarxos.medusa.plugin.bossa;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -36,12 +38,14 @@ public class BossaFuturesDownloader {
 
 	public boolean download(Symbol symbol, Date date) throws MedusaHttpException {
 
+		String dstr = DATE_FORMAT.format(date);
+
 		MedusaHttpClient client = new MedusaHttpClient();
 
 		ArrayList<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		nvps.add(new BasicNameValuePair("today", "off"));
 		nvps.add(new BasicNameValuePair("backUrl", "$backUrl"));
-		nvps.add(new BasicNameValuePair("data", DATE_FORMAT.format(date)));
+		nvps.add(new BasicNameValuePair("data", dstr));
 		nvps.add(new BasicNameValuePair("nazwa", symbol.getName()));
 		nvps.add(new BasicNameValuePair("format", "mst"));
 		nvps.add(new BasicNameValuePair("time_period_l", "tick"));
@@ -64,7 +68,13 @@ public class BossaFuturesDownloader {
 			if (response != null) {
 				HttpEntity entity = response.getEntity();
 				try {
-					entity.writeTo(System.out);
+					File f = new File(symbol + "." + dstr + ".prn");
+					File p = f.getParentFile();
+					if (!p.exists()) {
+						p.mkdirs();
+					}
+					FileOutputStream fos = new FileOutputStream(f);
+					entity.writeTo(fos);
 				} catch (IOException e) {
 					throw new MedusaHttpException(e);
 				}
