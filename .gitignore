@@ -21,3 +21,6 @@ medusa-plugin-smesx/.settings
 medusa-plugin-dde/target
 medusa-plugin-dde/lib
 medusa-plugin-dde/.settings
+medusa-plugin-bossa/target
+medusa-plugin-bossa/data
+medusa-plugin-bossa/.settings

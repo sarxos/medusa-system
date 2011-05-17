@@ -1,13 +1,19 @@
 package com.sarxos.medusa.http;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.entity.DeflateDecompressingEntity;
+import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -97,7 +103,7 @@ public class MedusaHttpClient extends DefaultHttpClient {
 		return proxy;
 	}
 
-	protected HttpUriRequest affect(HttpUriRequest req) {
+	public HttpUriRequest affect(HttpUriRequest req) {
 
 		req.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 5.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1");
 		req.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
@@ -192,5 +198,71 @@ public class MedusaHttpClient extends DefaultHttpClient {
 				}
 			}
 		}
+	}
+
+	public InputStream ungzip(HttpResponse response) throws MedusaHttpException {
+
+		if (response == null) {
+			throw new IllegalArgumentException("Response cannot be null");
+		}
+
+		HttpEntity entity = response.getEntity();
+		HttpEntity decompressing = null;
+
+		int size = 32768;
+
+		Header header = response.getFirstHeader("Content-Length");
+
+		if (header != null) {
+			String val = header.getValue();
+			try {
+				int s = Integer.parseInt(val);
+				if (s < 1024E+3) {
+					size = s;
+				}
+			} catch (NumberFormatException e) {
+				throw new MedusaHttpException("Cannot parse Content-Length '" + val + "'", e);
+			}
+		}
+
+		header = response.getFirstHeader("Content-Encoding");
+		if (header != null) {
+			String val = header.getValue();
+			if ("gzip".equals(val)) {
+				decompressing = new GzipDecompressingEntity(entity);
+			} else if ("deflat".equals(val)) {
+				decompressing = new DeflateDecompressingEntity(entity);
+			} else {
+				throw new MedusaHttpException("Unsupported compression method '" + val + "'");
+			}
+		}
+
+		int s = (int) decompressing.getContentLength();
+		if (s > 0) {
+			size = s;
+		}
+
+		byte[] bytes = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(size + 1);
+
+		try {
+			decompressing.writeTo(baos);
+		} catch (Exception e) {
+			throw new MedusaHttpException(e);
+		} finally {
+
+			bytes = baos.toByteArray();
+			baos.reset();
+
+			if (entity != null) {
+				try {
+					entity.getContent().close();
+				} catch (Exception e) {
+					throw new MedusaHttpException("Cannot close entity stream", e);
+				}
+			}
+		}
+
+		return new ByteArrayInputStream(bytes);
 	}
 }
