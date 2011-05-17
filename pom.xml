@@ -63,6 +63,7 @@
 		<module>medusa-core</module>
 		<module>medusa-gui</module>
 		<module>medusa-plugin-alior</module>
+		<module>medusa-plugin-bossa</module>
 		<module>medusa-plugin-dde</module>
 		<module>medusa-plugin-mystock</module>
 		<module>medusa-plugin-orange</module>

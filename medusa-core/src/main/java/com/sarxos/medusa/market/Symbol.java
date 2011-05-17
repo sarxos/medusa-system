@@ -9,6 +9,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public enum Symbol {
 
 	/**
+	 * WIG20 Future, June 2011
+	 */
+	FW20M11("FW20M11"),
+
+	/**
 	 * For tests.
 	 */
 	QQQ("QQQINC"),
