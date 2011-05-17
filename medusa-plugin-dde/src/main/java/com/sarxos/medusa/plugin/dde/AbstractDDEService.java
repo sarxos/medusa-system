@@ -91,7 +91,9 @@ public abstract class AbstractDDEService implements DDEService {
 				connected = true;
 
 			} catch (DDEClientException e) {
-				throw new DDEException(conv, "Cannot connect to the DDE server", e);
+				throw new DDEException(
+					"Cannot connect to the DDE server - service '" +
+					getService() + "', topic '" + getTopic() + "'", e);
 			}
 			return true;
 		}

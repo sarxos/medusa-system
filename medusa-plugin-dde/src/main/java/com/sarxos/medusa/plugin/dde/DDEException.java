@@ -12,6 +12,10 @@ public class DDEException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
+	public DDEException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 	public DDEException(DDEClientConversation conv, String message, Throwable cause) {
 		super("DDE service '" + conv.getService() + "' topic '" + conv.getTopic() + "': " + message, cause);
 	}
