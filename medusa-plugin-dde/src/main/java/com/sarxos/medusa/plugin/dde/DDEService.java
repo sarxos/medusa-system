@@ -1,7 +1,6 @@
 package com.sarxos.medusa.plugin.dde;
 
 import com.sarxos.medusa.market.Quote;
-import com.sarxos.medusa.market.Symbol;
 
 
 /**
@@ -29,9 +28,18 @@ public interface DDEService {
 	/**
 	 * Return quote for given symbol.
 	 * 
-	 * @param symbol - symbol to get quote for
+	 * @param symbol - symbol to get quote for (e.g. "PEO" or "FW20M11")
 	 * @return Quote for given symbol
 	 */
-	public Quote getQuote(Symbol symbol);
+	public Quote getQuote(String symbol) throws DDEException;
 
+	/**
+	 * @return Return DDE service name
+	 */
+	public String getService();
+
+	/**
+	 * @return Return DDE topic name
+	 */
+	public String getTopic();
 }
