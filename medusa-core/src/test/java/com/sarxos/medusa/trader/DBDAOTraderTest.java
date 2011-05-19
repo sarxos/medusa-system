@@ -12,6 +12,7 @@ import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.trader.TraderTest.TestTrader;
 
 
 @Ignore

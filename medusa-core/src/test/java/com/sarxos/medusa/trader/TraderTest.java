@@ -17,7 +17,7 @@ import com.sarxos.medusa.provider.RealTimeProvider;
 @Ignore
 public class TraderTest extends TestCase {
 
-	public class TestTrader extends Trader {
+	public static class TestTrader extends Trader {
 
 		@Override
 		public void decisionChange(DecisionEvent event) {

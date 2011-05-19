@@ -82,7 +82,6 @@ public class QuotesStreamReader implements Closeable {
 		if (r == null) {
 			throw new IllegalArgumentException("Reader cannot be null");
 		}
-
 		this.br = new BufferedReader(r);
 	}
 

@@ -12,6 +12,11 @@ import org.junit.Test;
 import com.sarxos.medusa.market.Quote;
 
 
+/**
+ * Test case for {@link QuotesStreamReader} class
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
 public class QuotesStreamReaderTest {
 
 	private static final String RESOURCE = "com/sarxos/medusa/data/FW20M11.prn";
