@@ -8,7 +8,7 @@
 			<level>debug</level>
 		</filter>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>medusa.log.%i</fileNamePattern>
+			<fileNamePattern>log/medusa.log.%i</fileNamePattern>
 			<maxIndex>6</maxIndex>
 		</rollingPolicy>
 		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
