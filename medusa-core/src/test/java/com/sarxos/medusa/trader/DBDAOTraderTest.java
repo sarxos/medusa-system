@@ -2,6 +2,9 @@ package com.sarxos.medusa.trader;
 
 import junit.framework.TestCase;
 
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Paper;
@@ -9,9 +12,9 @@ import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.trader.Trader;
 
 
+@Ignore
 public class DBDAOTraderTest extends TestCase {
 
 	private static final String NAME = "Buka";
@@ -22,9 +25,9 @@ public class DBDAOTraderTest extends TestCase {
 	private DBDAO dbdao = null;
 	private Trader trader = null;
 
-	public DBDAOTraderTest() {
+	@BeforeClass
+	public void init() {
 		this.dbdao = DBDAO.getInstance();
-
 		this.trader = new TestTrader(NAME, SIGGEN, PAPER);
 		this.trader.setPosition(POSITION);
 	}

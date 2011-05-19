@@ -2,6 +2,8 @@ package com.sarxos.medusa.trader;
 
 import junit.framework.TestCase;
 
+import org.junit.Ignore;
+
 import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Paper;
@@ -9,13 +11,28 @@ import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.trader.StocksTrader;
-import com.sarxos.medusa.trader.Trader;
+import com.sarxos.medusa.provider.RealTimeProvider;
 
 
+@Ignore
 public class TraderTest extends TestCase {
 
-	private static final DBDAO dbdao = DBDAO.getInstance();
+	public class TestTrader extends Trader {
+
+		@Override
+		public void decisionChange(DecisionEvent event) {
+		}
+
+		public TestTrader(String name, SignalGenerator<? extends Quote> siggen, Paper paper, RealTimeProvider provider) {
+			super(name, siggen, paper, provider);
+		}
+
+		public TestTrader(String name, SignalGenerator<? extends Quote> siggen, Paper paper) {
+			super(name, siggen, paper);
+		}
+	}
+
+	private static DBDAO dbdao = DBDAO.getInstance();
 	private static final String NAME = "TestTRader";
 	private static final SignalGenerator<Quote> SIGGEN = new MAVD();
 	private static final Paper PAPER = new Paper(Symbol.QQQ, 100, 0);
