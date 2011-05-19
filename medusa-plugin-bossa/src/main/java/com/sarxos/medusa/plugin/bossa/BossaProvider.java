@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
@@ -508,7 +509,6 @@ public class BossaProvider implements HistoryProvider {
 				} catch (IOException e) {
 					throw new ProviderException(e);
 				} finally {
-
 					if (os != null) {
 						try {
 							os.close();
@@ -516,7 +516,6 @@ public class BossaProvider implements HistoryProvider {
 							throw new ProviderException(e);
 						}
 					}
-
 					if (is != null) {
 						try {
 							is.close();
@@ -524,7 +523,6 @@ public class BossaProvider implements HistoryProvider {
 							throw new ProviderException(e);
 						}
 					}
-
 					if (!zipf.delete()) {
 						zipf.deleteOnExit();
 					}
@@ -547,9 +545,17 @@ public class BossaProvider implements HistoryProvider {
 		}
 	}
 
-	public static void main(String[] args) throws ProviderException {
+	public static void main(String[] args) throws ProviderException, ParseException {
 		BossaProvider b = new BossaProvider();
 		QuotesIterator<Quote> qi = b.getIntradayQuotes(Symbol.FW20M11);
-		System.out.println(qi.hasNext() + " " + qi.getSymbol());
+		qi.forward(new SimpleDateFormat("yyyy-MM-dd HH").parse("2011-05-12 12"));
+		// qi.next();
+		qi.forward(new SimpleDateFormat("yyyy-MM-dd").parse("2011-05-12"));
+		while (qi.hasNext()) {
+			System.out.println(qi.next());
+			break;
+		}
+		// System.out.println(qi.next());
+		System.out.println(qi.next());
 	}
 }

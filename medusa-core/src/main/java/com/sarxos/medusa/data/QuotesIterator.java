@@ -3,10 +3,14 @@ package com.sarxos.medusa.data;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
@@ -105,10 +109,12 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean hasNext() {
-		try {
-			next = (E) qsr.read();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		if (next == null) {
+			try {
+				next = (E) qsr.read();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 		return next != null;
 	}
@@ -125,6 +131,9 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+		}
+		if (quote == null) {
+			throw new NoSuchElementException("There is no next element");
 		}
 		return quote;
 	}
@@ -170,13 +179,50 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 		return quotes;
 	}
 
-	public static void main(String[] args) throws IOException {
-		QuotesIterator<Quote> qi = new QuotesIterator<Quote>(Symbol.CPS);
-		int i = 0;
-		while (qi.hasNext()) {
-			qi.next();
-			i++;
+	/**
+	 * Forward quotes to specific day (only day/month/year are being taken into
+	 * account). Please ensure given date is a working day! In other case
+	 * iterator will be set to point end of the quotes stream.
+	 * 
+	 * @param date - date to find (<b>must</b> be working day)
+	 */
+	public void forward(Date date) {
+		if (hasNext()) {
+
+			long a = next.getDate().getTime();
+			long b = date.getTime();
+			long m = 1000 * 60 * 60 * 24;
+
+			if (b / m < (a - m) / m) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				throw new IllegalArgumentException(
+					"Current iterator position date " + sdf.format(next.getDate()) + " " +
+					"is after searching date " + sdf.format(date));
+			}
+		} else {
+			throw new NoSuchElementException("There is no next element");
 		}
-		System.out.println(i);
+		boolean found = false;
+		try {
+			found = qsr.seek(date);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		if (found) {
+			next = null;
+		}
+	}
+
+	public static void main(String[] args) throws IOException, ParseException {
+		Date d1 = QuotesStreamReader.DATE_FORMAT_FULL.parse("20110314123345");
+		Date d2 = QuotesStreamReader.DATE_FORMAT_SHORT.parse("20110314");
+
+		long m = 1000 * 60 * 60 * 24;
+		long p = d1.getTime() / m;
+		long t1 = (p * m - m) / m;
+		System.out.println(t1);
+
+		System.out.println(d1.getTime() / (1000 * 60 * 60 * 24));
+		System.out.println(d2.getTime() / (1000 * 60 * 60 * 24));
 	}
 }

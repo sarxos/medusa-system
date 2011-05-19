@@ -22,7 +22,6 @@ import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
 
 import com.sarxos.medusa.generator.HMAC;
-import com.sarxos.medusa.generator.MAVD2;
 import com.sarxos.medusa.gui.drawer.BDrawer;
 import com.sarxos.medusa.gui.drawer.DDrawer;
 import com.sarxos.medusa.gui.drawer.SDrawer;
@@ -34,10 +33,9 @@ import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.Signal.Value;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.math.ADX;
-import com.sarxos.medusa.math.ATR;
-import com.sarxos.medusa.math.MA;
-import com.sarxos.medusa.plugin.bossa.BossaProvider;
+import com.sarxos.medusa.provider.HistoryProvider;
 import com.sarxos.medusa.provider.ProviderException;
+import com.sarxos.medusa.provider.Providers;
 
 
 public class Test extends JFrame {
@@ -50,10 +48,10 @@ public class Test extends JFrame {
 		Symbol s = Symbol.SGN;
 		AbstractGenerator<Quote> siggen = new HMAC(20, 40, 30);
 		siggen.setOutputting(true);
-		
+
 		//
-		
-		BossaProvider bp = new BossaProvider();
+
+		HistoryProvider bp = Providers.getHistoryProvider();
 		List<Quote> quotes = bp.getAllQuotes(s);
 
 		OHLCSeries series = new OHLCSeries(s);
@@ -123,7 +121,7 @@ public class Test extends JFrame {
 		ohlc.setRenderer(0, lrend);
 
 		// atr
-		
+
 		TimeSeriesCollection dataset3 = new TimeSeriesCollection();
 		XYSplineRenderer lrend2 = new XYSplineRenderer();
 		lrend2.setSeriesShapesVisible(0, false);
@@ -141,10 +139,8 @@ public class Test extends JFrame {
 			ts.add(new Day(q.getDate()), atr);
 		}
 		plot.add(jmaplot);
-		
-		//
-		
 
+		//
 
 		JFreeChart chart = new JFreeChart(s.getName(), JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 		// ChartFactory.getChartTheme().apply(chart);

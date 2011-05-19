@@ -188,7 +188,6 @@ public class MedusaHttpClient extends DefaultHttpClient {
 					"Cannot download file from '" + url + "' to '" +
 					f.getPath() + "'", e);
 		} finally {
-
 			if (entity != null) {
 				try {
 					entity.getContent().close();
@@ -196,7 +195,6 @@ public class MedusaHttpClient extends DefaultHttpClient {
 					LOG.error(e.getMessage(), e);
 				}
 			}
-
 			if (fos != null) {
 				try {
 					fos.close();

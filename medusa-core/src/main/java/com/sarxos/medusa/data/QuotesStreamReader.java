@@ -14,10 +14,28 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 
 
+/**
+ * Quotes stream reader.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
 public class QuotesStreamReader implements Closeable {
 
-	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+	/**
+	 * Full data format.
+	 */
+	public static final SimpleDateFormat DATE_FORMAT_FULL = new SimpleDateFormat("yyyyMMddHHmmss");
 
+	/**
+	 * Short data format.
+	 */
+	public static final SimpleDateFormat DATE_FORMAT_SHORT = new SimpleDateFormat("yyyyMMdd");
+
+	/**
+	 * Possible stream formats.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
 	public static enum Format {
 		UNKNOWN,
 		MST,
@@ -31,6 +49,19 @@ public class QuotesStreamReader implements Closeable {
 	 */
 	private BufferedReader br = null;
 
+	/**
+	 * File line number.
+	 */
+	private int num = 0;
+
+	/**
+	 * Already processed line.
+	 */
+	private String line = null;
+
+	/**
+	 * Recognized stream format.
+	 */
 	private Format format = null;
 
 	/**
@@ -60,16 +91,20 @@ public class QuotesStreamReader implements Closeable {
 		br.close();
 	}
 
-	private void recognize() throws IOException {
+	private void recognize() throws IOException, IllegalAccessException {
+		if (format != null) {
+			throw new IllegalAccessException("Format has been already set");
+		}
 		if (br.ready()) {
 			br.mark(1024);
-			String fline = br.readLine();
+			String fline = getLine();
 			if (fline.startsWith("\"")) {
 				format = Format.OBL;
 			} else if (fline.startsWith("<")) {
 				format = Format.MST;
 			} else {
-				if (fline.split(",").length == 10) {
+				String[] parts = fline.split(",");
+				if (parts.length == 10) {
 					format = Format.CGL_INTRA;
 				} else {
 					format = Format.CGL_DAY;
@@ -88,15 +123,8 @@ public class QuotesStreamReader implements Closeable {
 			throw new IllegalArgumentException("Quotes array canot be null");
 		}
 
-		if (!br.ready()) {
-			return 0;
-		}
-
-		if (format == null) {
-			recognize();
-		}
-		if (format == Format.UNKNOWN) {
-			throw new ParseException("Unknown file format", 0);
+		if (!check()) {
+			return -1;
 		}
 
 		int i = 0;
@@ -114,19 +142,12 @@ public class QuotesStreamReader implements Closeable {
 
 	public Quote read() throws IOException, ParseException {
 
-		if (!br.ready()) {
+		if (!check()) {
 			return null;
 		}
 
-		if (format == null) {
-			recognize();
-		}
-		if (format == Format.UNKNOWN) {
-			throw new ParseException("Unknown file format", 0);
-		}
-
 		Quote q = null;
-		String line = br.readLine();
+		String line = getLine();
 
 		switch (format) {
 			case CGL_INTRA:
@@ -141,13 +162,32 @@ public class QuotesStreamReader implements Closeable {
 			case MST:
 				if (line.startsWith("<") || line.startsWith("\"")) {
 					// omit headers
-					line = br.readLine();
+					line = getLine();
 				}
 				// read
 				break;
 		}
 
 		return q;
+	}
+
+	private boolean check() throws ParseException, IOException {
+		if (!br.ready()) {
+			return false;
+		}
+
+		if (format == null) {
+			try {
+				recognize();
+			} catch (IllegalAccessException e) {
+				throw new ParseException(e.getMessage(), num);
+			}
+		}
+		if (format == Format.UNKNOWN) {
+			throw new ParseException("Unknown file format", 0);
+		}
+
+		return true;
 	}
 
 	/**
@@ -176,7 +216,7 @@ public class QuotesStreamReader implements Closeable {
 		// 9 open interests
 
 		Symbol symbol = Symbol.valueOfName(parts[0]);
-		Date date = DATE_FORMAT.parse(parts[2] + parts[3]);
+		Date date = DATE_FORMAT_FULL.parse(parts[2] + parts[3]);
 		double open = Double.parseDouble(parts[4]);
 		double high = Double.parseDouble(parts[5]);
 		double low = Double.parseDouble(parts[6]);
@@ -191,5 +231,49 @@ public class QuotesStreamReader implements Closeable {
 	 */
 	protected Format getFormat() {
 		return format;
+	}
+
+	/**
+	 * Will seek the stream and change pointer position just before given date.
+	 * This method will return true if date has been found, false otherwise.
+	 * Please note that this method will change pointer position, so if you want
+	 * to start reading from the point where you have called this method, you
+	 * will have to reallocate whole stream. Therefore please use this method
+	 * with care!
+	 * 
+	 * @param date - date to find
+	 * @return true in case if date has been found, false otherwise
+	 * @throws IOException
+	 * @throws ParseException
+	 */
+	public boolean seek(Date date) throws IOException, ParseException {
+
+		if (!check()) {
+			return false;
+		}
+
+		String str = "," + DATE_FORMAT_SHORT.format(date) + ",";
+		String l = null;
+
+		while (br.ready()) {
+			if ((l = br.readLine()).indexOf(str) != -1) {
+				line = l;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private String getLine() throws IOException {
+		String s = null;
+		if (line != null) {
+			s = line;
+			line = null;
+		} else {
+			num++;
+			s = br.readLine();
+		}
+		return s;
 	}
 }
