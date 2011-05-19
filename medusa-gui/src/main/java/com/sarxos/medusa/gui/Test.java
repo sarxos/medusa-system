@@ -36,8 +36,8 @@ import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.math.ADX;
 import com.sarxos.medusa.math.ATR;
 import com.sarxos.medusa.math.MA;
+import com.sarxos.medusa.plugin.bossa.BossaProvider;
 import com.sarxos.medusa.provider.ProviderException;
-import com.sarxos.medusa.provider.history.BossaProvider;
 
 
 public class Test extends JFrame {

@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.sarxos.medusa.market.Future;
-import com.sarxos.medusa.market.Index;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.util.Configuration;
@@ -31,8 +29,7 @@ import com.sarxos.medusa.util.Configuration;
  * manually. Check other PRN utilities for details - there should be some
  * command to do that automatically.
  * 
- * @param <E> - quotes type - can be either {@link Quote}, {@link Future} or
- *            other type (like {@link Index}).
+ * @param <E> - quotes type
  * @author Bartosz Firyn (SarXos)
  */
 public class QuotesIterator<E extends Quote> implements Iterator<E> {
@@ -79,7 +76,7 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 
 		this.symbol = symbol;
 
-		String tmpdir = CFG.getProperty("core", "tmpdir");
+		String tmpdir = CFG.getProperty("core", "tmpdir", "data/tmp");
 		String name = symbol.getName();
 		String fname = tmpdir + "/intraday/" + name + ".prn";
 
@@ -157,9 +154,9 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 
 	/**
 	 * Create collection from this iterator. This method is sometimes useful but
-	 * shall not be overused due to its performance impact. Quotes iterator is a 
+	 * shall not be overused due to its performance impact. Quotes iterator is a
 	 * lightweight object allowing us to iterate through the all quotes without
-	 * necessity to allocate large amounts of memory. When you convert it to 
+	 * necessity to allocate large amounts of memory. When you convert it to
 	 * collection this advantage does not take effect (it means you change
 	 * lightweight object to very heavy weighted).
 	 * 
@@ -172,7 +169,7 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 		}
 		return quotes;
 	}
-	
+
 	public static void main(String[] args) throws IOException {
 		QuotesIterator<Quote> qi = new QuotesIterator<Quote>(Symbol.CPS);
 		int i = 0;

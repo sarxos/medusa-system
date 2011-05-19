@@ -10,7 +10,7 @@ import com.sarxos.medusa.market.Symbol;
 public interface HistoryProvider {
 
 	/**
-	 * Download and return 6 last quotes.
+	 * Return 6 last end-of-day quotes for given symbol.
 	 * 
 	 * @return Return last 6 quotes.
 	 * @throws ProviderException
@@ -18,16 +18,16 @@ public interface HistoryProvider {
 	public List<Quote> getLastQuotes(Symbol symbol) throws ProviderException;
 
 	/**
-	 * Download and return all quotes.
+	 * Return all end-of-day quotes for given symbol.
 	 * 
-	 * @param symbol - symbol to download
+	 * @param symbol - symbol to get quotes for
 	 * @return Whole historical data
 	 * @throws ProviderException
 	 */
 	public List<Quote> getAllQuotes(Symbol symbol) throws ProviderException;
 
 	/**
-	 * Return intraday quotes iterator.
+	 * Return all intraday quotes iterator for given symbol.
 	 * 
 	 * @param symbol
 	 * @return Return quotes iterator.

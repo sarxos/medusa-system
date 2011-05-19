@@ -118,11 +118,11 @@ public class Configuration extends INIProperties {
 	private void loadFile(File ini) {
 		try {
 			load(new FileInputStream(ini));
-			
+
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Configuration loaded from " + ini.getPath());
 			}
-			
+
 		} catch (FileNotFoundException e) {
 			LOG.error("Configuration file '" + ini.getPath() + "' has not been found");
 		} catch (Exception e) {
@@ -135,5 +135,13 @@ public class Configuration extends INIProperties {
 	 */
 	public static Configuration getInstance() {
 		return instance;
+	}
+
+	public String getProperty(String section, String name, String def) {
+		String prop = super.getProperty(section, name);
+		if (prop == null) {
+			prop = def;
+		}
+		return prop;
 	}
 }

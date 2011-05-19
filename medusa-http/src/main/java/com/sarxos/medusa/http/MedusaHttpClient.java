@@ -168,6 +168,13 @@ public class MedusaHttpClient extends DefaultHttpClient {
 		HttpEntity entity = null;
 		FileOutputStream fos = null;
 
+		if (!f.exists()) {
+			File parent = new File(f.getParent());
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+		}
+
 		try {
 			fos = new FileOutputStream(f);
 

@@ -5,6 +5,7 @@ medusa-core/data/service.conf
 medusa-core/target
 medusa-core/lib
 medusa-core/log
+medusa-core/data
 medusa-core/.settings
 medusa-gui/target
 medusa-gui/.settings
@@ -24,3 +25,6 @@ medusa-plugin-dde/.settings
 medusa-plugin-bossa/target
 medusa-plugin-bossa/data
 medusa-plugin-bossa/.settings
+medusa-plugin-sim/target
+medusa-plugin-sim/.settings
+medusa-plugin-sim/data

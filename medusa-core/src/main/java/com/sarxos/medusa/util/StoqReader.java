@@ -1,6 +1,5 @@
 package com.sarxos.medusa.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,17 +16,15 @@ import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
-import com.sarxos.medusa.data.QuotesRemoteReader;
 import com.sarxos.medusa.data.QuotesReaderException;
-import com.sarxos.medusa.market.Future;
+import com.sarxos.medusa.data.QuotesRemoteReader;
 import com.sarxos.medusa.market.Quote;
 
 
 public class StoqReader<T extends Quote> implements QuotesRemoteReader<T> {
-	
-	private Class<T> clazz = null;  
-	
-	
+
+	private Class<T> clazz = null;
+
 	public StoqReader(Class<T> clazz) {
 		this.clazz = clazz;
 	}
@@ -38,11 +35,11 @@ public class StoqReader<T extends Quote> implements QuotesRemoteReader<T> {
 		if (uri == null) {
 			throw new IllegalArgumentException("URI to read cannot be null");
 		}
-		
+
 		String uristr = uri.toString();
-		
+
 		try {
-			
+
 			URL url = uri.toURL();
 			InputStream is = url.openStream();
 			InputStreamReader isr = new InputStreamReader(is);
@@ -53,19 +50,19 @@ public class StoqReader<T extends Quote> implements QuotesRemoteReader<T> {
 			strategy.setColumnMapping(getColumnMapping());
 			CsvToBean<T> csv = new CsvToBean<T>();
 
-			List<T> quotes = csv.parse(strategy, reader); 
-			
+			List<T> quotes = csv.parse(strategy, reader);
+
 			for (int i = 0; i < quotes.size() - 1; i++) {
 				Quote a = quotes.get(i);
 				Quote b = quotes.get(i + 1);
 				a.setNext(b);
 				b.setPrev(a);
 			}
-			
+
 			return quotes;
-			
+
 		} catch (MalformedURLException e) {
-			String msg = "URI is malformed " + uristr; 
+			String msg = "URI is malformed " + uristr;
 			throw new QuotesReaderException(msg, e);
 		} catch (IOException e) {
 			String msg = "IO exception when reading URI " + uristr;
@@ -76,31 +73,32 @@ public class StoqReader<T extends Quote> implements QuotesRemoteReader<T> {
 			throw new QuotesReaderException(e);
 		}
 	}
-	
+
 	private Map<String, String> columns = null;
-	
+
 	/**
 	 * Return column mapping for CSV.
 	 * 
 	 * @return Map &lt;String, String&gt;
-	 * @throws NoSuchFieldException when any of required fields does not exist in the type class
+	 * @throws NoSuchFieldException when any of required fields does not exist
+	 *             in the type class
 	 * @throws SecurityException in case of security violation
 	 */
 	public Map<String, String> getColumnMapping() throws SecurityException, NoSuchFieldException {
 		if (columns == null) {
-			
+
 			columns = new HashMap<String, String>();
-			
+
 			String name = null;
 			String column = null;
-			
+
 			List<Class<? super T>> classes = new LinkedList<Class<? super T>>();
-			Class<? super T> c = clazz; 
-			
+			Class<? super T> c = clazz;
+
 			do {
 				classes.add(c);
 			} while ((c = c.getSuperclass()) != null);
-			
+
 			for (Class<? super T> cs : classes) {
 				Field[] fields = cs.getDeclaredFields();
 				for (int i = 0; i < fields.length; i++) {
@@ -115,15 +113,5 @@ public class StoqReader<T extends Quote> implements QuotesRemoteReader<T> {
 			}
 		}
 		return columns;
-	}
-	
-	public static void main(String[] args) throws QuotesReaderException {
-
-		StoqReader<Future> reader = new StoqReader<Future>(Future.class);
-		List<Future> data = reader.read(new File("fw20z10_d.csv").toURI());
-
-		for (Future future : data) {
-			System.out.println(future.getInterests());
-		}
 	}
 }
