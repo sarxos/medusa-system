@@ -111,7 +111,14 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 	public boolean hasNext() {
 		if (next == null) {
 			try {
-				next = (E) qsr.read();
+				if (qsr.isClosed()) {
+					return false;
+				} else {
+					next = (E) qsr.read();
+					if (next == null) {
+						qsr.close();
+					}
+				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -127,7 +134,12 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 			next = null;
 		} else {
 			try {
-				quote = (E) qsr.read();
+				if (!qsr.isClosed()) {
+					quote = (E) qsr.read();
+					if (quote == null) {
+						qsr.close();
+					}
+				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -154,11 +166,13 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 
 	/**
 	 * Close the underlying quotes stream.
-	 * 
-	 * @throws IOException
 	 */
-	public void close() throws IOException {
-		qsr.close();
+	public void close() {
+		try {
+			qsr.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

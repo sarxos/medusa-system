@@ -64,6 +64,8 @@ public class QuotesStreamReader implements Closeable {
 	 */
 	private Format format = null;
 
+	private boolean closed = false;
+
 	/**
 	 * Create PRN reader from input stream.
 	 * 
@@ -71,6 +73,13 @@ public class QuotesStreamReader implements Closeable {
 	 */
 	public QuotesStreamReader(InputStream is) {
 		this(new InputStreamReader(is));
+	}
+
+	/**
+	 * @return true in case if stream is closed, false otherwise
+	 */
+	public boolean isClosed() {
+		return closed;
 	}
 
 	/**
@@ -87,9 +96,19 @@ public class QuotesStreamReader implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		br.close();
+		if (!closed) {
+			closed = true;
+			br.close();
+			br = null;
+		}
 	}
 
+	/**
+	 * Recognize stream format.
+	 * 
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 */
 	private void recognize() throws IOException, IllegalAccessException {
 		if (format != null) {
 			throw new IllegalAccessException("Format has been already set");
@@ -116,18 +135,27 @@ public class QuotesStreamReader implements Closeable {
 		}
 	}
 
+	/**
+	 * Reads and return quotes from the stream. Maximum number of reads is equal
+	 * to the input array length, however there can be less quotes in the
+	 * underlying stream and in this case this method returns integer less then
+	 * input array length.
+	 * 
+	 * @param quotes - array where quotes should be stored
+	 * @return Number of read quotes
+	 * @throws IOException - when underlying stream is closed
+	 * @throws ParseException - if underlying stream cannot be parsed
+	 */
 	public int read(Quote[] quotes) throws IOException, ParseException {
 
 		if (quotes == null) {
 			throw new IllegalArgumentException("Quotes array canot be null");
 		}
-
 		if (!check()) {
 			return -1;
 		}
 
 		int i = 0;
-
 		for (i = 0; i < quotes.length; i++) {
 			if (br.ready()) {
 				quotes[i] = read();
@@ -139,6 +167,13 @@ public class QuotesStreamReader implements Closeable {
 		return i;
 	}
 
+	/**
+	 * Reads and return quote from the stream.
+	 * 
+	 * @return Quote which has been read
+	 * @throws IOException - when underlying stream is closed
+	 * @throws ParseException - if underlying stream cannot be parsed
+	 */
 	public Quote read() throws IOException, ParseException {
 
 		if (!check()) {
@@ -170,11 +205,20 @@ public class QuotesStreamReader implements Closeable {
 		return q;
 	}
 
+	/**
+	 * Check stream configuration.
+	 * 
+	 * @return true if underlying stream is ready, false otherwise
+	 * @throws ParseException - when stream format is unknown
+	 * @throws IOException - when underlying stream cannot be read
+	 */
 	private boolean check() throws ParseException, IOException {
+		if (closed) {
+			throw new IOException("Stream is already closed and cannot be read");
+		}
 		if (!br.ready()) {
 			return false;
 		}
-
 		if (format == null) {
 			try {
 				recognize();
@@ -185,7 +229,6 @@ public class QuotesStreamReader implements Closeable {
 		if (format == Format.UNKNOWN) {
 			throw new ParseException("Unknown file format", 0);
 		}
-
 		return true;
 	}
 
