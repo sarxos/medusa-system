@@ -39,7 +39,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	/**
 	 * Set of signal types to be acknowledged by player.
 	 */
-	public static final Set<SignalType> NOTIFICATIONS = Collections.unmodifiableSet(EnumSet.of(BUY, SELL));
+	protected static final Set<SignalType> NOTIFICATIONS = Collections.unmodifiableSet(EnumSet.of(BUY, SELL));
 
 	/**
 	 * Decision maker (encapsulate decision logic).

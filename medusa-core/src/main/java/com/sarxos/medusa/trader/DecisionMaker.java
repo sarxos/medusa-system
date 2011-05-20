@@ -31,6 +31,17 @@ import com.sarxos.medusa.trader.Observer.NullEvent;
 public class DecisionMaker implements PriceListener {
 
 	/**
+	 * Null event handler.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
+	public static interface NullEventHandler {
+
+		public void handleNull(NullEvent ne);
+
+	}
+
+	/**
 	 * Logger.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(DecisionMaker.class.getSimpleName());
@@ -66,6 +77,8 @@ public class DecisionMaker implements PriceListener {
 	 * various symbols.
 	 */
 	private QuotesRegistry registry = QuotesRegistry.getInstance();
+
+	private NullEventHandler nullHandler = null;
 
 	/**
 	 * Create Decision maker with given observer and signal generator. After
@@ -151,7 +164,12 @@ public class DecisionMaker implements PriceListener {
 	 * @param ne
 	 */
 	protected void handleNull(NullEvent ne) {
-		LOG.warn("Null event detected");
+		if (nullHandler != null) {
+			LOG.debug("Passing null event to null handler");
+			nullHandler.handleNull(ne);
+		} else {
+			LOG.warn("Null event detected");
+		}
 	}
 
 	/**
@@ -365,5 +383,21 @@ public class DecisionMaker implements PriceListener {
 		} else {
 			throw new IllegalStateException("Observer is null, cannot stop");
 		}
+	}
+
+	/**
+	 * @return Will return actually set null handler
+	 */
+	public NullEventHandler getNullHandler() {
+		return nullHandler;
+	}
+
+	/**
+	 * Set new null handler object
+	 * 
+	 * @param nh - new null handler object to set
+	 */
+	public void setNullHandler(NullEventHandler nh) {
+		this.nullHandler = nh;
 	}
 }

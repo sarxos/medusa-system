@@ -14,7 +14,7 @@ import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
-public class FuturesSimulatorProvider implements RealTimeProvider {
+public class FakeRealTimeProvider implements RealTimeProvider {
 
 	/**
 	 * From date limit.
@@ -38,7 +38,7 @@ public class FuturesSimulatorProvider implements RealTimeProvider {
 
 	private FakeQuotesRegistry registry = null;
 
-	public FuturesSimulatorProvider(Symbol symbol, long from, long to) {
+	public FakeRealTimeProvider(Symbol symbol, long from, long to) {
 		if (from > to) {
 			throw new IllegalArgumentException(
 				"Time 'from' cannot be larger then 'to' time. Current " +

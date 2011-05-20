@@ -1,5 +1,7 @@
 package com.sarxos.medusa.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -8,13 +10,13 @@ import java.util.GregorianCalendar;
 public class DateUtils {
 
 	public static boolean isToday(Date date) {
-		
+
 		GregorianCalendar calendar = new GregorianCalendar();
-		
+
 		calendar.setTime(new Date());
-		
-		int ad, am, ay, bd, bm, by; 
-		
+
+		int ad, am, ay, bd, bm, by;
+
 		ad = calendar.get(Calendar.DAY_OF_MONTH);
 		am = calendar.get(Calendar.MONTH);
 		ay = calendar.get(Calendar.YEAR);
@@ -24,12 +26,20 @@ public class DateUtils {
 		bd = calendar.get(Calendar.DAY_OF_MONTH);
 		bm = calendar.get(Calendar.MONTH);
 		by = calendar.get(Calendar.YEAR);
-			
+
 		if (ad == bd && am == bm && ay == by) {
 			return true;
 		}
 
 		return false;
 	}
-	
+
+	public static Date fromCGL(String str) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		try {
+			return sdf.parse(str);
+		} catch (ParseException e) {
+			throw new RuntimeException("Cannot parse date " + str, e);
+		}
+	}
 }

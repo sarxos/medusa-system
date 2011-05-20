@@ -3,6 +3,7 @@ package com.sarxos.medusa.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -100,4 +101,27 @@ public class QuotesIteratorTest {
 		Assert.assertEquals(4, quotes.size());
 	}
 
+	@Test
+	public void test_collection() throws ParseException {
+
+		InputStream is = getClass().getClassLoader().getResourceAsStream(RESOURCE);
+		QuotesIterator<Quote> qi = new QuotesIterator<Quote>(is);
+
+		Collection<Quote> qc = qi.collection();
+
+		Assert.assertEquals(9, qc.size());
+	}
+
+	@Test
+	public void test_collectionForward() throws ParseException {
+
+		InputStream is = getClass().getClassLoader().getResourceAsStream(RESOURCE);
+		QuotesIterator<Quote> qi = new QuotesIterator<Quote>(is);
+
+		qi.forward(QuotesStreamReader.DATE_FORMAT_SHORT.parse("20100622"));
+		qi.forward(QuotesStreamReader.DATE_FORMAT_SHORT.parse("20100623"));
+		Collection<Quote> qc = qi.collection();
+
+		Assert.assertEquals(4, qc.size());
+	}
 }
