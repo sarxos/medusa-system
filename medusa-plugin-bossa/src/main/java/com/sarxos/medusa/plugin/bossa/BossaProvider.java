@@ -18,6 +18,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,16 +219,8 @@ public class BossaProvider implements HistoryProvider {
 	}
 
 	private void downloadMSTCGL(File f) throws ProviderException {
-
-		File parent = f.getParentFile();
-		if (!parent.exists()) {
-			parent.mkdirs();
-		}
-
 		try {
-			LOG.info("Downloading MSTCGL file");
 			new MedusaHttpClient().download(MSTCGL_URL, f);
-			LOG.info("MSTCGL file has been downloaded");
 		} catch (HttpException e) {
 			LOG.error(e.getMessage(), e);
 		}
@@ -258,9 +252,6 @@ public class BossaProvider implements HistoryProvider {
 
 		FileOutputStream fos = null;
 		InputStream is = null;
-
-		int i = -1;
-		byte[] bytes = new byte[32 * 1024];
 
 		try {
 
@@ -297,21 +288,12 @@ public class BossaProvider implements HistoryProvider {
 				is = zip.getInputStream(entry);
 
 				File mstf = new File("data/tmp/mstcgl/" + name);
-				File parent = mstf.getParentFile();
-				if (!parent.exists()) {
-					parent.mkdirs();
-				}
-				if (!mstf.exists()) {
-					if (!mstf.createNewFile()) {
-						throw new ProviderException("Cannot create file " + mstf.getName());
-					}
-				}
+				FileUtils.touch(mstf);
 
-				fos = new FileOutputStream(mstf);
-				while ((i = is.read(bytes)) != -1) {
-					fos.write(bytes, 0, i);
-				}
-				fos.close();
+				fos = FileUtils.openOutputStream(mstf);
+				IOUtils.copy(is, fos);
+				IOUtils.closeQuietly(fos);
+				IOUtils.closeQuietly(is);
 
 				file = mstf;
 				break;
@@ -426,31 +408,28 @@ public class BossaProvider implements HistoryProvider {
 	@Override
 	public QuotesIterator<Quote> getIntradayQuotes(Symbol symbol) throws ProviderException {
 
-		boolean download = true;
-
 		String dir = CFG.getProperty("core", "tmpdir", "data/tmp");
 
 		File prn = new File(dir + "/intraday/" + symbol.getName() + ".prn");
 
-		File parent = prn.getParentFile();
-		if (!parent.exists()) {
-			parent.mkdirs();
-		}
-
+		boolean download = true;
 		if (prn.exists()) {
-
 			Date modified = new Date(prn.lastModified());
-
 			if (DateUtils.isToday(modified)) {
 				download = false;
 			}
-
 			if (LOG.isDebugEnabled()) {
 				LOG.debug(
 					"PRN file for symbol " + symbol + " exists and should" +
 					(download ? " " : " not ") +
 					"be downloaded"
 				);
+			}
+		} else {
+			try {
+				FileUtils.touch(prn);
+			} catch (IOException e) {
+				throw new ProviderException(e);
 			}
 		}
 
@@ -486,45 +465,29 @@ public class BossaProvider implements HistoryProvider {
 			while (zfe.hasMoreElements()) {
 
 				ZipEntry ze = zfe.nextElement();
-
 				if (!prn.getName().equals(ze.getName())) {
 					continue;
 				}
 
-				OutputStream os = null;
-				InputStream is = null;
-
 				try {
-					os = new FileOutputStream(prn);
-					is = zf.getInputStream(ze);
 
-					byte[] bytes = new byte[1024 * 8];
-					int n = 0;
-					while ((n = is.read(bytes)) > 0) {
-						os.write(bytes, 0, n);
-					}
+					OutputStream os = FileUtils.openOutputStream(prn);
+					InputStream is = zf.getInputStream(ze);
+					IOUtils.copy(is, os);
+					IOUtils.closeQuietly(is);
+					IOUtils.closeQuietly(os);
 
 					unpacked = true;
 
 				} catch (IOException e) {
 					throw new ProviderException(e);
 				} finally {
-					if (os != null) {
+					if (!FileUtils.deleteQuietly(zipf)) {
 						try {
-							os.close();
+							FileUtils.forceDeleteOnExit(zipf);
 						} catch (IOException e) {
 							throw new ProviderException(e);
 						}
-					}
-					if (is != null) {
-						try {
-							is.close();
-						} catch (IOException e) {
-							throw new ProviderException(e);
-						}
-					}
-					if (!zipf.delete()) {
-						zipf.deleteOnExit();
 					}
 				}
 			}
@@ -547,15 +510,13 @@ public class BossaProvider implements HistoryProvider {
 
 	public static void main(String[] args) throws ProviderException, ParseException {
 		BossaProvider b = new BossaProvider();
-		QuotesIterator<Quote> qi = b.getIntradayQuotes(Symbol.FW20M11);
+		QuotesIterator<Quote> qi = b.getIntradayQuotes(Symbol.FW20H11);
 		qi.forward(new SimpleDateFormat("yyyy-MM-dd HH").parse("2011-05-12 12"));
-		// qi.next();
 		qi.forward(new SimpleDateFormat("yyyy-MM-dd").parse("2011-05-12"));
 		while (qi.hasNext()) {
 			System.out.println(qi.next());
 			break;
 		}
-		// System.out.println(qi.next());
 		System.out.println(qi.next());
 	}
 }

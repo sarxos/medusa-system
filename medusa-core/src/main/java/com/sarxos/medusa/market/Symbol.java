@@ -12,6 +12,7 @@ public enum Symbol {
 	 * WIG20 Future, June 2011
 	 */
 	FW20M11("FW20M11"),
+	FW20H11("FW20H11"),
 
 	/**
 	 * For tests.
