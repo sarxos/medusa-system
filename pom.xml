@@ -68,6 +68,7 @@
 		<module>medusa-plugin-mystock</module>
 		<module>medusa-plugin-orange</module>
 		<module>medusa-plugin-smesx</module>
+		<module>medusa-plugin-sim</module>
 	</modules>
 
 	<profiles>
