@@ -29,9 +29,21 @@ public class PersistenceWriter implements Runnable {
 	 */
 	private BlockingQueue<Trader> queue = null;
 
+	/**
+	 * Create persistence writer on top of persistence provider.
+	 * 
+	 * @param provider - persistence provider to use under writer
+	 */
+	public PersistenceWriter(PersistenceProvider provider) {
+		if (provider == null) {
+			throw new IllegalArgumentException("Persistence provider cannot be null");
+		}
+		this.provider = provider;
+		this.queue = new LinkedBlockingQueue<Trader>();
+	}
+
 	public PersistenceWriter() {
-		provider = DBDAO.getInstance();
-		queue = new LinkedBlockingQueue<Trader>();
+		this(DBDAO.getInstance());
 	}
 
 	@Override

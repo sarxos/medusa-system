@@ -6,6 +6,7 @@ import static com.sarxos.medusa.market.Position.SHORT;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.provider.RealTimeProvider;
 
 
 /**
@@ -17,6 +18,10 @@ public class FuturesTrader extends Trader {
 
 	public FuturesTrader(String name, SignalGenerator<Quote> siggen, Paper paper) {
 		super(name, siggen, paper);
+	}
+
+	public FuturesTrader(String name, SignalGenerator<Quote> siggen, Paper paper, RealTimeProvider provider) {
+		super(name, siggen, paper, provider);
 	}
 
 	@Override

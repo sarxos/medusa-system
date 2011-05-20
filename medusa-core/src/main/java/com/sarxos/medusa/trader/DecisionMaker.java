@@ -77,15 +77,17 @@ public class DecisionMaker implements PriceListener {
 	 * @param generator - signal generator
 	 * @param trader - trader instance
 	 */
-	public DecisionMaker(Observer observer, SignalGenerator<? extends Quote> generator) {
+	public DecisionMaker(Trader trader, Observer observer, SignalGenerator<? extends Quote> generator) {
 		this.observer = observer;
 		this.observer.addPriceListener(this);
 		this.generator = generator;
+		this.setTrader(trader);
 	}
 
-	public void setTrader(Trader trader) {
+	protected void setTrader(Trader trader) {
 
 		if (trader != null) {
+
 			Symbol t = trader.getPaper().getSymbol();
 			Symbol o = observer.getSymbol();
 			if (t != o) {
@@ -93,6 +95,8 @@ public class DecisionMaker implements PriceListener {
 					"Symbols from trader and observer differs! From " +
 					"trader " + t + " and from observer " + o);
 			}
+
+			this.addDecisionListener(trader);
 		}
 
 		this.trader = trader;

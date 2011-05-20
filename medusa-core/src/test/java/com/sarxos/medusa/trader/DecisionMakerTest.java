@@ -8,11 +8,6 @@ import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.trader.DecisionEvent;
-import com.sarxos.medusa.trader.DecisionListener;
-import com.sarxos.medusa.trader.DecisionMaker;
-import com.sarxos.medusa.trader.Observer;
-import com.sarxos.medusa.trader.PositionEvent;
 
 
 public class DecisionMakerTest extends TestCase {
@@ -23,7 +18,7 @@ public class DecisionMakerTest extends TestCase {
 
 	public void test_listener() {
 
-		DecisionMaker dm = new DecisionMaker(OBSERVER, SIGGEN);
+		DecisionMaker dm = new DecisionMaker(null, OBSERVER, SIGGEN);
 
 		DecisionListener dl = new DecisionListener() {
 

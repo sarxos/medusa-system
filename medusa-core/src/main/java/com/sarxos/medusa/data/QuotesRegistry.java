@@ -30,20 +30,23 @@ public class QuotesRegistry {
 	/**
 	 * Quotes registry singleton instance.
 	 */
-	private static QuotesRegistry instance = new QuotesRegistry();
+	private static QuotesRegistry instance = null;
 
 	/**
-	 * Private constructor - this class is a singleton.
+	 * Protected constructor - this is singleton class.
 	 */
 	protected QuotesRegistry() {
-		MySQLRunner.getInstance().runMySQL();
-		dbdao = DBDAO.getInstance();
 	}
 
 	/**
 	 * @return Return quotes registry instance.
 	 */
 	public static QuotesRegistry getInstance() {
+		if (instance == null) {
+			MySQLRunner.getInstance().runMySQL();
+			instance.dbdao = DBDAO.getInstance();
+			instance = new QuotesRegistry();
+		}
 		return instance;
 	}
 

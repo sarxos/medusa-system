@@ -76,13 +76,13 @@ public class TraderTest extends TestCase {
 
 		t.setPosition(Position.LONG);
 		assertEquals(t.getPosition(), Position.LONG);
-		t.setPaperQuantity(100);
+		t.setCurrentQuantity(100);
 		Thread.sleep(2000); // wait for persistence writer
 
 		t = DBDAO.getInstance().getTrader(NAME);
 		assertNotNull(t);
 		assertEquals(Position.LONG, t.getPosition());
-		assertEquals(100, t.getPaperQuantity());
+		assertEquals(100, t.getCurrentQuantity());
 
 		t.setPosition(Position.SHORT);
 		assertEquals(t.getPosition(), Position.SHORT);

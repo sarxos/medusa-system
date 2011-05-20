@@ -324,8 +324,8 @@ public class DBDAO implements PersistenceProvider {
 			add.setString(4, trader.getGeneratorClassName());
 			add.setString(5, trader.getClass().getName());
 			add.setString(6, Marshaller.marshalGenParams(trader.getGenerator()));
-			add.setInt(7, trader.getPaperQuantity());
-			add.setInt(8, trader.getPaperDesiredQuantity());
+			add.setInt(7, trader.getCurrentQuantity());
+			add.setInt(8, trader.getDesiredQuantity());
 			add.execute();
 
 			return true;

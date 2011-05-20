@@ -36,7 +36,15 @@ public class Paper implements Cloneable {
 	private transient String[] miniwig = new String[] { "MW20" };
 	private transient String[] etf = new String[] { "ETFW" };
 	private transient String[] treasury = new String[] { "DS20", "DZ08" }; // and
-																			// more
+
+	// more
+
+	/**
+	 * Paper constructor.
+	 */
+	public Paper(Symbol symbol) {
+		this(symbol, 0, 0);
+	}
 
 	/**
 	 * Paper to be stored inside wallet. Constructor.

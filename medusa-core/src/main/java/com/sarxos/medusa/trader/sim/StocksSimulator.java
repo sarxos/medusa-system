@@ -305,7 +305,7 @@ public class StocksSimulator extends Observer {
 
 		final CyclicBarrier cb = new CyclicBarrier(2);
 
-		final DecisionMaker dmaker = new DecisionMaker(observer, siggen) {
+		final DecisionMaker dmaker = new DecisionMaker(null, observer, siggen) {
 
 			@Override
 			protected void handleNull(NullEvent ne) {

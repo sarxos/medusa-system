@@ -11,7 +11,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.Providers;
-import com.sarxos.medusa.provider.QuoteLackException;
+import com.sarxos.medusa.provider.LackOfQuoteException;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
@@ -144,7 +144,7 @@ public class Observer implements Runnable {
 	 */
 	public void setInterval(int interval) {
 		if (interval < 0) {
-			throw new IllegalArgumentException("Check interval in seconds must be non-negative");
+			throw new IllegalArgumentException("Check interval in seconds must be positive");
 		}
 		this.interval = interval * 1000;
 	}
@@ -237,10 +237,12 @@ public class Observer implements Runnable {
 				} catch (Exception e) {
 					LOG.error(e.getMessage(), e);
 				}
-				try {
-					Thread.sleep(interval);
-				} catch (InterruptedException e) {
-					LOG.error(e.getMessage(), e);
+				if (interval > 0) {
+					try {
+						Thread.sleep(interval);
+					} catch (InterruptedException e) {
+						LOG.error(e.getMessage(), e);
+					}
 				}
 			}
 		} while (true);
@@ -263,7 +265,7 @@ public class Observer implements Runnable {
 				q = provider.getQuote(symbol);
 				error = false;
 				break;
-			} catch (QuoteLackException e) {
+			} catch (LackOfQuoteException e) {
 				error = true;
 				// this situation occurs when there was no trade in given
 				// instrument within particular day
@@ -378,5 +380,10 @@ public class Observer implements Runnable {
 	 */
 	public Symbol getSymbol() {
 		return symbol;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[" + getSymbol() + "]";
 	}
 }

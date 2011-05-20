@@ -10,9 +10,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sarxos.medusa.comm.DefaultMessagesBroker;
 import com.sarxos.medusa.comm.MessagesBroker;
 import com.sarxos.medusa.comm.MessagingException;
-import com.sarxos.medusa.data.persistence.Persistent;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
@@ -29,7 +29,6 @@ import com.sarxos.medusa.provider.RealTimeProvider;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-@Persistent("trader")
 public abstract class Trader implements DecisionListener, Runnable {
 
 	/**
@@ -50,7 +49,6 @@ public abstract class Trader implements DecisionListener, Runnable {
 	/**
 	 * Signal generator to use.
 	 */
-	@Persistent
 	private SignalGenerator<? extends Quote> siggen = null;
 
 	/**
@@ -66,20 +64,17 @@ public abstract class Trader implements DecisionListener, Runnable {
 	/**
 	 * Current position (long, short).
 	 */
-	@Persistent
 	private Position position = null;
 
 	/**
 	 * Trader's paper quantity.
 	 */
-	@Persistent
-	private int paperQuantity = 0;
+	private int quantity = 0;
 
 	/**
 	 * Trader's paper desired quantity (how many papers I want buy)
 	 */
-	@Persistent
-	private int paperDesiredQuantity = 0;
+	private int desired = 0;
 
 	/**
 	 * Messaging broker.
@@ -99,7 +94,6 @@ public abstract class Trader implements DecisionListener, Runnable {
 		this(name, siggen, paper, null);
 	}
 
-	@Persistent
 	public Trader(String name, SignalGenerator<? extends Quote> siggen, Paper paper, RealTimeProvider provider) {
 		if (name == null) {
 			throw new IllegalArgumentException("Trader name cannot be null");
@@ -112,7 +106,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 		}
 		this.name = name;
 		this.siggen = siggen;
-		this.provider = provider;
+		this.provider = provider != null ? provider : Providers.getRealTimeProvider();
 		this.paper = paper;
 		this.init();
 	}
@@ -122,20 +116,13 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 */
 	protected void init() {
 
-		if (provider == null) {
-			provider = Providers.getRealTimeProvider();
-		}
-
 		Observer observer = new Observer(provider, paper.getSymbol());
-		DecisionMaker dm = new DecisionMaker(observer, siggen);
-
-		dm.setTrader(this);
-		dm.addDecisionListener(this);
+		DecisionMaker dm = new DecisionMaker(this, observer, siggen);
 
 		setDecisionMaker(dm);
 
 		try {
-			broker = new MessagesBroker();
+			broker = new DefaultMessagesBroker();
 		} catch (MessagingException e) {
 			throw new RuntimeException(e);
 		}
@@ -147,10 +134,10 @@ public abstract class Trader implements DecisionListener, Runnable {
 		if (position != p) {
 			switch (p) {
 				case LONG:
-					setPaperQuantity(getPaperDesiredQuantity());
+					setCurrentQuantity(getDesiredQuantity());
 					break;
 				case SHORT:
-					setPaperQuantity(0);
+					setCurrentQuantity(0);
 					break;
 			}
 			position = p;
@@ -231,13 +218,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * @return Observed symbol (e.g. KGH, BRE)
 	 */
 	public Symbol getSymbol() {
-		DecisionMaker dm = getDecisionMaker();
-		Observer o = null;
-		if (dm != null && (o = dm.getObserver()) != null) {
-			return o.getSymbol();
-		} else {
-			return paper.getSymbol();
-		}
+		return paper.getSymbol();
 	}
 
 	/**
@@ -350,54 +331,35 @@ public abstract class Trader implements DecisionListener, Runnable {
 	/**
 	 * @return the paperQuantity
 	 */
-	public int getPaperQuantity() {
-		int pq = paper.getQuantity();
-		if (pq != paperQuantity) {
-			setPaperQuantity(pq);
-		}
-		return pq;
+	public int getCurrentQuantity() {
+		return quantity;
 	}
 
 	/**
 	 * @param quantity - the paper quantity to set
 	 */
-	public void setPaperQuantity(int quantity) {
-		if (paper == null) {
-			throw new RuntimeException("Trader's paper cannot be null!");
-		}
-		paper.setQuantity(quantity);
-		paperQuantity = quantity;
+	public void setCurrentQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 
 	/**
 	 * @return the paper desired quantity
 	 */
-	public int getPaperDesiredQuantity() {
-		int pdq = paper.getDesiredQuantity();
-		if (pdq != paperDesiredQuantity) {
-			setPaperDesiredQuantity(pdq);
-		}
-		return pdq;
+	public int getDesiredQuantity() {
+		return desired;
 	}
 
 	/**
 	 * @param desired - desired paper quantity
 	 */
 	public void setPaperDesiredQuantity(int desired) {
-		if (paper == null) {
-			throw new RuntimeException("Trader's paper cannot be null!");
-		}
-		paper.setDesiredQuantity(desired);
-		paperDesiredQuantity = desired;
+		this.desired = desired;
 	}
 
 	/**
 	 * @return Return paper.
 	 */
 	public Paper getPaper() {
-		if (paper == null) {
-			paper = new Paper(getSymbol(), paperDesiredQuantity, paperQuantity);
-		}
 		return paper;
 	}
 }
