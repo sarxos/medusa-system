@@ -3,10 +3,11 @@ package com.sarxos.medusa.http;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -26,6 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Default HTTP client used by Medusa System.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
 public class MedusaHttpClient extends DefaultHttpClient {
 
 	/**
@@ -34,20 +40,14 @@ public class MedusaHttpClient extends DefaultHttpClient {
 	private static final Logger LOG = LoggerFactory.getLogger(MedusaHttpClient.class.getSimpleName());
 
 	/**
-	 * Proxy host.
+	 * Key for the proxy host property.
 	 */
-	private static String PROXY_HOST = (String) System.getProperties().get("http.proxyHost");
+	public static final String PROXY_HOST_KEY = "http.proxyHost";
 
 	/**
-	 * Proxy port number.
+	 * Key for the proxy port number property.
 	 */
-	private static String PROXY_PORT = (String) System.getProperties().get("http.proxyPort");
-
-	static {
-		if (PROXY_HOST != null && PROXY_PORT != null) {
-			LOG.info("Setting proxy '" + PROXY_HOST + ":" + PROXY_PORT + "'");
-		}
-	}
+	public static final String PROXY_PORT_KEY = "http.proxyPort";
 
 	/**
 	 * HTTP proxy.
@@ -80,8 +80,11 @@ public class MedusaHttpClient extends DefaultHttpClient {
 	private void init() {
 
 		// set proxy
-		if (PROXY_HOST != null && PROXY_PORT != null) {
-			proxy = new HttpHost(PROXY_HOST, Integer.parseInt(PROXY_PORT), "http");
+		String proxyHost = System.getProperty(PROXY_HOST_KEY);
+		String proxyPort = System.getProperty(PROXY_PORT_KEY);
+		if (proxyHost != null && proxyPort != null) {
+			LOG.info("Setting proxy '" + proxyHost + ":" + proxyPort + "'");
+			proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
 			getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}
 
@@ -156,52 +159,38 @@ public class MedusaHttpClient extends DefaultHttpClient {
 				download0(from, to);
 				return;
 			} catch (HttpException e) {
-				LOG.error(
-						"Invalid download attempt. " +
-						(attempts < max - 1 ? " Trying one more time" : "Fatal."), e);
+				String msg = attempts < max - 1 ? " Trying one more time" : "Fatal";
+				LOG.error("Invalid download attempt. " + msg, e);
 			}
 		} while (attempts++ < max);
 	}
 
 	private void download0(String url, File f) throws HttpException {
 
-		HttpEntity entity = null;
-		FileOutputStream fos = null;
-
-		if (!f.exists()) {
-			File parent = new File(f.getParent());
-			if (!parent.exists()) {
-				parent.mkdirs();
-			}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("Downloading " + url + " to " + f.getPath());
 		}
 
 		try {
-			fos = new FileOutputStream(f);
 
-			HttpGet get = new HttpGet(url);
-			HttpResponse response = execute(get);
-			entity = response.getEntity();
-			entity.writeTo(fos);
+			FileUtils.touch(f);
+
+			HttpResponse response = execute(new HttpGet(url));
+			OutputStream os = FileUtils.openOutputStream(f);
+			InputStream is = response.getEntity().getContent();
+
+			IOUtils.copy(is, os);
+			IOUtils.closeQuietly(is);
+			IOUtils.closeQuietly(os);
 
 		} catch (Exception e) {
 			throw new HttpException(
 					"Cannot download file from '" + url + "' to '" +
 					f.getPath() + "'", e);
-		} finally {
-			if (entity != null) {
-				try {
-					entity.getContent().close();
-				} catch (Exception e) {
-					LOG.error(e.getMessage(), e);
-				}
-			}
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					LOG.error(e.getMessage(), e);
-				}
-			}
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("URL " + url + " has been downloaded");
 		}
 	}
 
