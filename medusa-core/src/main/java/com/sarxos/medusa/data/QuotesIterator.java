@@ -207,23 +207,31 @@ public class QuotesIterator<E extends Quote> implements Iterator<E> {
 			long b = date.getTime();
 			long m = 1000 * 60 * 60 * 24;
 
-			if (b / m < (a - m) / m) {
+			long db = b / m;
+			long da = (a - m) / m;
+
+			if (db < da) {
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				throw new IllegalArgumentException(
 					"Current iterator position date " + sdf.format(next.getDate()) + " " +
 					"is after searching date " + sdf.format(date));
+			} else if (db == da) {
+				// if next element date match searched one
+				return;
+			} else {
+				boolean found = false;
+				try {
+					found = qsr.seek(date);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				if (found) {
+					next = null;
+				}
 			}
+
 		} else {
 			throw new NoSuchElementException("There is no next element");
-		}
-		boolean found = false;
-		try {
-			found = qsr.seek(date);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		if (found) {
-			next = null;
 		}
 	}
 

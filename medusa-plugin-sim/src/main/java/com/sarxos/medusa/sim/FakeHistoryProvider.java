@@ -31,12 +31,12 @@ public class FakeHistoryProvider implements HistoryProvider {
 
 	@Override
 	public List<Quote> getLastQuotes(Symbol symbol) throws ProviderException {
-		throw new RuntimeException("Get last quotes not implmented");
+		throw new RuntimeException("Get last quotes is not implemented");
 	}
 
 	@Override
 	public List<Quote> getAllQuotes(Symbol symbol) throws ProviderException {
-		throw new RuntimeException("Get all quotes not implmented");
+		throw new RuntimeException("Get all quotes is not implemented");
 	}
 
 	@Override
@@ -45,11 +45,15 @@ public class FakeHistoryProvider implements HistoryProvider {
 		String tmpdir = CFG.getProperty("core", "tmpdir");
 		File f = new File(tmpdir + "/intraday/" + symbol.getName() + ".prn");
 
+		if (!f.exists()) {
+			throw new ProviderException("Missing file " + f.getPath());
+		}
+
 		InputStream is = null;
 		try {
 			is = FileUtils.openInputStream(f);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new ProviderException("Cannot open stream from file " + f.getPath());
 		}
 
 		return new QuotesIterator<Quote>(is);

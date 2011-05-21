@@ -85,6 +85,22 @@ public class QuotesIteratorTest {
 	}
 
 	@Test
+	public void test_forward2() throws ParseException {
+
+		InputStream is = getClass().getClassLoader().getResourceAsStream(RESOURCE);
+		QuotesIterator<Quote> qi = new QuotesIterator<Quote>(is);
+
+		List<Quote> quotes = new LinkedList<Quote>();
+
+		qi.forward(QuotesStreamReader.DATE_FORMAT_SHORT.parse("20100621"));
+		while (qi.hasNext()) {
+			quotes.add(qi.next());
+		}
+
+		Assert.assertEquals(9, quotes.size());
+	}
+
+	@Test
 	public void test_forwardMultiple() throws ParseException {
 
 		InputStream is = getClass().getClassLoader().getResourceAsStream(RESOURCE);

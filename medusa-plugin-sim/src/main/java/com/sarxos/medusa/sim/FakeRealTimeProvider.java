@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.NoSuchElementException;
 
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.market.Quote;
@@ -38,8 +39,20 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 
 	private FakeQuotesRegistry registry = null;
 
-	public FakeRealTimeProvider(Symbol symbol, long from, long to) {
-		if (from > to) {
+	public FakeRealTimeProvider(Symbol symbol, Date from, Date to) {
+
+		if (from != null) {
+			this.from = from.getTime();
+		} else {
+			this.from = Long.MIN_VALUE;
+		}
+		if (to != null) {
+			this.to = to.getTime();
+		} else {
+			this.to = Long.MAX_VALUE;
+		}
+
+		if (this.from > this.to) {
 			throw new IllegalArgumentException(
 				"Time 'from' cannot be larger then 'to' time. Current " +
 				"values are 'from' = " + from + " and 'to' = " + to);
@@ -57,8 +70,14 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 			throw new RuntimeException(e);
 		}
 
-		this.from = from;
-		this.to = to;
+		if (from != null) {
+			qi.forward(from);
+			if (!qi.hasNext()) {
+				throw new IllegalArgumentException(
+					"Time 'from' cannot be larger then 'to' time. Current " +
+					"values are 'from' = " + from + " and 'to' = " + to);
+			}
+		}
 
 		this.registry = FakeQuotesRegistry.getInstance();
 	}
@@ -74,15 +93,24 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 		Quote q = null;
 
 		do {
-			if ((q = qi.next()) == null) {
+			try {
+				q = qi.next();
+			} catch (NoSuchElementException e) {
+				// end of iterator's underlying stream has been reached
+				this.reached = true;
+				qi.close();
 				return null;
 			}
+
 			putInRegistry(symbol, q);
 			d = q.getDate();
+
 		} while (d.getTime() < from);
 
 		if (d.getTime() > to) {
 			reached = true;
+			qi.close();
+			return null;
 		}
 
 		if (last != null) {

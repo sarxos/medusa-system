@@ -25,7 +25,7 @@ public class FuturesSimulator {
 		String name = symbol + "Trader";
 		SignalGenerator<Quote> siggen = new MAVD(5, 10, 20);
 		Paper paper = new Paper(symbol);
-		RealTimeProvider provider = new FakeRealTimeProvider(symbol, 1, 2);
+		RealTimeProvider provider = new FakeRealTimeProvider(symbol, null, null);
 
 		final FuturesTrader trader = new FuturesTrader(name, siggen, paper, provider);
 
