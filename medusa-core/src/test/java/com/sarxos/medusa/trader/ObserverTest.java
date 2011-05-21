@@ -10,12 +10,13 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.RealTimeProvider;
+import com.sarxos.medusa.trader.Observer.NullEvent;
 import com.sarxos.medusa.trader.Observer.State;
 
 
 public class ObserverTest {
 
-	private static class Prov implements RealTimeProvider {
+	private static class TestProvider implements RealTimeProvider {
 
 		double price = 100;
 
@@ -31,7 +32,7 @@ public class ObserverTest {
 		}
 	}
 
-	private static class PricList implements PriceListener {
+	private static class TestPriceListener2 implements PriceListener {
 
 		@Override
 		public void priceChange(PriceEvent pe) {
@@ -49,7 +50,7 @@ public class ObserverTest {
 
 	@Test
 	public void test_start() throws InterruptedException {
-		Observer o = new Observer(Symbol.QQQ, new Prov());
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
 		o.setInterval(1); // 1 second
 		o.start();
 		Thread.sleep(100);
@@ -59,7 +60,7 @@ public class ObserverTest {
 
 	@Test
 	public void test_pause() {
-		Observer o = new Observer(Symbol.QQQ, new Prov());
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
 		o.setInterval(1); // 1 second
 		o.start();
 		o.pause();
@@ -69,7 +70,7 @@ public class ObserverTest {
 
 	@Test
 	public void test_resume() {
-		Observer o = new Observer(Symbol.QQQ, new Prov());
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
 		o.setInterval(1); // 1 second
 		o.start();
 		o.pause();
@@ -80,7 +81,7 @@ public class ObserverTest {
 
 	@Test
 	public void test_states() throws InterruptedException {
-		Observer o = new Observer(Symbol.QQQ, new Prov());
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
 		o.setInterval(1); // 1 second
 		o.start();
 		o.pause();
@@ -95,7 +96,7 @@ public class ObserverTest {
 
 	@Test
 	public void test_getPrice() throws InterruptedException {
-		Observer o = new Observer(Symbol.QQQ, new Prov());
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
 		o.setInterval(1); // 1 second
 		Assert.assertEquals(-1.0, o.getPrice());
 		o.start();
@@ -106,7 +107,7 @@ public class ObserverTest {
 
 	@Test
 	public void test_provider() {
-		RealTimeProvider p = new Prov();
+		RealTimeProvider p = new TestProvider();
 		Observer o = new Observer(Symbol.QQQ, p);
 		Assert.assertSame(p, o.getProvider());
 	}
@@ -115,22 +116,64 @@ public class ObserverTest {
 	public void test_provider2() {
 		Observer o = new Observer(Symbol.QQQ);
 		try {
-			o.setProvider(new Prov());
+			o.setProvider(new TestProvider());
 		} catch (IllegalArgumentException e) {
 			Assert.fail("There should be no exception here");
 		}
 		o = new Observer(Symbol.BRE);
 		try {
-			o.setProvider(new Prov());
+			o.setProvider(new TestProvider());
 			Assert.fail("There should be exception here");
 		} catch (IllegalArgumentException e) {
 			System.out.println("Expected exception: " + e.getMessage());
 		}
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void test_provider3() {
+		RealTimeProvider p = new TestProvider();
+		Observer o = new Observer(Symbol.QQQ, p);
+		o.observe(Symbol.BRE);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_provider4() {
+		RealTimeProvider p = new RealTimeProvider() {
+
+			@Override
+			public Quote getQuote(Symbol symbol) throws ProviderException {
+				return null;
+			}
+
+			@Override
+			public boolean canServe(Symbol symbol) {
+				return false;
+			}
+		};
+		new Observer(Symbol.BRE, p);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_provider5() {
+		RealTimeProvider p = new RealTimeProvider() {
+
+			@Override
+			public Quote getQuote(Symbol symbol) throws ProviderException {
+				return null;
+			}
+
+			@Override
+			public boolean canServe(Symbol symbol) {
+				return false;
+			}
+		};
+		Observer o = new Observer(Symbol.BRE);
+		o.setProvider(p);
+	}
+
 	@Test
 	public void test_observe() {
-		RealTimeProvider p = new Prov();
+		RealTimeProvider p = new TestProvider();
 		Observer o = new Observer(Symbol.QQQ, p);
 		try {
 			o.observe(Symbol.QQQ);
@@ -147,15 +190,15 @@ public class ObserverTest {
 
 	@Test
 	public void test_symbol() {
-		RealTimeProvider p = new Prov();
+		RealTimeProvider p = new TestProvider();
 		Observer o = new Observer(Symbol.QQQ, p);
 		Assert.assertSame(Symbol.QQQ, o.getSymbol());
 	}
 
 	@Test
 	public void test_listeners() {
-		Observer o = new Observer(Symbol.QQQ, new Prov());
-		PriceListener li = new PricList();
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
+		PriceListener li = new TestPriceListener2();
 		boolean added = o.addPriceListener(li);
 		Assert.assertTrue(added);
 		PriceListener[] pl = o.getPriceListeners();
@@ -165,7 +208,7 @@ public class ObserverTest {
 		Assert.assertFalse(added);
 		pl = o.getPriceListeners();
 		Assert.assertEquals(1, pl.length);
-		li = new PricList();
+		li = new TestPriceListener2();
 		added = o.addPriceListener(li);
 		Assert.assertTrue(added);
 		pl = o.getPriceListeners();
@@ -181,10 +224,48 @@ public class ObserverTest {
 
 	@Test
 	public void test_runner() {
-		Observer o = new Observer(Symbol.QQQ, new Prov());
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
 		Thread r = o.getRunner();
 		Assert.assertNotNull(r);
 		Thread r2 = o.getRunner();
 		Assert.assertSame(r, r2);
+	}
+
+	private static class TestPriceListener implements PriceListener {
+
+		public boolean nullz = false;
+
+		@Override
+		public void priceChange(PriceEvent pe) {
+			if (pe instanceof NullEvent) {
+				nullz = true;
+			}
+		}
+	}
+
+	@Test
+	public void test_nullEvent() throws InterruptedException {
+		Observer o = new Observer(Symbol.QQQ, new TestProvider());
+		TestPriceListener list = new TestPriceListener();
+		o.addPriceListener(list);
+		o.setInterval(1); // 1 second
+		o.start();
+		Thread.sleep(500);
+		o.setProvider(new RealTimeProvider() {
+
+			// should cause null-event
+			@Override
+			public Quote getQuote(Symbol symbol) throws ProviderException {
+				return null;
+			}
+
+			@Override
+			public boolean canServe(Symbol symbol) {
+				return true;
+			}
+		});
+		Thread.sleep(1000);
+		o.stop();
+		Assert.assertTrue(list.nullz);
 	}
 }

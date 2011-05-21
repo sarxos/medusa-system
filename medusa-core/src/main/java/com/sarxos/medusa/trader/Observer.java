@@ -12,7 +12,6 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.LackOfQuoteException;
 import com.sarxos.medusa.provider.ProviderException;
-import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
@@ -161,8 +160,9 @@ public class Observer implements Runnable {
 	}
 
 	/**
-	 * Stop observation. After calling this method observation will be stopped,
-	 * but observer can be run once again in any moment.
+	 * Stop observation. After calling this method observation will be stopped.
+	 * Observer <b>cannot</b> be run once is has been already stopped. Please
+	 * use pause/resume methods if you want to stop/start observation.
 	 */
 	public void stop() {
 		if (state != State.RUNNIG && state != State.PAUSED) {
@@ -207,15 +207,16 @@ public class Observer implements Runnable {
 	 */
 	public void start() {
 		if (symbol == null) {
-			throw new IllegalStateException("Cannot start observer when symbol is not set");
-		}
-		if (state != State.STOPPED) {
-			throw new IllegalStateException(
-				"This observer has been already started - cannot start it " +
-				"again");
+			String msg = String.format("Cannot start %s observer, symbol isn't set", symbol.toString());
+			throw new IllegalStateException(msg);
 		}
 		if (provider == null) {
-			provider = Providers.getRealTimeProvider();
+			String msg = String.format("Cannot start %s observer, provider isn't set", symbol.toString());
+			throw new IllegalStateException(msg);
+		}
+		if (state != State.STOPPED) {
+			String msg = String.format("%s observer cannot be started twice", symbol.toString());
+			throw new IllegalStateException(msg);
 		}
 
 		state = State.RUNNIG;
@@ -301,8 +302,7 @@ public class Observer implements Runnable {
 				// instrument within particular day
 				LOG.warn("Due to lack of quotes Observer will sleep for 5 minutes. " + e.getMessage());
 				try {
-					// sleep for 5 minutes
-					Thread.sleep(1000 * 60 * 5);
+					Thread.sleep(1000 * 60 * 5); // 5 minutes
 				} catch (InterruptedException e1) {
 					LOG.error(e.getMessage(), e);
 				}
@@ -353,7 +353,7 @@ public class Observer implements Runnable {
 			try {
 				listener.priceChange(pe);
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOG.error("Exception when notifying price listeners", e);
 			}
 		}
 	}
