@@ -3,15 +3,16 @@ package com.sarxos.medusa.trader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.provider.LackOfQuoteException;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.Providers;
-import com.sarxos.medusa.provider.LackOfQuoteException;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
@@ -97,20 +98,25 @@ public class Observer implements Runnable {
 	 */
 	private List<PriceListener> listeners = new LinkedList<PriceListener>();
 
+	private ReentrantLock lock = new ReentrantLock();
+
+	/**
+	 * Create observer for symbol.
+	 * 
+	 * @param symbol - observed symbol
+	 */
 	public Observer(Symbol symbol) {
-		this(null, symbol);
+		this(symbol, null);
 	}
 
 	/**
-	 * Create new data observer.
+	 * Create new data observer. If quotes provider is null, then it will be set
+	 * to default provider (taken from the Medusa configuration) after start.
 	 * 
-	 * @param provider - real time data provider
+	 * @param provider - quotes real time data provider
 	 * @param symbol - observed symbol
 	 */
-	public Observer(RealTimeProvider provider, Symbol symbol) {
-		if (provider == null) {
-			provider = Providers.getRealTimeProvider();
-		}
+	public Observer(Symbol symbol, RealTimeProvider provider) {
 		this.provider = provider;
 		this.observe(symbol);
 	}
@@ -121,12 +127,17 @@ public class Observer implements Runnable {
 	 * @param symbol - stock symbol
 	 */
 	public void observe(Symbol symbol) {
-		if (provider.canServe(symbol)) {
-			this.symbol = symbol;
+		if (provider != null) {
+			if (provider.canServe(symbol)) {
+				this.symbol = symbol;
+			} else {
+				String pname = provider.getClass().getName();
+				String sym = symbol.toString();
+				String msg = String.format("Provider %s cannot serve %s data", pname, sym);
+				throw new IllegalArgumentException(msg);
+			}
 		} else {
-			throw new IllegalArgumentException(
-				"Data provider " + provider.getClass().getName() +
-				" " + "cannot serve " + symbol + " data");
+			this.symbol = symbol;
 		}
 	}
 
@@ -158,6 +169,12 @@ public class Observer implements Runnable {
 			throw new IllegalStateException("Cannot stop not running or paused observer");
 		}
 		this.state = State.STOPPED;
+		try {
+			getRunner().interrupt();
+			getRunner().join();
+		} catch (InterruptedException e) {
+			LOG.debug(symbol + " observer stop has been interrupted");
+		}
 		LOG.info(getSymbol() + " observer has been stopped");
 	}
 
@@ -169,11 +186,7 @@ public class Observer implements Runnable {
 			throw new IllegalStateException("Cannot pause not running observer");
 		}
 		this.state = State.PAUSED;
-		try {
-			runner.wait();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		lock.lock();
 		LOG.info(getSymbol() + " observer has been paused");
 	}
 
@@ -185,6 +198,7 @@ public class Observer implements Runnable {
 			throw new IllegalStateException("Cannot resume not paused observer");
 		}
 		this.state = State.RUNNIG;
+		lock.unlock();
 		LOG.info(getSymbol() + " observer has been resumed");
 	}
 
@@ -200,6 +214,10 @@ public class Observer implements Runnable {
 				"This observer has been already started - cannot start it " +
 				"again");
 		}
+		if (provider == null) {
+			provider = Providers.getRealTimeProvider();
+		}
+
 		state = State.RUNNIG;
 		getRunner().start();
 	}
@@ -217,6 +235,15 @@ public class Observer implements Runnable {
 	 * @param provider - data provider to set
 	 */
 	public void setProvider(RealTimeProvider provider) {
+		if (provider == null) {
+			throw new IllegalArgumentException("Provider cannot be null");
+		}
+		if (symbol != null && !provider.canServe(symbol)) {
+			String pname = provider.getClass().getName();
+			String sym = symbol.toString();
+			String msg = String.format("Provider %s cannot serve %s data", pname, sym);
+			throw new IllegalArgumentException(msg);
+		}
 		this.provider = provider;
 	}
 
@@ -231,21 +258,24 @@ public class Observer implements Runnable {
 			if (state == State.STOPPED) {
 				break;
 			} else {
+				lock.lock();
 				try {
-					// TODO: add check if session in prog
 					runOnce();
 				} catch (Exception e) {
 					LOG.error(e.getMessage(), e);
+				} finally {
+					lock.unlock();
 				}
 				if (interval > 0) {
+
 					try {
 						Thread.sleep(interval);
 					} catch (InterruptedException e) {
-						LOG.error(e.getMessage(), e);
+						LOG.debug(symbol + " observer sleep has been interrupted");
 					}
 				}
 			}
-		} while (true);
+		} while (state != State.STOPPED);
 	}
 
 	/**
@@ -267,7 +297,7 @@ public class Observer implements Runnable {
 				break;
 			} catch (LackOfQuoteException e) {
 				error = true;
-				// this situation occurs when there was no trade in given
+				// this situation may occurs when there was no trade in given
 				// instrument within particular day
 				LOG.warn("Due to lack of quotes Observer will sleep for 5 minutes. " + e.getMessage());
 				try {
@@ -343,6 +373,7 @@ public class Observer implements Runnable {
 	public boolean addPriceListener(PriceListener listener) {
 		if (!listeners.contains(listener)) {
 			listeners.add(listener);
+			return true;
 		}
 		return false;
 	}

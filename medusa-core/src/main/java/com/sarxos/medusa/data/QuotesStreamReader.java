@@ -307,6 +307,12 @@ public class QuotesStreamReader implements Closeable {
 		return false;
 	}
 
+	/**
+	 * Read and return line from the underlying reader.
+	 * 
+	 * @return Line from the quotes file
+	 * @throws IOException
+	 */
 	private String getLine() throws IOException {
 		String s = null;
 		if (line != null) {

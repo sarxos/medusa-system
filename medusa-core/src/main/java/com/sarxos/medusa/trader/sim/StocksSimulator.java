@@ -245,7 +245,7 @@ public class StocksSimulator extends Observer {
 	}
 
 	public StocksSimulator(Symbol symbol, Date from, Date to) {
-		super(new SimulationProvider(symbol, from.getTime(), to.getTime()), symbol);
+		super(symbol, new SimulationProvider(symbol, from.getTime(), to.getTime()));
 		setInterval(0);
 	}
 
