@@ -9,6 +9,7 @@ import java.util.List;
 import com.sarxos.medusa.market.Calendarium;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.sql.DBDAO;
 
 
 public class QuotesAudit {

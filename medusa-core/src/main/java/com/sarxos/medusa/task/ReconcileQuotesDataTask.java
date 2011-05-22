@@ -16,8 +16,6 @@ import java.util.ListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sarxos.medusa.data.DBDAO;
-import com.sarxos.medusa.data.DBDAOException;
 import com.sarxos.medusa.data.QuotesAudit;
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.data.QuotesRegistry;
@@ -27,6 +25,8 @@ import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.HistoryProvider;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.provider.Providers;
+import com.sarxos.medusa.sql.DBDAO;
+import com.sarxos.medusa.sql.DBDAOException;
 import com.sarxos.medusa.trader.PlannedTask;
 import com.sarxos.medusa.trader.Trader;
 import com.sarxos.medusa.util.Configuration;

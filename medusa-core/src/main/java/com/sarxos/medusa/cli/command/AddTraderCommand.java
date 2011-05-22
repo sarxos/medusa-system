@@ -6,12 +6,12 @@ import org.naturalcli.ICommandExecutor;
 import org.naturalcli.InvalidSyntaxException;
 import org.naturalcli.ParseResult;
 
-import com.sarxos.medusa.data.DBDAO;
-import com.sarxos.medusa.data.DBDAOException;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.generator.PRS;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.sql.DBDAO;
+import com.sarxos.medusa.sql.DBDAOException;
 import com.sarxos.medusa.trader.FuturesTrader;
 import com.sarxos.medusa.trader.StocksTrader;
 import com.sarxos.medusa.trader.Trader;

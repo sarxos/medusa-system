@@ -1,17 +1,19 @@
-package com.sarxos.medusa.trader;
+package com.sarxos.medusa.sql;
 
 import junit.framework.TestCase;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 
-import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.sql.DBDAO;
+import com.sarxos.medusa.trader.Trader;
+import com.sarxos.medusa.trader.TraderTest;
 import com.sarxos.medusa.trader.TraderTest.TestTrader;
 
 

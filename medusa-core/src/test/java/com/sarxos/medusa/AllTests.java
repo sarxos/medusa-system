@@ -3,7 +3,7 @@ package com.sarxos.medusa;
 import com.sarxos.medusa.market.PaperTest;
 import com.sarxos.medusa.market.QuoteTest;
 import com.sarxos.medusa.market.SymbolTest;
-import com.sarxos.medusa.trader.DBDAOTraderTest;
+import com.sarxos.medusa.sql.DBDAOTraderTest;
 import com.sarxos.medusa.trader.TraderTest;
 
 import junit.framework.Test;

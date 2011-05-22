@@ -19,7 +19,6 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Signal;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.SignalType;
-import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.trader.Observer.NullEvent;
 
 
@@ -52,11 +51,6 @@ public class DecisionMaker implements PriceListener {
 	private Trader trader = null;
 
 	/**
-	 * Price observer.
-	 */
-	private Observer observer = null;
-
-	/**
 	 * Signals generator.
 	 */
 	private SignalGenerator<? extends Quote> generator = null;
@@ -78,41 +72,35 @@ public class DecisionMaker implements PriceListener {
 	 */
 	private QuotesRegistry registry = QuotesRegistry.getInstance();
 
+	/**
+	 * Null events handler.
+	 */
 	private NullEventHandler nullHandler = null;
 
 	/**
-	 * Create Decision maker with given observer and signal generator. After
-	 * price notification from observer, generator will calculate signal and on
-	 * its base decision maker will decide if given paper shall be bought or
-	 * sell.
+	 * Create Decision maker with signal generator. After price notification
+	 * from observer, generator will calculate signal and on its base decision
+	 * maker will decide if given paper shall be bought or sell.
 	 * 
-	 * @param observer - instrument observer
-	 * @param generator - signal generator
 	 * @param trader - trader instance
+	 * @param generator - signal generator
 	 */
-	public DecisionMaker(Trader trader, Observer observer, SignalGenerator<? extends Quote> generator) {
-		this.observer = observer;
-		this.observer.addPriceListener(this);
+	public DecisionMaker(Trader trader, SignalGenerator<? extends Quote> generator) {
 		this.generator = generator;
 		this.setTrader(trader);
 	}
 
-	protected void setTrader(Trader trader) {
-
-		if (trader != null) {
-
-			Symbol t = trader.getPaper().getSymbol();
-			Symbol o = observer.getSymbol();
-			if (t != o) {
-				throw new IllegalArgumentException(
-					"Symbols from trader and observer differs! From " +
-					"trader " + t + " and from observer " + o);
-			}
-
-			this.addDecisionListener(trader);
+	/**
+	 * Set trader.
+	 * 
+	 * @param trader - trader to set
+	 */
+	public void setTrader(Trader trader) {
+		if (trader == null) {
+			throw new IllegalArgumentException("Trader cannot be null");
 		}
-
 		this.trader = trader;
+		this.addDecisionListener(trader);
 	}
 
 	@Override
@@ -123,23 +111,14 @@ public class DecisionMaker implements PriceListener {
 			return;
 		}
 
-		Paper paper = null;
-		if (trader != null) {
-			paper = trader.getPaper();
-		} else {
-			paper = Wallet.getInstance().getPaper(observer.getSymbol());
-		}
-
+		Paper paper = trader.getPaper();
 		if (paper == null) {
-			throw new RuntimeException(
-				"Neither trader nor wallet has paper object set, " +
-				"symbol " + observer.getSymbol());
+			throw new RuntimeException("Paper from trader is null!");
 		}
 
 		Quote quote = pe.getQuote();
-		Symbol symbol = observer.getSymbol();
 
-		quote = bind(quote, symbol);
+		bind(quote);
 
 		Signal signal = generator.generate(quote);
 		SignalType type = signal.getType();
@@ -154,7 +133,7 @@ public class DecisionMaker implements PriceListener {
 		if (buy || sell) {
 			notifyListeners(new DecisionEvent(this, paper, quote, type));
 		} else {
-			unbind(quote, symbol);
+			unbind(quote);
 		}
 	}
 
@@ -176,11 +155,10 @@ public class DecisionMaker implements PriceListener {
 	 * Bind quote with historical data.
 	 * 
 	 * @param q - quote to bind
-	 * @param symbol - symbol to lookup in the quotes registry
 	 * @return Quote
 	 */
-	private Quote bind(Quote q, Symbol symbol) {
-		List<Quote> quotes = registry.getQuotes(symbol);
+	private Quote bind(Quote q) {
+		List<Quote> quotes = registry.getQuotes(q.getSymbol());
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(p);
 		p.setNext(q);
@@ -191,11 +169,10 @@ public class DecisionMaker implements PriceListener {
 	 * Unbind quote from historical data.
 	 * 
 	 * @param q - quote to unbind
-	 * @param symbol - symbol to lookup in the quotes registry
 	 * @return Quote
 	 */
-	private Quote unbind(Quote q, Symbol symbol) {
-		List<Quote> quotes = registry.getQuotes(symbol);
+	private Quote unbind(Quote q) {
+		List<Quote> quotes = registry.getQuotes(q.getSymbol());
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(null);
 		p.setNext(null);
@@ -278,27 +255,6 @@ public class DecisionMaker implements PriceListener {
 	}
 
 	/**
-	 * @return Paper observer
-	 */
-	public Observer getObserver() {
-		return observer;
-	}
-
-	/**
-	 * Set new price observer. If other observer has been set, decision maker
-	 * object will be removed from its listeners.
-	 * 
-	 * @param observer - new observer to set
-	 */
-	public void setObserver(Observer observer) {
-		if (this.observer != null) {
-			this.observer.removePriceListener(this);
-		}
-		this.observer = observer;
-		this.observer.addPriceListener(this);
-	}
-
-	/**
 	 * Set signal generator.
 	 * 
 	 * @param generator - new generator to set.
@@ -346,7 +302,7 @@ public class DecisionMaker implements PriceListener {
 	/**
 	 * @return Quotes registry used to bind single quote with historical data
 	 */
-	protected QuotesRegistry getRegistry() {
+	public QuotesRegistry getRegistry() {
 		return registry;
 	}
 
@@ -361,28 +317,6 @@ public class DecisionMaker implements PriceListener {
 			throw new IllegalArgumentException("Quotes registry cannot be null");
 		}
 		this.registry = registry;
-	}
-
-	/**
-	 * Start underlying observer.
-	 */
-	public void start() {
-		if (observer != null) {
-			observer.start();
-		} else {
-			throw new IllegalStateException("Observer is null, cannot start");
-		}
-	}
-
-	/**
-	 * Start underlying observer.
-	 */
-	public void stop() {
-		if (observer != null) {
-			observer.stop();
-		} else {
-			throw new IllegalStateException("Observer is null, cannot stop");
-		}
 	}
 
 	/**

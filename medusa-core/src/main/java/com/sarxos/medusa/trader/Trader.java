@@ -6,6 +6,8 @@ import static com.sarxos.medusa.market.SignalType.SELL;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,43 @@ import com.sarxos.medusa.provider.RealTimeProvider;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public abstract class Trader implements DecisionListener, Runnable {
+public abstract class Trader implements DecisionListener, Runnable, PriceListener {
+
+	/**
+	 * Workman thread. It will move price events from queue to the decision
+	 * maker for further processing.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
+	 */
+	protected static class Workman extends Thread {
+
+		Trader trader = null;
+
+		public Workman(Trader trader) {
+			if (trader == null) {
+				throw new IllegalArgumentException("Trader for workman cannot be null");
+			}
+			this.trader = trader;
+			this.setDaemon(true);
+			this.setName(trader.getName() + "[worker]");
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			do {
+				// transfer price event
+				BlockingQueue<PriceEvent> queue = trader.getQueue();
+				DecisionMaker de = trader.getDecisionMaker();
+				try {
+					de.priceChange(queue.take());
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			} while (true);
+		}
+
+	}
 
 	/**
 	 * Logger.
@@ -81,7 +119,25 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 */
 	private MessagesBroker broker = null;
 
+	/**
+	 * Paper to trade.
+	 */
 	private Paper paper = null;
+
+	/**
+	 * Paper observer.
+	 */
+	private Observer observer = null;
+
+	/**
+	 * Price events queue.
+	 */
+	private BlockingQueue<PriceEvent> events = new LinkedBlockingQueue<PriceEvent>();
+
+	/**
+	 * Price events workman.
+	 */
+	private Workman workman = null;
 
 	/**
 	 * Trader constructor.
@@ -90,14 +146,22 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * @param siggen - signal generator
 	 * @param paper - paper to observe
 	 */
-	public Trader(String name, SignalGenerator<? extends Quote> siggen, Paper paper) {
-		this(name, siggen, paper, null);
+	public Trader(SignalGenerator<Quote> siggen, Symbol symbol) {
+		this(null, siggen, symbol, null);
 	}
 
-	public Trader(String name, SignalGenerator<? extends Quote> siggen, Paper paper, RealTimeProvider provider) {
-		if (name == null) {
-			throw new IllegalArgumentException("Trader name cannot be null");
-		}
+	/**
+	 * Trader constructor.
+	 * 
+	 * @param name - trader name
+	 * @param siggen - signal generator
+	 * @param paper - paper to observe
+	 */
+	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol) {
+		this(null, siggen, symbol, null);
+	}
+
+	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol, RealTimeProvider provider) {
 		if (siggen == null) {
 			throw new IllegalArgumentException("Signal generator cannot be null");
 		}
@@ -106,8 +170,8 @@ public abstract class Trader implements DecisionListener, Runnable {
 		}
 		this.name = name;
 		this.siggen = siggen;
-		this.provider = provider != null ? provider : Providers.getRealTimeProvider();
-		this.paper = paper;
+		this.provider = provider;
+		this.paper = new Paper(symbol);
 		this.init();
 	}
 
@@ -116,10 +180,11 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 */
 	protected void init() {
 
-		Observer observer = new Observer(paper.getSymbol(), provider);
-		DecisionMaker dm = new DecisionMaker(this, observer, siggen);
+		decisionMaker = new DecisionMaker(this, siggen);
+		decisionMaker.addDecisionListener(this);
 
-		setDecisionMaker(dm);
+		observer = new Observer(paper.getSymbol(), provider);
+		observer.addPriceListener(this);
 
 		try {
 			broker = new DefaultMessagesBroker();
@@ -153,25 +218,15 @@ public abstract class Trader implements DecisionListener, Runnable {
 		if (p == null) {
 			throw new IllegalArgumentException("Position cannot be null");
 		}
-		if (position != p) {
-			position = p;
-		}
-		getDecisionMaker().setPosition(p);
+		this.position = p;
+		getDecisionMaker().setPosition(p); // keep decision maker in-sync
 	}
 
 	/**
 	 * @return Return current position (long, short)
 	 */
 	public Position getPosition() {
-		if (position == null) {
-			DecisionMaker dm = getDecisionMaker();
-			if (dm == null) {
-				return null;
-			}
-			return dm.getCurrentPosition();
-		} else {
-			return position;
-		}
+		return position;
 	}
 
 	/**
@@ -182,36 +237,10 @@ public abstract class Trader implements DecisionListener, Runnable {
 	}
 
 	/**
-	 * Set new decision maker
-	 * 
-	 * @param decisionMaker - new decision maker to set
-	 */
-	public void setDecisionMaker(DecisionMaker decisionMaker) {
-		this.decisionMaker = decisionMaker;
-	}
-
-	/**
 	 * @return Price observer
 	 */
 	public Observer getObserver() {
-		if (getDecisionMaker() == null) {
-			return null;
-		}
-		return getDecisionMaker().getObserver();
-	}
-
-	/**
-	 * Set new price observer.
-	 * 
-	 * @param observer - new observer to set
-	 */
-	public void setObserver(Observer observer) {
-		if (getDecisionMaker() == null) {
-			throw new IllegalStateException(
-				"Cannot set observer because decision maker is not " +
-				"created.");
-		}
-		getDecisionMaker().setObserver(observer);
+		return observer;
 	}
 
 	/**
@@ -248,8 +277,13 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 * @param symbol - observed symbol
 	 */
 	public void trade() {
+
+		if (provider == null) {
+			setProvider(Providers.getRealTimeProvider());
+		}
+
 		TradersRegistry.getInstance().addTrader(this);
-		getDecisionMaker().getObserver().start();
+		getObserver().start();
 	}
 
 	@Override
@@ -352,7 +386,7 @@ public abstract class Trader implements DecisionListener, Runnable {
 	/**
 	 * @param desired - desired paper quantity
 	 */
-	public void setPaperDesiredQuantity(int desired) {
+	public void setDesiredQuantity(int desired) {
 		this.desired = desired;
 	}
 
@@ -361,5 +395,55 @@ public abstract class Trader implements DecisionListener, Runnable {
 	 */
 	public Paper getPaper() {
 		return paper;
+	}
+
+	@Override
+	public void priceChange(PriceEvent pe) {
+		try {
+			events.put(pe);
+		} catch (InterruptedException e) {
+			LOG.error(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * @return Return price events queue
+	 */
+	protected BlockingQueue<PriceEvent> getQueue() {
+		return events;
+	}
+
+	/**
+	 * @return Return number of price events in the queue
+	 */
+	public int getQueueSize() {
+		return events.size();
+	}
+
+	/**
+	 * @return the workman
+	 */
+	protected Workman getWorkman() {
+		if (workman == null) {
+			workman = new Workman(this);
+		}
+		return workman;
+	}
+
+	/**
+	 * @return Currently used provider
+	 */
+	public RealTimeProvider getProvider() {
+		return provider;
+	}
+
+	/**
+	 * Set new real time data provider
+	 * 
+	 * @param provider - new real time data provider to set
+	 */
+	public void setProvider(RealTimeProvider provider) {
+		this.provider = provider;
+		this.observer.setProvider(provider);
 	}
 }

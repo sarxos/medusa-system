@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 
 import org.junit.Ignore;
 
-import com.sarxos.medusa.data.DBDAO;
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
@@ -12,6 +11,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.RealTimeProvider;
+import com.sarxos.medusa.sql.DBDAO;
 
 
 @Ignore

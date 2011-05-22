@@ -6,7 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sarxos.medusa.data.DBDAO;
+import com.sarxos.medusa.sql.DBDAO;
 import com.sarxos.medusa.trader.Trader;
 
 

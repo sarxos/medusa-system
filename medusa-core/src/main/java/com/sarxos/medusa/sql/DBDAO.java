@@ -1,4 +1,4 @@
-package com.sarxos.medusa.data;
+package com.sarxos.medusa.sql;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.sarxos.medusa.data.DataFileFormat;
+import com.sarxos.medusa.data.QuotesReaderException;
+import com.sarxos.medusa.data.QuotesRemoteReader;
 import com.sarxos.medusa.data.persistence.PersistenceException;
 import com.sarxos.medusa.data.persistence.PersistenceProvider;
 import com.sarxos.medusa.market.Paper;

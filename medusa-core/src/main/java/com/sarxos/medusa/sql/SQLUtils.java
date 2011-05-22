@@ -1,4 +1,4 @@
-package com.sarxos.medusa.data;
+package com.sarxos.medusa.sql;
 
 import java.io.File;
 import java.io.FilenameFilter;

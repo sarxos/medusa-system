@@ -1,4 +1,4 @@
-package com.sarxos.medusa.data;
+package com.sarxos.medusa.sql;
 
 import java.io.IOException;
 import java.net.Socket;

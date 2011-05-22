@@ -15,8 +15,8 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 
-import com.sarxos.medusa.data.DBDAO;
-import com.sarxos.medusa.data.MySQLRunner;
+import com.sarxos.medusa.sql.DBDAO;
+import com.sarxos.medusa.sql.MySQLRunner;
 import com.sarxos.medusa.task.ReconcileQuotesDataTask;
 import com.sarxos.medusa.trader.Trader;
 
