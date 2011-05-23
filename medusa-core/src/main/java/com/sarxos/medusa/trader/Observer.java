@@ -54,7 +54,21 @@ public class Observer implements Runnable {
 	 * @author Bartosz Firyn (SarXos)
 	 */
 	public static enum State {
-		RUNNIG, PAUSED, STOPPED;
+
+		/**
+		 * Observer is running.
+		 */
+		RUNNIG,
+
+		/**
+		 * Observer is paused.
+		 */
+		PAUSED,
+
+		/**
+		 * Observer is stopped.
+		 */
+		STOPPED;
 	}
 
 	/**
