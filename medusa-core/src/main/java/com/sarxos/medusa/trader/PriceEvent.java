@@ -76,9 +76,9 @@ public class PriceEvent extends EventObject {
 		sb.append("[").append(Quote.class.getSimpleName()).append("[");
 		sb.append(quote.getSymbol());
 		sb.append("] ");
-		sb.append(String.format("%.2f", getPreviousPrice()).replaceAll(",", "."));
+		sb.append(String.format("%.2f", Double.valueOf(getPreviousPrice())).replaceAll(",", "."));
 		sb.append(" -> ");
-		sb.append(String.format("%.2f", getCurrentPrice()).replaceAll(",", "."));
+		sb.append(String.format("%.2f", Double.valueOf(getCurrentPrice())).replaceAll(",", "."));
 		sb.append("]");
 		return sb.toString();
 	}

@@ -26,6 +26,9 @@ public class DecisionEvent extends EventObject {
 	 */
 	private SignalType signal = null;
 
+	/**
+	 * Quote on the base which decision has been made.
+	 */
 	private Quote quote = null;
 
 	/**
@@ -75,7 +78,7 @@ public class DecisionEvent extends EventObject {
 	}
 
 	/**
-	 * @return the quote
+	 * @return Return quote on the base which decision has been made.
 	 */
 	public Quote getQuote() {
 		return quote;

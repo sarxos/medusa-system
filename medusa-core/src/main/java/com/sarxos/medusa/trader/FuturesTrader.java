@@ -3,9 +3,9 @@ package com.sarxos.medusa.trader;
 import static com.sarxos.medusa.market.Position.LONG;
 import static com.sarxos.medusa.market.Position.SHORT;
 
-import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
+import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
@@ -16,11 +16,15 @@ import com.sarxos.medusa.provider.RealTimeProvider;
  */
 public class FuturesTrader extends Trader {
 
-	public FuturesTrader(String name, SignalGenerator<Quote> siggen, Paper paper) {
+	public FuturesTrader(SignalGenerator<Quote> siggen, Symbol symbol) {
+		super(siggen, symbol);
+	}
+
+	public FuturesTrader(String name, SignalGenerator<Quote> siggen, Symbol paper) {
 		super(name, siggen, paper);
 	}
 
-	public FuturesTrader(String name, SignalGenerator<Quote> siggen, Paper paper, RealTimeProvider provider) {
+	public FuturesTrader(String name, SignalGenerator<Quote> siggen, Symbol paper, RealTimeProvider provider) {
 		super(name, siggen, paper, provider);
 	}
 

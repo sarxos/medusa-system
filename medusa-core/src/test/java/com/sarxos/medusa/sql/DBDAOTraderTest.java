@@ -11,9 +11,7 @@ import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.sql.DBDAO;
 import com.sarxos.medusa.trader.Trader;
-import com.sarxos.medusa.trader.TraderTest;
 import com.sarxos.medusa.trader.TraderTest.TestTrader;
 
 
@@ -21,7 +19,8 @@ import com.sarxos.medusa.trader.TraderTest.TestTrader;
 public class DBDAOTraderTest extends TestCase {
 
 	private static final String NAME = "Buka";
-	private static final Paper PAPER = new Paper(Symbol.KGH, 100, 0);
+	private static final Symbol SYMBOL = Symbol.QQQ;
+	private static final Paper PAPER = new Paper(SYMBOL, 100, 0);
 	private static final SignalGenerator<Quote> SIGGEN = new MAVD(3, 13, 30);
 	private static final Position POSITION = Position.SHORT;
 
@@ -31,7 +30,7 @@ public class DBDAOTraderTest extends TestCase {
 	@BeforeClass
 	public void init() {
 		this.dbdao = DBDAO.getInstance();
-		this.trader = new TestTrader(NAME, SIGGEN, PAPER);
+		this.trader = new TestTrader(NAME, SIGGEN, SYMBOL);
 		this.trader.setPosition(POSITION);
 	}
 

@@ -193,22 +193,6 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 		}
 	}
 
-	@Override
-	public void positionChange(PositionEvent pe) {
-		Position p = pe.getNewPosition();
-		if (position != p) {
-			switch (p) {
-				case LONG:
-					setCurrentQuantity(getDesiredQuantity());
-					break;
-				case SHORT:
-					setCurrentQuantity(0);
-					break;
-			}
-			position = p;
-		}
-	}
-
 	/**
 	 * Set new position
 	 * 
@@ -219,7 +203,6 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 			throw new IllegalArgumentException("Position cannot be null");
 		}
 		this.position = p;
-		getDecisionMaker().setPosition(p); // keep decision maker in-sync
 	}
 
 	/**

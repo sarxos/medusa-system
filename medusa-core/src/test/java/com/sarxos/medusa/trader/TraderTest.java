@@ -23,11 +23,11 @@ public class TraderTest extends TestCase {
 		public void decisionChange(DecisionEvent event) {
 		}
 
-		public TestTrader(String name, SignalGenerator<? extends Quote> siggen, Paper paper, RealTimeProvider provider) {
+		public TestTrader(String name, SignalGenerator<Quote> siggen, Symbol paper, RealTimeProvider provider) {
 			super(name, siggen, paper, provider);
 		}
 
-		public TestTrader(String name, SignalGenerator<? extends Quote> siggen, Paper paper) {
+		public TestTrader(String name, SignalGenerator<Quote> siggen, Symbol paper) {
 			super(name, siggen, paper);
 		}
 	}
@@ -35,7 +35,8 @@ public class TraderTest extends TestCase {
 	private static DBDAO dbdao = DBDAO.getInstance();
 	private static final String NAME = "TestTRader";
 	private static final SignalGenerator<Quote> SIGGEN = new MAVD();
-	private static final Paper PAPER = new Paper(Symbol.QQQ, 100, 0);
+	private static final Symbol SYMBOL = Symbol.QQQ;
+	private static final Paper PAPER = new Paper(SYMBOL, 100, 0);
 
 	public void test_CreateTrader() throws Exception {
 
@@ -46,7 +47,7 @@ public class TraderTest extends TestCase {
 		t = DBDAO.getInstance().getTrader(NAME);
 		assertNull(t);
 
-		t = new StocksTrader(NAME, SIGGEN, PAPER);
+		t = new StocksTrader(NAME, SIGGEN, SYMBOL);
 		Thread.sleep(2000); // wait for persistence writer
 
 		t = DBDAO.getInstance().getTrader(NAME);

@@ -29,6 +29,7 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			<!-- temporary disable
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>aspectj-maven-plugin</artifactId>
@@ -47,6 +48,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>

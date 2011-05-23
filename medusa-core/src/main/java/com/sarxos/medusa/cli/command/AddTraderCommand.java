@@ -8,7 +8,6 @@ import org.naturalcli.ParseResult;
 
 import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.generator.PRS;
-import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.sql.DBDAO;
 import com.sarxos.medusa.sql.DBDAOException;
@@ -54,9 +53,9 @@ public class AddTraderCommand extends Command implements ICommandExecutor {
 
 		Trader t = null;
 		if (type.equals("future")) {
-			t = new FuturesTrader(name, new PRS(0.6), new Paper(symbol, Integer.parseInt(num)));
+			t = new FuturesTrader(name, new PRS(0.6), symbol);
 		} else if (type.equals("stocks")) {
-			t = new StocksTrader(name, new MAVD(3, 13, 30), new Paper(symbol, Integer.parseInt(num)));
+			t = new StocksTrader(name, new MAVD(3, 13, 30), symbol);
 		}
 
 		try {

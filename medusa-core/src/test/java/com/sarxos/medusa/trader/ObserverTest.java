@@ -46,6 +46,12 @@ public class ObserverTest {
 		int interval = 2; // 2 seconds
 		o.setInterval(interval);
 		Assert.assertEquals(interval, o.getInterval());
+		try {
+			o.setInterval(-10); // time interval cannot be negative
+			Assert.fail();
+		} catch (IllegalArgumentException e) {
+			Assert.assertTrue(true);
+		}
 	}
 
 	@Test

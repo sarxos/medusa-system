@@ -7,7 +7,6 @@ import java.util.WeakHashMap;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 import com.sarxos.medusa.sql.DBDAO;
-import com.sarxos.medusa.sql.MySQLRunner;
 
 
 /**
@@ -45,7 +44,6 @@ public class QuotesRegistry {
 	 */
 	public static QuotesRegistry getInstance() {
 		if (instance == null) {
-			MySQLRunner.getInstance().runMySQL();
 			instance.dbdao = DBDAO.getInstance();
 			instance = new QuotesRegistry();
 		}

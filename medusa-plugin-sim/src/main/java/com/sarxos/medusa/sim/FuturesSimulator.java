@@ -27,7 +27,7 @@ public class FuturesSimulator {
 		Paper paper = new Paper(symbol);
 		RealTimeProvider provider = new FakeRealTimeProvider(symbol, null, null);
 
-		final FuturesTrader trader = new FuturesTrader(name, siggen, paper, provider);
+		final FuturesTrader trader = new FuturesTrader(name, siggen, symbol, provider);
 
 		trader.getObserver().setInterval(0);
 		trader.getDecisionMaker().setNullHandler(

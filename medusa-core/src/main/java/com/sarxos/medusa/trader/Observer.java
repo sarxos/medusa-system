@@ -166,14 +166,14 @@ public class Observer implements Runnable {
 	 */
 	public void stop() {
 		if (state != State.RUNNIG && state != State.PAUSED) {
-			throw new IllegalStateException("Cannot stop not running or paused observer");
+			throw new IllegalStateException("Cannot stop neither running nor paused observer");
 		}
 		this.state = State.STOPPED;
 		try {
 			getRunner().interrupt();
 			getRunner().join();
 		} catch (InterruptedException e) {
-			LOG.debug(symbol + " observer stop has been interrupted");
+			LOG.warn(symbol + " observer stop has been interrupted");
 		}
 		LOG.info(getSymbol() + " observer has been stopped");
 	}
@@ -268,7 +268,6 @@ public class Observer implements Runnable {
 					lock.unlock();
 				}
 				if (interval > 0) {
-
 					try {
 						Thread.sleep(interval);
 					} catch (InterruptedException e) {

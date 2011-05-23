@@ -305,7 +305,7 @@ public class StocksSimulator extends Observer {
 
 		final CyclicBarrier cb = new CyclicBarrier(2);
 
-		final DecisionMaker dmaker = new DecisionMaker(null, observer, siggen) {
+		final DecisionMaker dmaker = new DecisionMaker(null, siggen) {
 
 			@Override
 			protected void handleNull(NullEvent ne) {
@@ -318,7 +318,7 @@ public class StocksSimulator extends Observer {
 					e.printStackTrace();
 				}
 
-				getObserver().stop();
+				// getObserver().stop();
 			}
 		};
 		dmaker.setRegistry(registry);
@@ -401,7 +401,6 @@ public class StocksSimulator extends Observer {
 		};
 
 		dmaker.addDecisionListener(dl);
-		dmaker.start();
 
 		try {
 			cb.await();

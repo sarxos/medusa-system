@@ -8,6 +8,7 @@ import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 
 
+@SuppressWarnings("boxing")
 public class PriceEventTest {
 
 	@Test
@@ -42,5 +43,14 @@ public class PriceEventTest {
 		Quote q = new Quote();
 		PriceEvent pe = new PriceEvent(o, 1.0, 2.0, q);
 		Assert.assertSame(q, pe.getQuote());
+	}
+
+	@Test
+	public void test_toString() {
+		Observer o = new Observer(Symbol.QQQ);
+		Quote q = new Quote();
+		PriceEvent pe = new PriceEvent(o, 1.0, 2.0, q);
+		Assert.assertNotNull(pe.toString());
+		Assert.assertTrue(pe.toString().length() > 0);
 	}
 }

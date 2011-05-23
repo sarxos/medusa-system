@@ -36,6 +36,11 @@ public class DecisionMaker implements PriceListener {
 	 */
 	public static interface NullEventHandler {
 
+		/**
+		 * Handle null event.
+		 * 
+		 * @param ne - null event to handle
+		 */
 		public void handleNull(NullEvent ne);
 
 	}
@@ -70,12 +75,19 @@ public class DecisionMaker implements PriceListener {
 	 * data for particular symbol. This objects store lists of quotes for
 	 * various symbols.
 	 */
-	private QuotesRegistry registry = QuotesRegistry.getInstance();
+	private QuotesRegistry registry = null;
 
 	/**
 	 * Null events handler.
 	 */
 	private NullEventHandler nullHandler = null;
+
+	/**
+	 * You have to set trader and signal generatore implicitly when you are
+	 * using this constructor.
+	 */
+	public DecisionMaker() {
+	}
 
 	/**
 	 * Create Decision maker with signal generator. After price notification
@@ -88,6 +100,13 @@ public class DecisionMaker implements PriceListener {
 	public DecisionMaker(Trader trader, SignalGenerator<? extends Quote> generator) {
 		this.generator = generator;
 		this.setTrader(trader);
+	}
+
+	/**
+	 * @return Return trader
+	 */
+	public Trader getTrader() {
+		return trader;
 	}
 
 	/**
@@ -158,7 +177,7 @@ public class DecisionMaker implements PriceListener {
 	 * @return Quote
 	 */
 	private Quote bind(Quote q) {
-		List<Quote> quotes = registry.getQuotes(q.getSymbol());
+		List<Quote> quotes = getQuotesRegistry().getQuotes(q.getSymbol());
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(p);
 		p.setNext(q);
@@ -172,7 +191,7 @@ public class DecisionMaker implements PriceListener {
 	 * @return Quote
 	 */
 	private Quote unbind(Quote q) {
-		List<Quote> quotes = registry.getQuotes(q.getSymbol());
+		List<Quote> quotes = getQuotesRegistry().getQuotes(q.getSymbol());
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(null);
 		p.setNext(null);
@@ -189,7 +208,7 @@ public class DecisionMaker implements PriceListener {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(
 				"Notifying decision listeneres. Number of listeners to " +
-				"notifry is " + listeners.size());
+				"notify is " + listeners.size());
 		}
 
 		DecisionListener listener = null;
@@ -199,26 +218,6 @@ public class DecisionMaker implements PriceListener {
 			listener = i.next();
 			try {
 				listener.decisionChange(de);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
-	 * Notify all listeners about price change.
-	 * 
-	 * @param de - decision event (buy or sell paper)
-	 */
-	protected void notifyListeners(PositionEvent pe) {
-
-		DecisionListener listener = null;
-		ListIterator<DecisionListener> i = listeners.listIterator();
-
-		while (i.hasNext()) {
-			try {
-				listener = i.next();
-				listener.positionChange(pe);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -259,50 +258,24 @@ public class DecisionMaker implements PriceListener {
 	 * 
 	 * @param generator - new generator to set.
 	 */
-	public void setGenerator(SignalGenerator<Quote> generator) {
+	public void setSignalGenerator(SignalGenerator<Quote> generator) {
 		this.generator = generator;
 	}
 
 	/**
 	 * @return Signal generator.
 	 */
-	public SignalGenerator<? extends Quote> getGenerator() {
+	public SignalGenerator<? extends Quote> getSignalGenerator() {
 		return generator;
-	}
-
-	/**
-	 * @return Current position being set (long, short).
-	 */
-	public Position getCurrentPosition() {
-		return position;
-	}
-
-	/**
-	 * Set current position (long or short).
-	 * 
-	 * @param position - position type
-	 */
-	public void setPosition(Position position) {
-		if (position == null) {
-			throw new IllegalArgumentException("Position cannot be null");
-		}
-
-		PositionEvent pe = null;
-		if (position != this.position) {
-			pe = new PositionEvent(this, this.position, position);
-		}
-
-		this.position = position;
-
-		if (pe != null) {
-			notifyListeners(pe);
-		}
 	}
 
 	/**
 	 * @return Quotes registry used to bind single quote with historical data
 	 */
-	public QuotesRegistry getRegistry() {
+	public QuotesRegistry getQuotesRegistry() {
+		if (registry == null) {
+			QuotesRegistry.getInstance();
+		}
 		return registry;
 	}
 
@@ -312,7 +285,7 @@ public class DecisionMaker implements PriceListener {
 	 * 
 	 * @param registry - new quotes registry to set
 	 */
-	public void setRegistry(QuotesRegistry registry) {
+	public void setQuotesRegistry(QuotesRegistry registry) {
 		if (registry == null) {
 			throw new IllegalArgumentException("Quotes registry cannot be null");
 		}

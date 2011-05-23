@@ -13,12 +13,4 @@ public interface DecisionListener {
 	 * @param de - decision event
 	 */
 	public void decisionChange(DecisionEvent de);
-
-	/**
-	 * Notified after position change.
-	 * 
-	 * @param pe
-	 */
-	public void positionChange(PositionEvent pe);
-
 }
