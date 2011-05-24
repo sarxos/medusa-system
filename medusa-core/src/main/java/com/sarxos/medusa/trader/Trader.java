@@ -87,7 +87,7 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	/**
 	 * Signal generator to use.
 	 */
-	private SignalGenerator<? extends Quote> siggen = null;
+	private SignalGenerator<Quote> siggen = null;
 
 	/**
 	 * Real time data provider.

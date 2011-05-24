@@ -97,9 +97,25 @@ public class DecisionMaker implements PriceListener {
 	 * @param trader - trader instance
 	 * @param generator - signal generator
 	 */
-	public DecisionMaker(Trader trader, SignalGenerator<? extends Quote> generator) {
+	public DecisionMaker(Trader trader, SignalGenerator<Quote> generator) {
+		this(trader, generator, null);
+	}
+
+	/**
+	 * Create Decision maker with signal generator. After price notification
+	 * from observer, generator will calculate signal and on its base decision
+	 * maker will decide if given paper shall be bought or sell.
+	 * 
+	 * @param trader - trader instance
+	 * @param generator - signal generator
+	 * @param qr - quotes registry
+	 */
+	public DecisionMaker(Trader trader, SignalGenerator<Quote> generator, QuotesRegistry qr) {
 		this.generator = generator;
 		this.setTrader(trader);
+		if (qr != null) {
+			setQuotesRegistry(qr);
+		}
 	}
 
 	/**
@@ -177,10 +193,17 @@ public class DecisionMaker implements PriceListener {
 	 * @return Quote
 	 */
 	private Quote bind(Quote q) {
-		List<Quote> quotes = getQuotesRegistry().getQuotes(q.getSymbol());
+
+		QuotesRegistry qr = getQuotesRegistry();
+		if (qr == null) {
+			throw new RuntimeException("Quotes registry cannot eb null");
+		}
+
+		List<Quote> quotes = qr.getQuotes(q.getSymbol());
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(p);
 		p.setNext(q);
+
 		return q;
 	}
 
@@ -191,10 +214,17 @@ public class DecisionMaker implements PriceListener {
 	 * @return Quote
 	 */
 	private Quote unbind(Quote q) {
-		List<Quote> quotes = getQuotesRegistry().getQuotes(q.getSymbol());
+
+		QuotesRegistry qr = getQuotesRegistry();
+		if (qr == null) {
+			throw new RuntimeException("Quotes registry cannot eb null");
+		}
+
+		List<Quote> quotes = qr.getQuotes(q.getSymbol());
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(null);
 		p.setNext(null);
+
 		return q;
 	}
 
@@ -239,6 +269,7 @@ public class DecisionMaker implements PriceListener {
 	public boolean addDecisionListener(DecisionListener listener) {
 		if (!listeners.contains(listener)) {
 			listeners.add(listener);
+			return true;
 		}
 		return false;
 	}
