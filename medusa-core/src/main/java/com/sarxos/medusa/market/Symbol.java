@@ -11,7 +11,17 @@ public enum Symbol {
 	/**
 	 * Synthetic paper for WIG20 futures.
 	 */
+	@Synthetic
 	FW20("FW20"),
+	/**
+	 * Synthetic symbol for test futures.
+	 */
+	@Synthetic
+	FQQQ("FQQQ"),
+	FQQQH11("FQQQ"),
+	FQQQM11("FQQQ"),
+	FQQQU11("FQQQ"),
+	FQQQZ11("FQQQ"),
 
 	/**
 	 * WIG20 Future, June 2011
@@ -178,7 +188,7 @@ public enum Symbol {
 	 */
 	BVD("SOBIESKI"),
 	/**
-	 * Mondi Œwiecie SA
+	 * Mondi ï¿½wiecie SA
 	 */
 	MSC("SWIECIE"),
 	/**
