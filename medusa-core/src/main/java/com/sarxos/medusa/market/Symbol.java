@@ -1,18 +1,16 @@
 package com.sarxos.medusa.market;
 
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.sarxos.medusa.market.annotation.Synthetic;
+
 
 public enum Symbol {
 
-	/**
-	 * Synthetic paper for WIG20 futures.
-	 */
-	@Synthetic
-	FW20("FW20"),
 	/**
 	 * Synthetic symbol for test futures.
 	 */
@@ -22,6 +20,12 @@ public enum Symbol {
 	FQQQM11("FQQQ"),
 	FQQQU11("FQQQ"),
 	FQQQZ11("FQQQ"),
+
+	/**
+	 * Synthetic paper for WIG20 futures.
+	 */
+	@Synthetic
+	FW20("FW20"),
 
 	/**
 	 * WIG20 Future, June 2011
@@ -257,11 +261,20 @@ public enum Symbol {
 		} else {
 			sym = mapping.get(name);
 		}
-
 		if (sym != null) {
 			return sym;
 		}
 
 		return null;
+	}
+
+	/**
+	 * Return future symbol valid within given date.
+	 * 
+	 * @param date - date to find future symbol for
+	 * @return Will return symbol to use within given date
+	 */
+	public Symbol forDate(Date date) {
+		return SymbolUtils.forDate(this, date);
 	}
 }
