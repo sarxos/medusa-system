@@ -36,7 +36,7 @@ public class TraderTest extends TestCase {
 	private static final String NAME = "TestTRader";
 	private static final SignalGenerator<Quote> SIGGEN = new MAVD();
 	private static final Symbol SYMBOL = Symbol.QQQ;
-	private static final Paper PAPER = new Paper(SYMBOL, 100, 0);
+	private static final Paper PAPER = new Paper(SYMBOL);
 
 	public void test_CreateTrader() throws Exception {
 

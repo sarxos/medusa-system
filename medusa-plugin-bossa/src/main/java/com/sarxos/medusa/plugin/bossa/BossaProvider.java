@@ -436,7 +436,7 @@ public class BossaProvider implements HistoryProvider {
 		if (download) {
 
 			File zipf = new File(dir + "/" + symbol.getName() + ".zip");
-			Paper paper = new Paper(symbol, 0);
+			Paper paper = new Paper(symbol);
 
 			downloadZIP(zipf, paper);
 

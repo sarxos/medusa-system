@@ -87,6 +87,12 @@ public class SymbolUtils {
 		}
 	}
 
+	/**
+	 * Return {@link Date} object pointing to the 3'rd Friday of month - 2 days.
+	 * 
+	 * @param calendar - calendar object
+	 * @return Return Date pointing to 3'rd Friday - 2 days.
+	 */
 	private static Date find3rdFriday(Calendar calendar) {
 		Date orig = calendar.getTime();
 		calendar.set(Calendar.DATE, 1);
@@ -97,6 +103,15 @@ public class SymbolUtils {
 		return date;
 	}
 
+	/**
+	 * Return future letter for given date and month.
+	 * 
+	 * @param calendar - current calendar object
+	 * @param month - month to get letter for (3, 6, 9, 12)
+	 * @param p - letter before 3'rd Friday
+	 * @param n - letter after 3'rd Friday
+	 * @return Return future letter for current date
+	 */
 	private static String getLetterForMonth(Calendar calendar, int month, String p, String n) {
 		Date date = calendar.getTime();
 		calendar.set(Calendar.MONTH, month - 1);

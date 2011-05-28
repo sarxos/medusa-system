@@ -280,7 +280,7 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 		sb.append(getClass().getSimpleName()).append('[');
 		sb.append(getSymbol()).append(' ');
 		sb.append(getPosition()).append(' ');
-		sb.append(paper.getQuantity()).append('/').append(paper.getDesiredQuantity()).append(']');
+		sb.append(getCurrentQuantity()).append('/').append(getDesiredQuantity()).append(']');
 		sb.append('[').append(getGenerator().getClass().getSimpleName()).append(']');
 		return sb.toString();
 	}

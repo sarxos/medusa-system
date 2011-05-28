@@ -51,7 +51,6 @@ public class DBDAO implements PersistenceProvider {
 
 	private Connection con = null;
 
-
 	private static AtomicReference<DBDAO> instance = new AtomicReference<DBDAO>();
 
 	private DBDAO() throws DBDAOException {
@@ -65,7 +64,7 @@ public class DBDAO implements PersistenceProvider {
 		if (pwd == null) {
 			throw new DBDAOException("Database user's password cannot be null!");
 		}
-		
+
 		try {
 			con = DriverManager.getConnection(url, usr, pwd);
 			SQLUtils.installProcedures(con);
@@ -87,7 +86,6 @@ public class DBDAO implements PersistenceProvider {
 		}
 		return instance.get();
 	}
-
 
 	protected void ensureSymbolTableExists(Symbol symbol) throws SQLException {
 		Statement create = con.createStatement();
@@ -205,8 +203,11 @@ public class DBDAO implements PersistenceProvider {
 
 			add = con.prepareStatement("CALL AddPaper(?, ?, ?)");
 			add.setString(1, p.getSymbol().toString());
-			add.setDouble(2, p.getQuantity());
-			add.setDouble(3, p.getDesiredQuantity());
+			if (true) {
+				throw new RuntimeException("Not implemented");
+			}
+			// add.setDouble(2, p.getQuantity());
+			// add.setDouble(3, p.getDesiredQuantity());
 			add.execute();
 
 			return true;
@@ -234,8 +235,12 @@ public class DBDAO implements PersistenceProvider {
 			PreparedStatement update = con.prepareStatement("CALL UpdatePaper(?, ?, ?)");
 
 			update.setString(1, p.getSymbol().toString());
-			update.setDouble(2, p.getQuantity());
-			update.setDouble(3, p.getDesiredQuantity());
+			// update.setDouble(2, p.getQuantity());
+			// update.setDouble(3, p.getDesiredQuantity());
+			if (true) {
+				throw new RuntimeException("Not implemented");
+			}
+
 			update.execute();
 
 			return true;
@@ -290,7 +295,11 @@ public class DBDAO implements PersistenceProvider {
 				Symbol symbol = Symbol.valueOf(result.getString("symbol"));
 				int desired = result.getInt("desired");
 				int quantity = result.getInt("quantity");
-				papers.add(new Paper(symbol, desired, quantity));
+				// papers.add(new Paper(symbol, desired, quantity));
+				if (true) {
+					throw new RuntimeException("Not implemented");
+				}
+
 			}
 
 		} catch (SQLException e) {
@@ -439,13 +448,16 @@ public class DBDAO implements PersistenceProvider {
 
 				int desired = rs.getInt("desired");
 				int quantity = rs.getInt("quantity");
-				Paper paper = new Paper(symbol, desired, quantity);
+
+				Paper paper = new Paper(symbol);
 
 				clazz = Class.forName(rs.getString("class"));
 				Constructor<?> cnstr = clazz.getConstructor(String.class, SignalGenerator.class, Paper.class);
 				Trader t = (Trader) cnstr.newInstance(name, siggen, paper);
 
 				t.setPosition(rs.getInt("position") == 0 ? Position.SHORT : Position.LONG);
+				t.setCurrentQuantity(quantity);
+				t.setDesiredQuantity(desired);
 
 				traders.add(t);
 			}

@@ -1,5 +1,6 @@
 package com.sarxos.medusa.trader;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -74,7 +75,7 @@ public class TradersRegistry {
 	 */
 	public List<Trader> getTraders() {
 
-		List<Trader> list = new LinkedList<Trader>();
+		List<Trader> list = Collections.unmodifiableList(new LinkedList<Trader>());
 		Iterator<Entry<String, Trader>> ei = traders.entrySet().iterator();
 
 		while (ei.hasNext()) {
@@ -90,7 +91,7 @@ public class TradersRegistry {
 	public int getTradersCount() {
 		return traders.size();
 	}
-	
+
 	/**
 	 * Return trader on the base name given as the input argument
 	 * 

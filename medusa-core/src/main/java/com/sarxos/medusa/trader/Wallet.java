@@ -1,13 +1,13 @@
 package com.sarxos.medusa.trader;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
-import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.sql.DBDAO;
 
 
 /**
@@ -20,19 +20,55 @@ import com.sarxos.medusa.sql.DBDAO;
 public class Wallet {
 
 	/**
-	 * List of papers I have or would like to have.
+	 * Entry to be stored in wallet.
+	 * 
+	 * @author Bartosz Firyn (SarXos)
 	 */
-	private List<Paper> papers = new LinkedList<Paper>();
+	public static class WalletEntry {
+
+		/**
+		 * Symbol.
+		 */
+		private Symbol symbol = null;
+
+		/**
+		 * Number of papers.
+		 */
+		private int quantity = 0;
+
+		/**
+		 * Creates new Wallet entry
+		 * 
+		 * @param paper - paper
+		 * @param count - number of papers
+		 */
+		protected WalletEntry(Symbol symbol, int count) {
+			super();
+			this.symbol = symbol;
+			this.quantity = count;
+		}
+
+		/**
+		 * @return Return paper symbol
+		 */
+		public Symbol getSymbol() {
+			return symbol;
+		}
+
+		/**
+		 * @return Return number of papers
+		 */
+		public int getQuantity() {
+			return quantity;
+		}
+	}
+
+	private List<WalletEntry> papers = new LinkedList<Wallet.WalletEntry>();
 
 	/**
 	 * Wallet instance.
 	 */
 	private static Wallet instance = new Wallet();
-
-	/**
-	 * Database DAO.
-	 */
-	private DBDAO dbdao = DBDAO.getInstance();
 
 	/**
 	 * Private constructor.
@@ -49,117 +85,32 @@ public class Wallet {
 	}
 
 	/**
-	 * Add paper to the wallet.
-	 * 
-	 * @param paper - paper to add
-	 * @return true if papers has been added, false otherwise
-	 */
-	public boolean addPaper(Paper paper) {
-		boolean found = false;
-		ListIterator<Paper> pi = papers.listIterator();
-		while (pi.hasNext()) {
-			if (pi.next().getSymbol() == paper.getSymbol()) {
-				found = true;
-				break;
-			}
-		}
-		boolean added = false;
-		if (!found) {
-			added = papers.add(paper.clone());
-		}
-		return added;
-	}
-
-	/**
-	 * @return Return all papers.
-	 */
-	public List<Paper> getPapers() {
-		List<Paper> papers = new ArrayList<Paper>(this.papers.size());
-		papers.addAll(this.papers);
-		return papers;
-	}
-
-	/**
-	 * Remove given paper.
-	 * 
-	 * @param paper - paper to remove
-	 * @return Total quantity of given paper.
-	 */
-	public boolean removePaper(Paper paper) {
-		boolean removed = false;
-		ListIterator<Paper> pi = papers.listIterator();
-		while (pi.hasNext()) {
-			if (pi.next().getSymbol() == paper.getSymbol()) {
-				pi.remove();
-				removed = true;
-				break;
-			}
-		}
-		return removed;
-	}
-
-	/**
-	 * Update paper.
-	 * 
-	 * @param paper
-	 * @return true if paper has been updated, false otherwise
-	 */
-	public boolean updatePaper(Paper paper) {
-		boolean updated = false;
-		ListIterator<Paper> pi = papers.listIterator();
-		Paper p = null;
-		while (pi.hasNext()) {
-			p = pi.next();
-			if (p.getSymbol() == paper.getSymbol()) {
-				p.setQuantity(paper.getQuantity());
-				p.setDesiredQuantity(paper.getDesiredQuantity());
-				updated = true;
-				break;
-			}
-		}
-		return updated;
-	}
-
-	/**
-	 * @param symbol - symbol to find
-	 * @return Return paper with given symbol or null if paper doses not exist
-	 */
-	public Paper getPaper(Symbol symbol) {
-		if (symbol == null) {
-			throw new IllegalArgumentException("Paper symbol cannot be null");
-		}
-
-		ListIterator<Paper> pi = papers.listIterator();
-		Paper p = null;
-		while (pi.hasNext()) {
-			p = pi.next();
-			if (p.getSymbol() == symbol) {
-				return p;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * @param paper - paper to find (on the symbol base)
-	 * @return Return paper with given symbol or null if paper doses not exist
-	 * @see Wallet#getPaper(Symbol)
-	 */
-	public Paper getPaper(Paper paper) {
-		if (paper == null) {
-			throw new IllegalArgumentException("Paper cannot be null");
-		}
-		return getPaper(paper.getSymbol());
-	}
-
-	/**
-	 * Force reload wallet from the database.
+	 * Force reload wallet.
 	 */
 	public void reload() {
-		if (dbdao == null) {
-			throw new RuntimeException("Database DAO is null!");
+
+		TradersRegistry registry = TradersRegistry.getInstance();
+		Map<Symbol, Integer> mapping = new HashMap<Symbol, Integer>();
+		for (Trader t : registry.getTraders()) {
+			Symbol s = t.getPaper().getSymbol();
+			Integer c = mapping.get(s);
+			int n = t.getCurrentQuantity();
+			if (c == null) {
+				mapping.put(s, Integer.valueOf(n));
+			} else {
+				mapping.put(s, Integer.valueOf(c.intValue() + n));
+			}
 		}
-		papers = dbdao.getPapers();
+
+		Set<Entry<Symbol, Integer>> entries = mapping.entrySet();
+		List<WalletEntry> tmp = new LinkedList<Wallet.WalletEntry>();
+		for (Entry<Symbol, Integer> e : entries) {
+			tmp.add(new WalletEntry(e.getKey(), e.getValue().intValue()));
+		}
+
+		synchronized (papers) {
+			papers.clear();
+			papers.addAll(tmp);
+		}
 	}
 }

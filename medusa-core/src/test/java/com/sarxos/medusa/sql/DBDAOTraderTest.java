@@ -20,7 +20,7 @@ public class DBDAOTraderTest extends TestCase {
 
 	private static final String NAME = "Buka";
 	private static final Symbol SYMBOL = Symbol.QQQ;
-	private static final Paper PAPER = new Paper(SYMBOL, 100, 0);
+	private static final Paper PAPER = new Paper(SYMBOL);
 	private static final SignalGenerator<Quote> SIGGEN = new MAVD(3, 13, 30);
 	private static final Position POSITION = Position.SHORT;
 

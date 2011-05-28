@@ -1,7 +1,8 @@
 package com.sarxos.medusa.market;
 
 /**
- * Paper to be stored inside wallet.
+ * Paper to be stored inside wallet. It wraps symbol and provide some useful
+ * methods.
  * 
  * @author Bartosz Firyn (SarXos)
  */
@@ -13,60 +14,29 @@ public class Paper implements Cloneable {
 	private Symbol symbol = null;
 
 	/**
-	 * Current paper quantity (how much items of given paper I have).
-	 */
-	private int quantity = 0;
-
-	/**
-	 * Desired paper quantity (how much items of this paper I would like to
-	 * have)
-	 */
-	private int desiredQuantity = 0;
-
-	/**
 	 * Securities group.
 	 */
 	private SecuritiesGroup group = null;
 
 	// TODO read from file
-	private transient String[] indexes = new String[] { "FW20", "FW40" };
-	private transient String[] quotes = new String[] { "FACP", "FKGH", "FPEO", "FPGE", "FPGN", "FPKN", "FPKO", "FPZU", "FTPS" };
-	private transient String[] currency = new String[] { "FACP", "FEUR", "FUSD" };
+	private transient String[] fut_indexes = new String[] { "FW20", "FW40" };
+	private transient String[] fut_quotes = new String[] { "FACP", "FKGH", "FPEO", "FPGE", "FPGN", "FPKN", "FPKO", "FPZU", "FTPS", "FQQQ" };
+	private transient String[] fut_currency = new String[] { "FACP", "FEUR", "FUSD" };
 	private transient String[] options = new String[] { "OW20" };
 	private transient String[] miniwig = new String[] { "MW20" };
 	private transient String[] etf = new String[] { "ETFW" };
-	private transient String[] treasury = new String[] { "DS20", "DZ08" }; // and
+	private transient String[] treasury = new String[] { "DS20", "DZ08" };
 
-	// more
+	// and more
 
 	/**
-	 * Paper constructor.
+	 * Paper to be stored inside wallet. Constructor.
+	 * 
+	 * @param symbol - paper symbol
 	 */
 	public Paper(Symbol symbol) {
-		this(symbol, 0, 0);
-	}
-
-	/**
-	 * Paper to be stored inside wallet. Constructor.
-	 * 
-	 * @param symbol - paper symbol
-	 * @param desired - desired quantity
-	 */
-	public Paper(Symbol symbol, int desired) {
-		this(symbol, desired, 0);
-	}
-
-	/**
-	 * Paper to be stored inside wallet. Constructor.
-	 * 
-	 * @param symbol - paper symbol
-	 * @param desired - desired quantity
-	 */
-	public Paper(Symbol symbol, int desired, int quantity) {
 		super();
 		this.setSymbol(symbol);
-		this.setDesiredQuantity(desired);
-		this.setQuantity(quantity);
 	}
 
 	/**
@@ -81,50 +51,12 @@ public class Paper implements Cloneable {
 	 * 
 	 * @param symbol - symbol to set
 	 */
-	public void setSymbol(Symbol symbol) {
+	private void setSymbol(Symbol symbol) {
 		if (symbol == null) {
 			throw new IllegalArgumentException("Symbol cannot be null");
 		}
 		this.symbol = symbol;
 		this.initGroup(symbol);
-	}
-
-	/**
-	 * @return Paper quantity.
-	 */
-	public int getQuantity() {
-		return quantity;
-	}
-
-	/**
-	 * Set paper quantity.
-	 * 
-	 * @param quantity - new quantity.
-	 */
-	public void setQuantity(int quantity) {
-		if (quantity < 0) {
-			throw new IllegalArgumentException("Paper quantity cannot be negative!");
-		}
-		this.quantity = quantity;
-	}
-
-	/**
-	 * @return Desired paper quantity.
-	 */
-	public int getDesiredQuantity() {
-		return desiredQuantity;
-	}
-
-	/**
-	 * Set desired paper quantity.
-	 * 
-	 * @param desired
-	 */
-	public void setDesiredQuantity(int desired) {
-		if (desired < 0) {
-			throw new IllegalArgumentException("Desired paper quantity must be positive");
-		}
-		this.desiredQuantity = desired;
 	}
 
 	@Override
@@ -140,11 +72,11 @@ public class Paper implements Cloneable {
 
 		String sm = symbol.toString();
 
-		if (inGroup(sm, indexes)) {
+		if (inGroup(sm, fut_indexes)) {
 			group = SecuritiesGroup.FUTURES_INDEXES;
-		} else if (inGroup(sm, quotes)) {
+		} else if (inGroup(sm, fut_quotes)) {
 			group = SecuritiesGroup.FUTURES_QUOTES;
-		} else if (inGroup(sm, currency)) {
+		} else if (inGroup(sm, fut_currency)) {
 			group = SecuritiesGroup.FUTURES_CURRENCY;
 		} else if (inGroup(sm, options)) {
 			group = SecuritiesGroup.OPTIONS_INDEXES;
@@ -185,7 +117,7 @@ public class Paper implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "Paper[" + getSymbol() + ":" + getQuantity() + "/" + getDesiredQuantity() + "]";
+		return "Paper[" + getSymbol() + "]";
 	}
 
 	@Override
@@ -193,9 +125,8 @@ public class Paper implements Cloneable {
 		if (obj instanceof Paper) {
 			Paper p = (Paper) obj;
 			boolean equals = true;
-			equals = equals && p.getDesiredQuantity() == getDesiredQuantity();
-			equals = equals && p.getQuantity() == getQuantity();
 			equals = equals && p.getSymbol() == getSymbol();
+			equals = equals && p.getGroup() == getGroup();
 			return equals;
 		}
 		return false;

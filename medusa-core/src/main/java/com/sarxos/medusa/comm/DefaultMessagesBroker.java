@@ -207,16 +207,10 @@ public class DefaultMessagesBroker implements MessagesBroker {
 	 */
 	protected String buildMessageString(Paper paper, SignalType type) {
 
-		int current = paper.getQuantity();
-		int desired = paper.getDesiredQuantity();
-		int quantity = type == SignalType.SELL ? current : desired;
-
 		StringBuffer sb = new StringBuffer();
 		sb.append(type);
 		sb.append(" ");
 		sb.append(paper.getSymbol().getName());
-		sb.append(" ");
-		sb.append(quantity);
 
 		return sb.toString();
 	}

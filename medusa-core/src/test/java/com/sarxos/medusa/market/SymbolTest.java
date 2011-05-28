@@ -1,37 +1,19 @@
 package com.sarxos.medusa.market;
 
-import junit.framework.TestCase;
-
-import com.sarxos.medusa.market.Paper;
-import com.sarxos.medusa.market.Symbol;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class SymbolTest extends TestCase {
+public class SymbolTest {
 
-	private static final Symbol SYMBOL_A = Symbol.KGH;
-	private static final Symbol SYMBOL_B = Symbol.BRE;
-	private static final int QUANTITY = 10;
-	private static final int DESIRED_A = 20;
-	private static final int DESIRED_B = 40;
+	private static final String SYMBOL_1 = Symbol.KGH.getName();
+	private static final String SYMBOL_2 = Symbol.BRE.getName();
 
-	public void test_paperSymbol() {
-
-		Paper p = new Paper(SYMBOL_A, DESIRED_A);
-		assertEquals(p.getSymbol(), SYMBOL_A);
-		p.setSymbol(SYMBOL_B);
-		assertEquals(p.getSymbol(), SYMBOL_B);
-	}
-
-	public void test_paperDesiredQuantity() {
-		Paper p = new Paper(SYMBOL_A, DESIRED_A);
-		assertEquals(p.getSymbol(), SYMBOL_A);
-		p.setDesiredQuantity(DESIRED_B);
-		assertEquals(p.getDesiredQuantity(), DESIRED_B);
-	}
-
-	public void test_paperQuantity() {
-		Paper p = new Paper(SYMBOL_A, DESIRED_A);
-		p.setQuantity(QUANTITY);
-		assertEquals(p.getQuantity(), QUANTITY);
+	@Test
+	public void test_findSymbol() {
+		Symbol s = Symbol.valueOfName(SYMBOL_1);
+		Assert.assertSame(s, Symbol.KGH);
+		s = Symbol.valueOfName(SYMBOL_2);
+		Assert.assertSame(s, Symbol.BRE);
 	}
 }
