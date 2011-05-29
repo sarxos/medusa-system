@@ -6,12 +6,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.sarxos.medusa.market.Symbol;
-
 
 /**
- * This annotation is used to point which future symbol from the {@link Symbol}
- * enumeration is synthetic.
+ * This annotation is used to point which symbol describes future contract.
  * 
  * @author Bartosz Firyn (SarXos)
  */
@@ -19,5 +16,10 @@ import com.sarxos.medusa.market.Symbol;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Future {
+
+	/**
+	 * @return Return future type
+	 */
+	public FutureType value() default FutureType.INDEX;
 
 }

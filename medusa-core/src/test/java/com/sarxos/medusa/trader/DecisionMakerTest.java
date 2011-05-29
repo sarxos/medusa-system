@@ -99,7 +99,6 @@ public class DecisionMakerTest extends TestCase {
 	public void test_nullHandler() {
 		Trader t = EasyMock.createMock(Trader.class);
 		SignalGenerator<Quote> sg = EasyMock.createMock(SignalGenerator.class);
-		QuotesRegistry qr = EasyMock.createMock(QuotesRegistry.class);
 		DecisionMaker dm = new DecisionMaker(t, sg);
 		NullEventHandler neh = new TestNullEventHandler();
 		dm.setNullHandler(neh);

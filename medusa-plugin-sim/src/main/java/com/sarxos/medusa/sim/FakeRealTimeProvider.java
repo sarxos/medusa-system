@@ -15,6 +15,12 @@ import com.sarxos.medusa.provider.Providers;
 import com.sarxos.medusa.provider.RealTimeProvider;
 
 
+/**
+ * Fake real time data provider provides intraday quotes for given symbol within
+ * given time interval.
+ * 
+ * @author Bartosz Firyn (SarXos)
+ */
 public class FakeRealTimeProvider implements RealTimeProvider {
 
 	/**
@@ -37,8 +43,49 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 	 */
 	private QuotesIterator<Quote> qi = null;
 
+	/**
+	 * Fake quotes registry (non persistent).
+	 */
 	private FakeQuotesRegistry registry = null;
 
+	/**
+	 * Opening price.
+	 */
+	private double open = 0;
+
+	/**
+	 * Highest price.
+	 */
+	private double high = Double.MIN_VALUE;
+
+	/**
+	 * Lowest price.
+	 */
+	private double low = Double.MAX_VALUE;
+
+	/**
+	 * Quotes volume.
+	 */
+	private long volume = 0;
+
+	/**
+	 * Last read quote.
+	 */
+	private Quote last = null;
+
+	/**
+	 * Calendar used to calculate dates.
+	 */
+	private Calendar calendar = new GregorianCalendar();
+
+	/**
+	 * Real time data provider. Its provides intraday quotes within given time
+	 * interval.
+	 * 
+	 * @param symbol - symbol to provide quotes for
+	 * @param from - begin from date
+	 * @param to - up to date (after reaching this date null will be returned)
+	 */
 	public FakeRealTimeProvider(Symbol symbol, Date from, Date to) {
 
 		if (from != null) {
@@ -123,14 +170,12 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 		return q;
 	}
 
-	double open = 0;
-	double high = Double.MIN_VALUE;
-	double low = Double.MAX_VALUE;
-	long volume = 0;
-
-	private Quote last = null;
-	private Calendar calendar = new GregorianCalendar();
-
+	/**
+	 * Put given quote in registry.
+	 * 
+	 * @param s - quote's symbol
+	 * @param q - quote to put in registry
+	 */
 	protected void putInRegistry(Symbol s, Quote q) {
 
 		if (last == null) {
@@ -162,6 +207,12 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 		last = q;
 	}
 
+	/**
+	 * Return number of day for quote (day of year).
+	 * 
+	 * @param q
+	 * @return Will return day of year number
+	 */
 	private int getDay(Quote q) {
 		calendar.setTime(q.getDate());
 		return calendar.get(Calendar.DAY_OF_YEAR);
@@ -173,24 +224,23 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 	}
 
 	/**
-	 * @return the from
+	 * @return Return from date
 	 */
 	protected long getFrom() {
 		return from;
 	}
 
 	/**
-	 * @return the to
+	 * @return Return to date
 	 */
 	protected long getTo() {
 		return to;
 	}
 
 	/**
-	 * @return the reached
+	 * @return Is to date reached
 	 */
 	protected boolean isReached() {
 		return reached;
 	}
-
 }
