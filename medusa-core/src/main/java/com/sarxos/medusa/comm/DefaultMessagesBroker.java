@@ -99,12 +99,6 @@ public class DefaultMessagesBroker implements MessagesBroker {
 		this.driver = driver;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * com.sarxos.medusa.comm.MessagesBroker#acknowledge(com.sarxos.medusa.market
-	 * .Paper, com.sarxos.medusa.market.SignalType)
-	 */
 	@Override
 	public boolean acknowledge(Paper paper, SignalType type) throws MessagingException {
 

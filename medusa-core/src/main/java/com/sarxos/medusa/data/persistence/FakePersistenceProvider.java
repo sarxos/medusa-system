@@ -1,7 +1,5 @@
-package com.sarxos.medusa.sim;
+package com.sarxos.medusa.data.persistence;
 
-import com.sarxos.medusa.data.persistence.PersistenceException;
-import com.sarxos.medusa.data.persistence.PersistenceProvider;
 import com.sarxos.medusa.trader.Trader;
 
 

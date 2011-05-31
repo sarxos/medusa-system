@@ -1,4 +1,4 @@
-package com.sarxos.medusa.sim;
+package com.sarxos.medusa.provider;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +10,6 @@ import org.apache.commons.io.FileUtils;
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.provider.HistoryProvider;
-import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.util.Configuration;
 
 

@@ -1,4 +1,4 @@
-package com.sarxos.medusa.sim;
+package com.sarxos.medusa.provider;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +16,7 @@ import org.junit.Test;
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
+import com.sarxos.medusa.provider.FakeHistoryProvider;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.util.Configuration;
 

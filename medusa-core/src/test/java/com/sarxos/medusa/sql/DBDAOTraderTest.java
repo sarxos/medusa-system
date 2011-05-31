@@ -51,7 +51,7 @@ public class DBDAOTraderTest extends TestCase {
 			assertEquals(NAME, t.getName());
 			assertEquals(PAPER.getSymbol(), t.getSymbol());
 			assertEquals(POSITION, t.getPosition());
-			assertEquals(SIGGEN.getClass(), t.getGenerator().getClass());
+			assertEquals(SIGGEN.getClass(), t.getSignalGenerator().getClass());
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);

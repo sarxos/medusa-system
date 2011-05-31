@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.sarxos.medusa.comm.DefaultMessagesBroker;
 import com.sarxos.medusa.comm.MessagesBroker;
 import com.sarxos.medusa.comm.MessagingException;
+import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Paper;
 import com.sarxos.medusa.market.Position;
 import com.sarxos.medusa.market.Quote;
@@ -41,8 +42,17 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	 */
 	protected static class Workman extends Thread {
 
-		Trader trader = null;
+		/**
+		 * Trader object.
+		 */
+		private Trader trader = null;
 
+		/**
+		 * Workman thread. It will move price events from queue to the decision
+		 * maker for further processing.
+		 * 
+		 * @param trader - trader to bind with
+		 */
 		public Workman(Trader trader) {
 			if (trader == null) {
 				throw new IllegalArgumentException("Trader for workman cannot be null");
@@ -66,7 +76,6 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 				}
 			} while (true);
 		}
-
 	}
 
 	/**
@@ -78,6 +87,11 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	 * Set of signal types to be acknowledged by player.
 	 */
 	protected static final Set<SignalType> NOTIFICATIONS = Collections.unmodifiableSet(EnumSet.of(BUY, SELL));
+
+	/**
+	 * Traders registry.
+	 */
+	private static final TradersRegistry REGISTRY = TradersRegistry.getInstance();
 
 	/**
 	 * Decision maker (encapsulate decision logic).
@@ -140,6 +154,12 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	private Workman workman = null;
 
 	/**
+	 * Quotes registry used by decision maker to bind newest quote with the
+	 * historical data.
+	 */
+	private QuotesRegistry quotesRegistry = null;
+
+	/**
 	 * Trader constructor.
 	 * 
 	 * @param name - trader name
@@ -165,9 +185,6 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 		if (siggen == null) {
 			throw new IllegalArgumentException("Signal generator cannot be null");
 		}
-		if (paper == null) {
-			throw new IllegalArgumentException("Paper cannot be null");
-		}
 		this.name = name;
 		this.siggen = siggen;
 		this.provider = provider;
@@ -180,17 +197,11 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	 */
 	protected void init() {
 
-		decisionMaker = new DecisionMaker(this, siggen);
+		decisionMaker = new DecisionMaker(this, siggen, quotesRegistry);
 		decisionMaker.addDecisionListener(this);
 
 		observer = new Observer(paper.getSymbol(), provider);
 		observer.addPriceListener(this);
-
-		try {
-			broker = new DefaultMessagesBroker();
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**
@@ -234,17 +245,37 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	}
 
 	/**
-	 * @return Signal generator class name
+	 * @return Signal generator
 	 */
-	public String getGeneratorClassName() {
-		return siggen.getClass().getName();
+	public SignalGenerator<Quote> getSignalGenerator() {
+		return siggen;
 	}
 
 	/**
-	 * @return Signal generator
+	 * Set new signal generator to be used by decision maker.
+	 * 
+	 * @param siggen - new signal generator to set
 	 */
-	public SignalGenerator<? extends Quote> getGenerator() {
-		return siggen;
+	public void setSignalGenerator(SignalGenerator<Quote> siggen) {
+		this.siggen = siggen;
+		this.decisionMaker.setSignalGenerator(siggen);
+	}
+
+	/**
+	 * @return Return quotes registry used by decision maker.
+	 */
+	public QuotesRegistry getQuotesRegistry() {
+		return quotesRegistry;
+	}
+
+	/**
+	 * Set quotes registry to be used by decision maker.
+	 * 
+	 * @param registry - new quotes registry to set
+	 */
+	public void setQuotesRegistry(QuotesRegistry registry) {
+		this.quotesRegistry = registry;
+		this.decisionMaker.setQuotesRegistry(registry);
 	}
 
 	/**
@@ -260,13 +291,27 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	 * @param symbol - observed symbol
 	 */
 	public void trade() {
+		try {
 
-		if (provider == null) {
-			setProvider(Providers.getRealTimeProvider());
+			// create messages broker if null
+			if (broker == null) {
+				broker = new DefaultMessagesBroker();
+			}
+
+			// create real time data provider if null
+			if (provider == null) {
+				setProvider(Providers.getRealTimeProvider());
+			}
+
+			// put trader into the registry
+			REGISTRY.addTrader(this);
+
+			// start observer (this will create new thread)
+			getObserver().start();
+
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		}
-
-		TradersRegistry.getInstance().addTrader(this);
-		getObserver().start();
 	}
 
 	@Override
@@ -281,7 +326,7 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 		sb.append(getSymbol()).append(' ');
 		sb.append(getPosition()).append(' ');
 		sb.append(getCurrentQuantity()).append('/').append(getDesiredQuantity()).append(']');
-		sb.append('[').append(getGenerator().getClass().getSimpleName()).append(']');
+		sb.append('[').append(getSignalGenerator().getClass().getSimpleName()).append(']');
 		return sb.toString();
 	}
 

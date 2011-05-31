@@ -1,4 +1,4 @@
-package com.sarxos.medusa.sim;
+package com.sarxos.medusa.provider;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,12 +7,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.NoSuchElementException;
 
+import com.sarxos.medusa.data.FakeQuotesRegistry;
 import com.sarxos.medusa.data.QuotesIterator;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.provider.ProviderException;
-import com.sarxos.medusa.provider.Providers;
-import com.sarxos.medusa.provider.RealTimeProvider;
 
 
 /**

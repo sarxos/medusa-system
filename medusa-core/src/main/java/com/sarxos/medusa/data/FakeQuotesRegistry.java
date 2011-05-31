@@ -1,11 +1,10 @@
-package com.sarxos.medusa.sim;
+package com.sarxos.medusa.data;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.sarxos.medusa.data.QuotesRegistry;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
 

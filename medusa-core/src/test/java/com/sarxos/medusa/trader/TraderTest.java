@@ -53,8 +53,7 @@ public class TraderTest extends TestCase {
 		t = DBDAO.getInstance().getTrader(NAME);
 		assertNotNull(t);
 		assertEquals(t.getName(), NAME);
-		assertEquals(t.getGeneratorClassName(), SIGGEN.getClass().getName());
-		assertEquals(t.getGenerator(), SIGGEN);
+		assertEquals(t.getSignalGenerator(), SIGGEN);
 		assertEquals(t.getSymbol(), PAPER.getSymbol());
 		assertEquals(t.getPosition(), Position.SHORT);
 	}
@@ -64,8 +63,7 @@ public class TraderTest extends TestCase {
 		Trader t = DBDAO.getInstance().getTrader(NAME);
 		assertNotNull(t);
 		assertEquals(t.getName(), NAME);
-		assertEquals(t.getGeneratorClassName(), SIGGEN.getClass().getName());
-		assertEquals(t.getGenerator(), SIGGEN);
+		assertEquals(t.getSignalGenerator(), SIGGEN);
 		assertEquals(t.getSymbol(), PAPER.getSymbol());
 		assertEquals(t.getPosition(), Position.SHORT);
 	}
