@@ -1,5 +1,6 @@
 package com.sarxos.medusa.data;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class FakeQuotesRegistry extends QuotesRegistry {
 	 * Construct
 	 */
 	public FakeQuotesRegistry() {
-		setInstance(this);
+		// setInstance(this);
 	}
 
 	/**
@@ -79,5 +80,32 @@ public class FakeQuotesRegistry extends QuotesRegistry {
 		}
 
 		qs.add(q);
+	}
+
+	/**
+	 * Load quotes from the real quotes registry. Only quotes before given date
+	 * will be loaded.
+	 * 
+	 * @param symbol - symbol to load
+	 * @param date - load quotes before this date
+	 */
+	public void load(Symbol symbol, Date date) {
+
+		QuotesRegistry qr = QuotesRegistry.getInstance();
+		List<Quote> quotes = qr.getQuotes(symbol);
+		Quote head = quotes.get(0);
+
+		long m = 1000 * 60 * 60 * 24;
+		long ht = head.getDate().getTime();
+		long dt = date.getTime();
+		
+		while (ht / m < (dt - m) / m) {
+			addQuote(symbol, head);
+			if ((head = head.next()) != null) {
+				ht = head.getDate().getTime();
+			} else {
+				break;
+			}
+		}
 	}
 }

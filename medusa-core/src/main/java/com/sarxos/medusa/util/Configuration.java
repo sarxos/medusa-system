@@ -144,4 +144,30 @@ public class Configuration extends INIProperties {
 		}
 		return prop;
 	}
+
+	public String getString(String section, String name) {
+		return getString(section, name, null);
+	}
+
+	public String getString(String section, String name, String def) {
+		return getProperty(section, name, def);
+	}
+
+	public boolean getBool(String section, String name) {
+		return getBool(section, name, false);
+	}
+
+	public boolean getBool(String section, String name, boolean def) {
+		String b = getProperty(section, name, Boolean.toString(def));
+		return Boolean.parseBoolean(b);
+	}
+
+	public int getInt(String section, String name) {
+		return getInt(section, name, 0);
+	}
+
+	public int getInt(String section, String name, int def) {
+		String i = getProperty(section, name, Integer.toString(def));
+		return Integer.parseInt(i);
+	}
 }

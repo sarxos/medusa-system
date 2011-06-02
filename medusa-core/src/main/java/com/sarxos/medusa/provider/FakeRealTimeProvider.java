@@ -125,6 +125,7 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 		}
 
 		this.registry = FakeQuotesRegistry.getInstance();
+		this.registry.load(symbol, from);
 	}
 
 	@Override

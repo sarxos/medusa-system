@@ -22,7 +22,7 @@ public class QuotesAudit {
 	 */
 	public Date[] audit(Symbol symbol) {
 
-		DBDAO qdao = DBDAO.getInstance();
+		QuotesStorage qdao = DBDAO.getInstance();
 		List<Quote> quotes = qdao.getQuotes(symbol);
 
 		Quote last = quotes.get(quotes.size() - 1);

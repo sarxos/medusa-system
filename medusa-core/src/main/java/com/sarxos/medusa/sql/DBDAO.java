@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.sarxos.medusa.data.DataFileFormat;
 import com.sarxos.medusa.data.QuotesReaderException;
 import com.sarxos.medusa.data.QuotesRemoteReader;
+import com.sarxos.medusa.data.QuotesStorage;
 import com.sarxos.medusa.data.persistence.PersistenceException;
 import com.sarxos.medusa.data.persistence.PersistenceProvider;
 import com.sarxos.medusa.market.Paper;
@@ -29,7 +30,7 @@ import com.sarxos.medusa.util.Configuration;
 import com.sarxos.medusa.util.StoqReader;
 
 
-public class DBDAO implements PersistenceProvider {
+public class DBDAO implements PersistenceProvider, QuotesStorage {
 
 	static {
 		try {
@@ -114,6 +115,7 @@ public class DBDAO implements PersistenceProvider {
 		create.close();
 	}
 
+	@Override
 	public boolean addQuotes(Symbol symbol, List<Quote> quotes) {
 		try {
 
@@ -145,12 +147,7 @@ public class DBDAO implements PersistenceProvider {
 		return false;
 	}
 
-	/**
-	 * Read all quotes for given symbol.
-	 * 
-	 * @param symbol - symbol to read
-	 * @return Return list of all quotes for particular symbol
-	 */
+	@Override
 	public List<Quote> getQuotes(Symbol symbol) {
 
 		PreparedStatement getQuoets = null;
