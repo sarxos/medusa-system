@@ -19,7 +19,7 @@ import com.sarxos.medusa.market.Symbol;
  * 
  * @author Bartosz Firyn (SarXos)
  */
-public class FakeRealTimeProvider implements RealTimeProvider {
+public class RealTimeProviderSim implements RealTimeProvider {
 
 	/**
 	 * From date limit.
@@ -84,7 +84,7 @@ public class FakeRealTimeProvider implements RealTimeProvider {
 	 * @param from - begin from date
 	 * @param to - up to date (after reaching this date null will be returned)
 	 */
-	public FakeRealTimeProvider(Symbol symbol, Date from, Date to) {
+	public RealTimeProviderSim(Symbol symbol, Date from, Date to) {
 
 		if (from != null) {
 			this.from = from.getTime();

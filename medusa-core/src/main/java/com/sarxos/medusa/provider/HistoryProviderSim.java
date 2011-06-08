@@ -19,8 +19,9 @@ import com.sarxos.medusa.util.Configuration;
  * there is no such file.
  * 
  * @author Bartosz Firyn (SarXos)
+ * @see RealTimeProviderSim
  */
-public class FakeHistoryProvider implements HistoryProvider {
+public class HistoryProviderSim implements HistoryProvider {
 
 	/**
 	 * Configuration

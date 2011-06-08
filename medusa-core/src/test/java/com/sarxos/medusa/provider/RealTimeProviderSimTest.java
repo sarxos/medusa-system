@@ -16,13 +16,13 @@ import org.junit.Test;
 
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.provider.FakeRealTimeProvider;
+import com.sarxos.medusa.provider.RealTimeProviderSim;
 import com.sarxos.medusa.provider.ProviderException;
 import com.sarxos.medusa.util.Configuration;
 import com.sarxos.medusa.util.DateUtils;
 
 
-public class FakeRealTimeProviderTest {
+public class RealTimeProviderSimTest {
 
 	private static final Configuration CFG = Configuration.getInstance();
 	private static final Symbol SYMBOL = Symbol.FW20M11;
@@ -69,7 +69,7 @@ public class FakeRealTimeProviderTest {
 		Date start = DateUtils.fromCGL("20100621");
 		Date end = DateUtils.fromCGL("20100623");
 
-		FakeRealTimeProvider sp = new FakeRealTimeProvider(SYMBOL, start, end);
+		RealTimeProviderSim sp = new RealTimeProviderSim(SYMBOL, start, end);
 
 		for (int i = 0; !sp.isReached(); i++) {
 			Quote q = sp.getQuote(SYMBOL);
@@ -85,7 +85,7 @@ public class FakeRealTimeProviderTest {
 	@Test
 	public void test_getQuote2() throws ProviderException {
 		Date start = DateUtils.fromCGL("20100623");
-		FakeRealTimeProvider sp = new FakeRealTimeProvider(SYMBOL, start, null);
+		RealTimeProviderSim sp = new RealTimeProviderSim(SYMBOL, start, null);
 		for (int i = 0; !sp.isReached(); i++) {
 			Quote q = sp.getQuote(SYMBOL);
 			// System.out.println(i + " " + q);

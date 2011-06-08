@@ -18,9 +18,14 @@ import com.sarxos.medusa.util.Configuration;
 public class SQLFileReader {
 
 	/**
+	 * Configuration instance.
+	 */
+	private static final Configuration CFG = Configuration.getInstance();
+
+	/**
 	 * Stored procedures storage directory - configurable.
 	 */
-	public static final String STORAGE = Configuration.getInstance().getProperty("core", "procedures");
+	public static final String STORAGE = CFG.getPath("core", "procedures");
 
 	/**
 	 * Return SQL for given stored procedure.

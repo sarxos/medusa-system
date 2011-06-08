@@ -55,8 +55,8 @@ public class QuotesRegistry {
 	 */
 	public static QuotesRegistry getInstance() {
 		if (instance == null) {
-			instance.storage = DBDAO.getInstance();
 			instance = new QuotesRegistry();
+			instance.storage = DBDAO.getInstance();
 		}
 		return instance;
 	}

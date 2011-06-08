@@ -86,7 +86,7 @@ public class Configuration extends INIProperties {
 	/**
 	 * Path to the configuration file.
 	 */
-	private String path = "data/medusa.ini";
+	private String path = null;
 
 	/**
 	 * Updater runnable.
@@ -97,6 +97,16 @@ public class Configuration extends INIProperties {
 	 * Private constructor - this is singleton class.
 	 */
 	private Configuration() {
+
+		super();
+
+		path = getHomePath();
+		if (path != null) {
+			path += "/";
+		} else {
+			path = "";
+		}
+		path += "data/medusa.ini";
 
 		File ini = new File(path);
 		loadFile(ini);
@@ -145,6 +155,12 @@ public class Configuration extends INIProperties {
 		return prop;
 	}
 
+	protected String getHomePath() {
+		// TODO why env variable returns null ???
+		// path = System.getenv("MEDUSA_HOME");
+		return "d:\\usr\\sarxos\\workspace\\Eclipse\\medusa-system\\medusa-core";
+	}
+
 	public String getString(String section, String name) {
 		return getString(section, name, null);
 	}
@@ -169,5 +185,9 @@ public class Configuration extends INIProperties {
 	public int getInt(String section, String name, int def) {
 		String i = getProperty(section, name, Integer.toString(def));
 		return Integer.parseInt(i);
+	}
+
+	public String getPath(String section, String name) {
+		return getHomePath() + "/" + getString(section, name);
 	}
 }

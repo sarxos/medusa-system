@@ -1,5 +1,7 @@
 package com.sarxos.medusa.sim;
 
+import java.util.Date;
+
 import com.sarxos.medusa.comm.FakeMessagesBroker;
 import com.sarxos.medusa.comm.MessagingException;
 import com.sarxos.medusa.data.FakeQuotesRegistry;
@@ -8,28 +10,32 @@ import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.provider.FakeRealTimeProvider;
+import com.sarxos.medusa.provider.RealTimeProviderSim;
 import com.sarxos.medusa.provider.RealTimeProvider;
 import com.sarxos.medusa.trader.FuturesTrader;
 import com.sarxos.medusa.trader.StoppingHandler;
-import com.sarxos.medusa.util.Configuration;
+import com.sarxos.medusa.util.DateUtils;
 
 
 public class FuturesSimulator {
 
-	public static void main(String[] args) throws InterruptedException, MessagingException {
+	private Symbol symbol = null;
+	private Date from = null;
+	private Date to = null;
+	private String name = null;
+	private SignalGenerator<Quote> siggen = null;
 
-		Configuration CFG = Configuration.getInstance();
+	public FuturesSimulator(Symbol symbol, Date from, Date to, SignalGenerator<Quote> siggen) {
+		this.symbol = symbol;
+		this.from = from;
+		this.to = to;
+		this.siggen = siggen;
+		this.name = symbol + "Simulation";
+	}
 
-		// CFG.setProperty("data", "history",
-		// "com.sarxos.medusa.plugin.bossa.BossaProvider");
-		// CFG.setProperty("messaging", "driver",
-		// "com.sarxos.medusa.sim.FakeMessagesDriver");
+	public void start() {
 
-		Symbol symbol = Symbol.FW20M11;
-		String name = symbol + "Trader";
-		SignalGenerator<Quote> siggen = new MAVD(5, 10, 20);
-		RealTimeProvider provider = new FakeRealTimeProvider(symbol, null, null);
+		RealTimeProvider provider = new RealTimeProviderSim(symbol, from, to);
 		QuotesRegistry qr = new FakeQuotesRegistry();
 
 		FuturesTrader trader = new FuturesTrader(name, siggen, symbol);
@@ -42,7 +48,21 @@ public class FuturesSimulator {
 
 		trader.trade();
 
-		// System.out.println(trader.getObserver());
-		Thread.sleep(20000);
+		try {
+			Thread.sleep(200000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) throws InterruptedException, MessagingException {
+		Symbol symbol = Symbol.FW20M11;
+		SignalGenerator<Quote> siggen = new MAVD(5, 10, 20);
+		Date from = DateUtils.fromCGL("20110505");
+		Date upto = DateUtils.fromCGL("20110520");
+
+		FuturesSimulator sim = new FuturesSimulator(symbol, from, upto, siggen);
+		sim.start();
+
 	}
 }

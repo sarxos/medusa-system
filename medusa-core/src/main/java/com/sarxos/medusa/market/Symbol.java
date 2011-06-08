@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.sarxos.medusa.market.annotation.Future;
 import com.sarxos.medusa.market.annotation.Synthetic;
 
 
@@ -14,23 +15,36 @@ public enum Symbol {
 	/**
 	 * Synthetic symbol for test futures.
 	 */
+	@Future
 	@Synthetic
 	FQQQ("FQQQ"),
+
+	@Future
 	FQQQH11("FQQQ"),
+
+	@Future
 	FQQQM11("FQQQ"),
+
+	@Future
 	FQQQU11("FQQQ"),
+
+	@Future
 	FQQQZ11("FQQQ"),
 
 	/**
 	 * Synthetic paper for WIG20 futures.
 	 */
 	@Synthetic
+	@Future
 	FW20("FW20"),
 
 	/**
 	 * WIG20 Future, June 2011
 	 */
+	@Future
 	FW20M11("FW20M11"),
+
+	@Future
 	FW20H11("FW20H11"),
 
 	/**
@@ -69,6 +83,7 @@ public enum Symbol {
 	// * FR
 	// */
 	// CAC,
+
 	//
 	// /**
 	// * JP

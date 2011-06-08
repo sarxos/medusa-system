@@ -20,7 +20,15 @@ import com.sarxos.medusa.util.Configuration;
  */
 public class SQLUtils {
 
-	public static final String STORED_PROC_PATH = Configuration.getInstance().getProperty("core", "procedures");
+	/**
+	 * Configuration instance.
+	 */
+	private static final Configuration CFG = Configuration.getInstance();
+
+	/**
+	 * Path to the stored procedures.
+	 */
+	public static final String STORED_PROC_PATH = CFG.getPath("core", "procedures");
 
 	/**
 	 * Logger.
@@ -52,7 +60,7 @@ public class SQLUtils {
 		if (STORED_PROC_PATH == null) {
 			throw new RuntimeException("Stored ptocedures path has to be defined!");
 		}
-		
+
 		File dir = new File(STORED_PROC_PATH);
 		String[] paths = dir.list(new SQLFileFilter());
 

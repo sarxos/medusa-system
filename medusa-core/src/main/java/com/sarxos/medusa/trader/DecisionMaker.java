@@ -200,6 +200,10 @@ public class DecisionMaker implements PriceListener {
 		}
 
 		List<Quote> quotes = qr.getQuotes(q.getSymbol());
+		if (quotes == null) {
+			throw new RuntimeException("Quotes in the registry for symbol " + q.getSymbol() + " are null!");
+		}
+
 		Quote p = quotes.get(quotes.size() - 1);
 		q.setPrev(p);
 		p.setNext(q);

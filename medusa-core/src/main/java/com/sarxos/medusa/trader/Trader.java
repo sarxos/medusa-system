@@ -178,7 +178,7 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 	 * @param paper - paper to observe
 	 */
 	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol) {
-		this(null, siggen, symbol, null);
+		this(name, siggen, symbol, null);
 	}
 
 	public Trader(String name, SignalGenerator<Quote> siggen, Symbol symbol, RealTimeProvider provider) {
@@ -308,6 +308,7 @@ public abstract class Trader implements DecisionListener, Runnable, PriceListene
 
 			// start observer (this will create new thread)
 			getObserver().start();
+			getWorkman().start();
 
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
