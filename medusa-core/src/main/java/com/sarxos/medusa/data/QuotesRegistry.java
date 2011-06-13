@@ -45,6 +45,11 @@ public class QuotesRegistry {
 	private static QuotesRegistry instance = null;
 
 	/**
+	 * History provider.
+	 */
+	private HistoryProvider historyProvider = null;
+
+	/**
 	 * Protected constructor - this is singleton class.
 	 */
 	protected QuotesRegistry() {
@@ -117,13 +122,39 @@ public class QuotesRegistry {
 	 * @param symbol - quotes symbol to import
 	 */
 	public void reimport(Symbol symbol) {
-		LOG.info("Importing quotes for symbol " + symbol);
-		HistoryProvider hp = Providers.getHistoryProvider();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("Importing quotes for symbol " + symbol);
+		}
+
+		HistoryProvider hp = null;
+		if (historyProvider == null) {
+			Providers.getHistoryProvider();
+		} else {
+			hp = historyProvider;
+		}
+
 		try {
 			List<Quote> quotes = hp.getAllQuotes(symbol);
 			storage.addQuotes(symbol, quotes);
 		} catch (ProviderException e) {
 			LOG.error(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * @return Return currently used history provider or null if not set
+	 */
+	public HistoryProvider getHistoryProvider() {
+		return historyProvider;
+	}
+
+	/**
+	 * Set new history provider.
+	 * 
+	 * @param provider - history provider to set
+	 */
+	public void setHistoryProvider(HistoryProvider provider) {
+		this.historyProvider = provider;
 	}
 }
