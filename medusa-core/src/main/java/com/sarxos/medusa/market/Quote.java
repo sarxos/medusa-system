@@ -178,6 +178,9 @@ public class Quote implements Cloneable {
 	 * @param date
 	 */
 	public void setDate(Date date) {
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
+		}
 		this.date = date;
 		if (datestring == null) {
 			datestring = DATE_FORMAT.format(date);

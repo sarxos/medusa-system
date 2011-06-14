@@ -198,6 +198,7 @@ public class QuotesStreamReader implements Closeable {
 					// omit headers
 					line = getLine();
 				}
+				q = fromMSTDay(line);
 				// read
 				break;
 		}
@@ -264,6 +265,30 @@ public class QuotesStreamReader implements Closeable {
 		double low = Double.parseDouble(parts[6]);
 		double close = Double.parseDouble(parts[7]);
 		long volume = Long.parseLong(parts[8]);
+
+		return new Quote(symbol, date, open, high, low, close, volume);
+	}
+
+	private Quote fromMSTDay(String str) throws ParseException {
+
+		String[] parts = str.split(",");
+
+		// 0 ticker
+		// 1 date yyyyMMdd,
+		// 2 open
+		// 3 high
+		// 4 low
+		// 5 close
+		// 6 volume
+		// 7 open interests
+
+		Symbol symbol = Symbol.valueOfName(parts[0]);
+		Date date = DATE_FORMAT_SHORT.parse(parts[1]);
+		double open = Double.parseDouble(parts[2]);
+		double high = Double.parseDouble(parts[3]);
+		double low = Double.parseDouble(parts[4]);
+		double close = Double.parseDouble(parts[5]);
+		long volume = Long.parseLong(parts[6]);
 
 		return new Quote(symbol, date, open, high, low, close, volume);
 	}

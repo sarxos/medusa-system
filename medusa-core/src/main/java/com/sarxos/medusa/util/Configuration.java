@@ -158,7 +158,7 @@ public class Configuration extends INIProperties {
 	protected String getHomePath() {
 		// TODO why env variable returns null ???
 		// path = System.getenv("MEDUSA_HOME");
-		return "d:\\usr\\sarxos\\workspace\\Eclipse\\medusa-system\\medusa-core";
+		return "\\usr\\medusa";
 	}
 
 	public String getString(String section, String name) {

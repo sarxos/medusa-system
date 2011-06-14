@@ -10,8 +10,9 @@ import com.sarxos.medusa.generator.MAVD;
 import com.sarxos.medusa.market.Quote;
 import com.sarxos.medusa.market.SignalGenerator;
 import com.sarxos.medusa.market.Symbol;
-import com.sarxos.medusa.provider.RealTimeProviderSim;
+import com.sarxos.medusa.provider.HistoryProviderSim;
 import com.sarxos.medusa.provider.RealTimeProvider;
+import com.sarxos.medusa.provider.RealTimeProviderSim;
 import com.sarxos.medusa.trader.FuturesTrader;
 import com.sarxos.medusa.trader.StoppingHandler;
 import com.sarxos.medusa.util.DateUtils;
@@ -36,7 +37,9 @@ public class FuturesSimulator {
 	public void start() {
 
 		RealTimeProvider provider = new RealTimeProviderSim(symbol, from, to);
+
 		QuotesRegistry qr = new FakeQuotesRegistry();
+		qr.setHistoryProvider(new HistoryProviderSim());
 
 		FuturesTrader trader = new FuturesTrader(name, siggen, symbol);
 

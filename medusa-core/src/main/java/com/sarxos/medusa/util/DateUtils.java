@@ -44,4 +44,9 @@ public class DateUtils {
 			throw new RuntimeException("Cannot parse date " + str, e);
 		}
 	}
+
+	public static String toCGL(Date date) {
+		SimpleDateFormat sdf = QuotesStreamReader.DATE_FORMAT_SHORT;
+		return sdf.format(date);
+	}
 }
