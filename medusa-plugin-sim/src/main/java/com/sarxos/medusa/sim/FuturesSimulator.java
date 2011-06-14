@@ -31,7 +31,7 @@ public class FuturesSimulator {
 		this.from = from;
 		this.to = to;
 		this.siggen = siggen;
-		this.name = symbol + "Simulation";
+		this.name = symbol + "[simulation]";
 	}
 
 	public void start() {

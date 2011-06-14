@@ -106,11 +106,18 @@ public class RealTimeProviderSim implements RealTimeProvider {
 		try {
 			qi = new QuotesIterator<Quote>(symbol);
 		} catch (FileNotFoundException e) {
-			try {
-				qi = Providers.getHistoryProvider().getIntradayQuotes(symbol);
-			} catch (ProviderException e1) {
-				e1.printStackTrace();
+
+			HistoryProvider hp = registry.getHistoryProvider();
+			if (hp == null) {
+				hp = Providers.getHistoryProvider();
 			}
+
+			try {
+				qi = hp.getIntradayQuotes(symbol);
+			} catch (ProviderException e1) {
+				throw new RuntimeException(e1);
+			}
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
