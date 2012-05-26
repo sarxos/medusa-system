@@ -2,9 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>com.sarxos.medusa</groupId>
 	<artifactId>medusa-system</artifactId>
 	<version>0.0.1</version>
+
 	<name>Medusa System</name>
 	<description>Medusa trading System top POM</description>
 	<packaging>pom</packaging>
@@ -13,6 +15,13 @@
 		<name>SarXos Design</name>
 		<url>http://www.sarxos.pl</url>
 	</organization>
+
+	<distributionManagement>
+		<repository>
+			<id>sarxos-ftp-repo</id>
+			<url>ftp://ftp.sarxos.pl/maven2</url>
+		</repository>
+	</distributionManagement>
 	
 	<build>
 		<plugins>
@@ -55,6 +64,15 @@
 				<version>2.0</version>
 			</plugin>
 		</plugins>
+		
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+				<version>1.0-beta-7</version>
+			</extension>
+		</extensions>
+		
 	</build>
 
 	<modules>
